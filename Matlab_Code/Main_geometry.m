@@ -52,6 +52,6 @@ BoomData.filename=Filename;
 Shape=Boom3DShape(BoomData);
 
 figure()
-plot3(Shape(:,1),Shape(:,2),Shape(:,3),'*r');
+plot3(Shape(:,1),Shape(:,2), Shape(:,3),'*r');
 axis equal
 grid on
