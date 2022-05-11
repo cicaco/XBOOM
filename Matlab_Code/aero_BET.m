@@ -3,7 +3,7 @@ close all;
 clc
 
 run Main_geometry
-
+close all;
 addpath(genpath('Aero'));
 %Aerodynamics intialization of the boomerang aerodynamics Blade Element
 %Theory (BET)4
@@ -14,34 +14,46 @@ addpath(genpath('Aero'));
 %   integrals
 % - add drag
 
+%initialize aerodynamics model
+model = "FULL";
+
 % the ration between translational and angular velodity is given by the
 % flight dynamics of the boomerang
-chi = 0.85;
+chi = 0.7;
+alpha  = 2*pi/180; % 2 degree alpha
+V = 10; % diciamo che ha una velocità di 10 m/s
+%given by design
 R   = 8;
+%Quantity for the aerodynamic computation using Vassber model
 Cl0 = 0;
 Cl_a = 2*pi;
-alpha  = 2*pi/180; % 
-
-%aerodyncamics coefficient for direct and reversal airflow
-Cl0m = 0;
-Cl0p = 1;
+%cl_alpha and polar plot
+Cl_2D  = @(alpha) 2*pi.*alpha; % considering a cl_alpha sunction of alpha
+cm0 = 0; %sym profile
 
 %% PLOT THE DIRECTION OF NORMAL VELOCITY
 % more than 0 enters from the leading edge, less than 0 trailing edge
 %non dimensional normal velocity
 %r no dimensional radial coordinate
-V_nt = @(r, psi) cos(psi) + chi*r; % -> change it, it should be a matrix
-model = "VASS"
-r     = linspace(0,1,100)
-theta = linspace(0,2*pi, 100) 
-polarcont(r,theta,V_nt(r, theta))
+V_n = @(r, psi) V*(cos(psi) + chi.*r/R); % -> change it, it should be a matrix
+r     = linspace(0,R,100);
+psi = linspace(0,2*pi, 100); 
+[R_m,PSI_m] = meshgrid(r,psi);
+X = R_m.*cos(PSI_m);
+Y = R_m.*sin(PSI_m);
+
+contourf(X,Y, V_n(R_m, PSI_m));
+tit = strcat('Dimensionless Nomal Velocity V_N \chi = ', num2str(chi));
+title(tit)
+colorbar
+%polarcont(r,theta,V_nt(R, THETA))
 %% VASSBER MODEL
 if model == "VASS";
 chi_c = min(chi,1);
     Cl = Cl0*(0.5+chi^2/3)+ alpha*Cl_a*((chi/2+1/(4*chi)*(1-2*sqrt(2)/pi*...
          sqrt(1-chi_c))+3/(2*pi)*sqrt(1-chi_c^2)));
     Cm = Cl0*chi/3 + alpha*Cl_a*((1/4-1/(16*chi^2))*(1-2*sqrt(2)/pi*sqrt(1-chi_c))...
-         +sqrt(1-chi_c^2)/(4*pi)*(1/(2*chi_c)+chi_c))  
+         +sqrt(1-chi_c^2)/(4*pi)*(1/(2*chi_c)+chi_c));  
 end
 %% INVERSE AIRFLOW -> useless if in the previous model we change
 %% cl and clalpha based on the sign of V_n
@@ -80,7 +92,10 @@ chord_R = abs(LER(:,1)-TER(:,1));
 %aerodynamics center init
 ac_R = LEL;
 ac_L = TER;
-% aerodynamics centers comp
+% aerodynamics centers computation
+% IT MUST BE CORRECTED -> BECAUSE WHEN THE FLOW ENTER FROM TRAILING EDGE
+% THE AERODYNAMIC CENTER SWITCH POSITION
+
 ac_R(:,1) = LEL(:,1) + 0.25*chord_L(:,1);
 ac_L(:,1) = LER(:,1) - 0.25*chord_R(:,1);
 
@@ -94,3 +109,13 @@ axis equal;
 c_mean = sum(chord_L)/length(chord_L);
 semispan = LEL(end,2);
 S_ref = c_mean*semispan;
+
+%% Discrete integration
+if model == "FULL";
+    alpha_e = @(r,psi) alpha.*V./(abs(V_n(r,psi)));
+    %local cl -> it must be integrated spanwise and over half period
+    Cl_int = @(r,psi) ((V_n(r,psi)/V).^2).*Cl_2D(alpha_e(r,psi));
+    % jacobian not considered as he does
+    Cl     = (c_mean/(pi*R*c_mean))*integral2(Cl_int, 0, R, 0, pi);
+end
+
