@@ -28,7 +28,7 @@ V = sqrt(y(7)^2+y(8)^2+y(9)^2);
 % chi -> (psi^(dot)*R)/V
 chi = y(3)*R/V;
 % alpha = Vz/V
-alpha = y(9)/V;
+alpha = -y(9)/V;
 
 %% 2D   AERODYNAMICS MODEL
 Cl0 = 0;
@@ -148,6 +148,6 @@ end
 %     % da rivedere!!
 %     Cm     = (c_mean/(pi*R*c_mean^2))*integral2(Cl_int, 0, R, 0, pi);
 % end
-L  = 0.5*rho*V^2*S_ref*Cl;
-Mn = 0.5*rho*V^2*S_ref*R*Cm;
+L  = 2*0.5*rho*V^2*S_ref*Cl;
+Mn = 2*0.5*rho*V^2*S_ref*R*Cm;
 end
