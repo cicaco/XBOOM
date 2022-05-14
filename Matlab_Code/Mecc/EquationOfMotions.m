@@ -15,7 +15,7 @@ geo.R = R;
 geo.c = chord;
 %from aero_BET
 
-[L, Mn] = aero_BET(y, geo, 'False', 'VASS')
+[L, Mn] = aero_BET(y, geo, 'False', 'VASS');
 
 M3=0;
 %y=[dtheta dphi dpsi theta phi psi dx dy dz x y z];

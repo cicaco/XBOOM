@@ -16,7 +16,10 @@ addpath(genpath('Aero'));
 % - add effect of reverse flow and contribution of sweep -> with numerical
 %   integrals
 % - add drag
-
+T_ib=[cos(y(5))*cos(y(6))-sin(y(5))*cos(y(4))*sin(y(6)) sin(y(5))*cos(y(6))+cos(y(5))*cos(y(4))*sin(y(6)) sin(y(4))*sin(y(6))
+    -cos(y(5))*sin(y(6))-sin(y(5))*cos(y(4))*cos(y(6)) -sin(y(5))*sin(y(6))+cos(y(5))*cos(y(4))*cos(y(6)) sin(y(4))*cos(y(6))
+    sin(y(5))*sin(y(4)) -cos(y(5))*sin(y(4)) cos(y(4))];
+V_vect=(T_ib)*[y(7); y(8); y(9)];
 %% extracting geometric quantity
 R     = geo.R;
 chord = geo.c;
@@ -25,10 +28,13 @@ rho   = 1.2; %kg/m^3
 %% COMPUTING LOCAL QUANTITIES FROM FLIGHT DYNAMICS
 % V -> sqrt(Vx^2+Vy^2+Vz^2)
 V = sqrt(y(7)^2+y(8)^2+y(9)^2);
+% V = sqrt(V_vect(1)^2+V_vect(2)^2+V_vect(3)^2);
 % chi -> (psi^(dot)*R)/V
 chi = y(3)*R/V;
 % alpha = Vz/V
-alpha = -y(9)/V;
+% alpha = -V_vect(3)/V;
+alpha=-y(9)/V;
+alpha*180/pi
 
 %% 2D   AERODYNAMICS MODEL
 Cl0 = 0;
