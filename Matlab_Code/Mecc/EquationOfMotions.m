@@ -5,12 +5,18 @@ function [dy]=EquationOfMotions(t,y)
 % dy(3)=(M3-(I22-I11)y(1)y(2))/I33;
 m=0.302; %Kg
 I33=0.00502782489; %Kh m^2
-R=0.3048; %m
+R = 0.3048; %m
+chord = 0.0508; %m hp
 Irr=0.5*m*R*R;
 Ms=0;
 g=9.81;
-L=2*m*g;
-Mn=L*R/4;
+
+geo.R = R;
+geo.c = chord;
+%from aero_BET
+
+[L, Mn] = aero_BET(y, geo, 'False', 'VASS')
+
 M3=0;
 %y=[dtheta dphi dpsi theta phi psi dx dy dz x y z];
 dy(1)=(Mn-(I33-Irr)*y(2)^2*sin(y(4))*cos(y(4))-I33*y(3)*y(2)*sin(y(4)))/Irr;
