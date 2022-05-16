@@ -1,5 +1,6 @@
 clear all
 close all
+addpath(genpath('3DSolidGeneration'));
 
 %Profilo 
 Profile2D=importdata('Naca0012.dat');
@@ -92,7 +93,7 @@ Perc_tip=100-Perc_center-Perc_middle;
 Y_span_center_p=fliplr(Plant3D(2,1:Perc_center-1));
 Y_span_middle_p=fliplr(Plant3D(2,Perc_center:Perc_center+Perc_middle-1));
 Y_span_tip_p=fliplr(Plant3D(2,Perc_center+Perc_middle:100));
-Y_span_center=[Y_span_center_p -fliplr(Y_span_center_p)];
+Y_span_center=[Y_span_center_p -fliplr(Y_span_center_p(1:Perc_center-2))];
 Y_span_tip_n= -fliplr(Y_span_tip_p);
 Y_span_middle_n= -fliplr(Y_span_middle_p);
 %create Tip positive
@@ -134,13 +135,74 @@ Y_span=Y_span_middle_n;
 Shape_d=[Shape_d_tip_p;Shape_d_middle_p;Shape_d_center;Shape_d_middle_n;Shape_d_tip_n];
 Shape_v=[Shape_v_tip_p;Shape_v_middle_p;Shape_v_center;Shape_v_middle_n;Shape_v_tip_n];
 Shape=[Shape_d;Shape_v];
-S_sx=[Shape_d(1:6500,:);Shape_v(1:6700,:)];
-S_dx=[Shape_d(6501:end,:);Shape_v(6701:end,:)];
 
-shp = alphaShape(S_sx(:,1),S_sx(:,2),S_sx(:,3),1);
+S_1=[Shape_d(1:99*66,:);Shape_v(1:99*66,:)];
+S_sx=[Shape_d(99*66-66:100*66,:);Shape_v(99*66-66:100*66,:)];
+S_2=[Shape_d(100*66-66:101*66,:);Shape_v(100*66-66:101*66,:)];
+S_dx=[Shape_d(101*66-66:199*66,:);Shape_v(101*66-66:199*66,:)];
+
+% shp = alphaShape(S_sx(:,1),S_sx(:,2),S_sx(:,3),1);
+% [bf_sx, P_sx] = boundaryFacets(shp);
+%  shp = alphaShape(S_dx(:,1),S_dx(:,2),S_dx(:,3),1);
+% [bf_dx, P_dx] = boundaryFacets(shp);
+% nv=length(P_sx);
+shp = alphaShape(S_1(:,1),S_1(:,2),S_1(:,3),1);
+[bf_1, P_1] = boundaryFacets(shp);
+ shp = alphaShape(S_sx(:,1),S_sx(:,2),S_sx(:,3),1);
 [bf_sx, P_sx] = boundaryFacets(shp);
+nv_1=length(P_1);
+shp = alphaShape(S_2(:,1),S_2(:,2),S_2(:,3),1);
+[bf_2, P_2] = boundaryFacets(shp);
+nv_sx=length(P_sx);
  shp = alphaShape(S_dx(:,1),S_dx(:,2),S_dx(:,3),1);
 [bf_dx, P_dx] = boundaryFacets(shp);
-nv=length(P_sx);
-contri=triangulation([bf_sx ;bf_dx+nv],[P_sx ;P_dx]);
+nv_2=length(P_2);
+contri=triangulation([bf_1;bf_sx+nv_1;bf_2+nv_sx+nv_1;bf_dx+nv_2+nv_sx+nv_1],[P_1;P_sx ;P_2;P_dx]);
+% shp = alphaShape(Shape(:,1),Shape(:,2),Shape(:,3),1);
+% [bf, P] = boundaryFacets(shp);
 stlwrite(contri, Filename);
+
+
+%%
+
+% Provo a creare un meshgrid automatico
+% Shape d da ymax a ymin sono dorso con 66 componenti per un totale di 199
+% "linee"
+Xd=reshape(Shape_d(:,1),[66 199]);
+Yd=reshape(Shape_d(:,2),[66 199]);
+Zd=reshape(Shape_d(:,3),[66 199]);
+Shape2=[];
+for i=1:199
+    Shape2=[Shape2;Shape_d(66*(i-1)+1:66*i,:)];
+    Shape2=[Shape2;Shape_v(66*(i-1)+1:66*i,:)];
+end
+
+Xd=reshape(Shape2(:,1),[132 199]);
+Yd=reshape(Shape2(:,2),[132 199]);
+Zd=reshape(Shape2(:,3),[132 199]);
+figure()
+surf(Xd,Yd,Zd,'LineStyle','none')
+axis equal
+%% Provo a creare la triangolazione 
+% Dal Shape2 ogni sezione ha 132 punti, il primo è il dorso e devo
+% connetterla con la sezione successiva e parto dal dorso, su goni sezione
+% parto dal bordo di attacco , primo triangolo con due vertici sulla prima
+% sezione e poi due sulla successiva e una no
+
+
+%%
+T=[];
+cont=1;
+for j=1:198
+for i=1:132
+    T=[T;132*(j-1)+i 132*(j-1)+i+1 132*(j)+i ;132*(j-1)+i+1 132*(j)+i 132*(j)+i+1];
+    if i==132
+        T(end,:)=[];
+    end
+end
+end
+TR = triangulation(T,Shape2);
+figure()
+stlwrite(TR,'tritext.stl','text')
+triplot(TR)
+

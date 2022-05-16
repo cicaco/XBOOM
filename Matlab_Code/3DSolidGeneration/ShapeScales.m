@@ -49,8 +49,8 @@ for i =1:num_span
 %     plot3((Chord.*Xp_2d+LE),Plant3D(2,index2).*ones(n,m),(Chord.*Zp_2d),'b');
 %     axis equal
     New=[(Chord.*Xp_2d+LE)' (Plant3D(2,index2).*ones(n,m))' (Chord.*Zp_2d)'];
-    Shape_d=[Shape_d;New(1:m/2-1,:);];
-    Shape_v=[Shape_v;New(m/2:end,:);];
+    Shape_d=[Shape_d;New(1:m/2,:);];
+    Shape_v=[Shape_v;New(m/2+1:end,:);];
 end
 end
 
