@@ -3,19 +3,20 @@ function [dy]=EquationOfMotions(t,y)
 % dy(1)=(M1-(I33-I22)y(2)y(3))/I11;
 % dy(2)=(M2-(I11-I33)y(1)y(3))/I22;
 % dy(3)=(M3-(I22-I11)y(1)y(2))/I33;
-m=0.302; %Kg
+m=0.302/2; %Kg
 I33=0.00502782489; %Kh m^2
 R = 0.3048; %m
-chord = 0.0508; %m hp
 Irr=0.5*m*R*R;
 Ms=0;
 g=9.81;
 
-geo.R = R;
-geo.c = chord;
-%from aero_BET
 
-[L, Mn] = aero_BET(y, geo, 'False', 'VASS');
+%geo.R = R;
+%geo.c = chord;
+%from aero_BET
+%load geometry
+load 2DPlant.mat
+[L, Mn] = aero_BET(y, geo, 'FULL');
 
 M3=0;
 %y=[dtheta dphi dpsi theta phi psi dx dy dz x y z];
