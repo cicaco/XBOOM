@@ -34,7 +34,7 @@ chi = y(3)*R/V;
 % alpha = Vz/V
 % alpha = -V_vect(3)/V;
 alpha=-y(9)/V;
-alpha*180/pi
+alpha*180/pi;
 
 %% 2D   AERODYNAMICS MODEL
 Cl0 = 0;

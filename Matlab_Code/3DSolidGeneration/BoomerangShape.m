@@ -194,15 +194,20 @@ axis equal
 T=[];
 cont=1;
 for j=1:198
-for i=1:132
+for i=1:131
     T=[T;132*(j-1)+i 132*(j-1)+i+1 132*(j)+i ;132*(j-1)+i+1 132*(j)+i 132*(j)+i+1];
-    if i==132
-        T(end,:)=[];
-    end
+%     if 2*i-1== 132*(j)+i+1
+%         T(end,:)=[];
+%     end
 end
 end
 TR = triangulation(T,Shape2);
 figure()
 stlwrite(TR,'tritext.stl','text')
 triplot(TR)
+%%
+figure()
+%TR_2=triangulation([ 1 2 3; 2 3 4],[4.95478078240196,5.99513585320847;4.95482655558655,5.99513585320847;4.97858391062857,5.99877977840029;4.97860714749546,5.99877977840029]);
+TR_2=triangulation(T(280:396,:),Shape2);
 
+triplot(TR_2);

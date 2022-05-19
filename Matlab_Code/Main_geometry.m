@@ -68,7 +68,7 @@ BoomData.Profil3D.Perc_middle=Perc_middle;
 BoomData.filename=Filename;
 
 [Shape,RBP]=Boom3DShape(BoomData);
-RBP.inertia_tensor
+1500*RBP.inertia_tensor
 figure()
 
 plot(Shape(:,1),Shape(:,2),'*r');
