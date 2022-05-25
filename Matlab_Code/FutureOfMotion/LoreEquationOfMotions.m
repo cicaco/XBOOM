@@ -48,9 +48,12 @@ T0=[cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta)
 % sin(phi)*sin(psi)-cos(phi)*cos(psi)*sin(theta) -cos(psi)*sin(phi)-cos(phi)*sin(psi)*sin(theta) cos(phi)*cos(theta)];
 %gravity force
 FG=T0*(-m*g*[0;0;1]);
+% M=zeros(1,3);
+% F=zeros(1,3);
 
 %from aero_BET
 [F,M]=aero([ux;uy;uz],[p;q;r]);
+%[F(1), M(1)] = aero_BET(y, geo, 'False', 'VASS');
 
 %y=[dtheta dphi dpsi theta phi psi dx dy dz x y z];
 dy(1)=q*cos(phi)-r*sin(phi);
@@ -75,6 +78,7 @@ VEL=T0'*[ux;uy;uz];
 dy(10)=VEL(1);
 dy(11)=VEL(2);
 dy(12)=VEL(3);
+
 dy=dy';
 
 fprintf(fileID,'TIME: %.5f \n',t);

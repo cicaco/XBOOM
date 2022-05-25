@@ -13,37 +13,27 @@ Xp_2d_b=[Profile2D.data(2:67,1) ; fliplr(Profile2D.data(68:end,1)')'];
 Zp_2d_b=[Profile2D.data(2:67,2) ; fliplr(Profile2D.data(68:end,2)')'];
 % Xp_2d_b=X_0040;
 %   Zp_2d_b=Z_0040;
-Chord=0.01;
+Chord=0.05;
 %Forma 3D
 x_0=0; %Corda dimensione
 y_0=0;
 z_0=0;
-x_f=0.01;
+x_f=0.05;
 y_f=0;
 z_f=0;
-k_1= 1.0/100; % origin point tangent ,y
-k_2= 2.0/100; %mid point, trailing edge x
-k_3= 4/100; %mid point  y
-k_4=4.5/100; %Tip point tangent sx, x
-k_5=8/100; %Tip point  y
-k_6=5.0/100; %Tip point  x
-k_7=5.5/100; %Tip point tangent dx, x
-k_8=3.0/100; %mid point leading edge, x
-
-% 
- k_1= 1.0/100; % origin point tangent ,y
-k_2= 1.0/100; %mid point, trailing edge x
- k_3= 2/100; %mid point  y
- k_4=2.5/100; %Tip point tangent sx, x
- k_5=3/100; %Tip point  y
- k_6=3.5/100; %Tip point  x
- k_7=4.0/100; %Tip point tangent dx, x
- k_8=3.0/100; %m id point leading edge, x
+k_1=0.05; % origin point tangent ,y
+k_2= 0.1; %mid point, trailing edge x
+k_3= 0.15; %mid point  y
+k_4=0.2; %Tip point tangent sx, x
+k_5=0.3; %Tip point  y
+k_6=0.3; %Tip point  x
+k_7=0.3; %Tip point tangent dx, x
+k_8=0.2; %mid point leading edge, x
 
 
 Perc_center=30; %da che punto iniziare a flippare il profilo
 Perc_middle=40; % Percentualeoltre la quale inizia la parte finale del profilo
-Filename='Boom.stl';
+Filename='DAJE.stl';
 
 %Generation of the Structure
 BoomData.Profil2D.X=Xp_2d_b;
@@ -68,10 +58,8 @@ BoomData.Profil3D.Perc_middle=Perc_middle;
 BoomData.filename=Filename;
 
 [Shape,RBP]=Boom3DShape(BoomData);
-1500*RBP.inertia_tensor
-figure()
+Rho=1500;
+I=Rho*RBP.inertia_tensor;
+%%
+addpath(genpath('Mecc'));
 
-plot(Shape(:,1),Shape(:,2),'*r');
-
-axis equal
-grid on

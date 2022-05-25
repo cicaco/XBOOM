@@ -1,8 +1,9 @@
-function [Shape_d,Shape_v] = ShapeScales(XStart,ZFinish,ZStart,Y_span,Plant3D)
+function [Shape_d,Shape_v,Shape] = ShapeScales(XStart,ZFinish,ZStart,Y_span,Plant3D)
 %SHAPESCALES Summary of this function goes here
 %   Detailed explanation goes here
 Shape_d=[];
 Shape_v=[];
+Shape=[];
 num_span=size(Y_span,2);
 %Creo i profili di transizione
 [Xp_2d_trans,Zp_2d_trans] = Profile2d_Trans(XStart,ZFinish,ZStart,num_span);
@@ -49,6 +50,7 @@ for i =1:num_span
 %     plot3((Chord.*Xp_2d+LE),Plant3D(2,index2).*ones(n,m),(Chord.*Zp_2d),'b');
 %     axis equal
     New=[(Chord.*Xp_2d+LE)' (Plant3D(2,index2).*ones(n,m))' (Chord.*Zp_2d)'];
+    Shape=[Shape; New];
     Shape_d=[Shape_d;New(1:m/2,:);];
     Shape_v=[Shape_v;New(m/2+1:end,:);];
 end
