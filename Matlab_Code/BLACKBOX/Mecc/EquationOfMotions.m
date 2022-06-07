@@ -1,4 +1,7 @@
 function [dy]=EquationOfMotions(t,y,fileID)
+%This function calculates,for every point of the trajectory,the
+%angular velocities(dtheta,dphi,dpsi),the angular accellerations in the body
+% frame(dp,dr,dq)and the 3 components of velocity(ux,uy,uz)
 t
 m=0.130; %Kg
 % Iz=1.0e-2*0.4360; %Kh m^2

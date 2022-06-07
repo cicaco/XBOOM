@@ -1,6 +1,12 @@
 function [F,M,AoA2,Re]=AeroDynamics(u,omega)
-%u velocità in sdr body
-%omega velocità angolari in sdr body
+% AeroDynamics computes the force and momentum for the whole boomerang
+% and the angle of attack and Reynolds for each section spanwise
+%
+% [F,M,AoA2,Re]=AERODYNAMICS(u,omega) computes the quantity described as
+% function of u and omega
+%
+% u velocity in the body frame
+% omega angular speed in the body frame
 
 %geometria
 R=0.30; %m
