@@ -2,9 +2,9 @@
 addpath(genpath('BLACKBOX'));
 
 % all the function are recalled here
-clear all;
-close all;
-clc;
+% clear all;
+% close all;
+% clc;
 x=linspace(-pi,pi,100);
 y=zeros(100,1);
 for i=1:100
@@ -42,7 +42,8 @@ ustart=Tl_0*[25;0;0];
 fileID = fopen('debug.txt','a+');
 options = odeset('Events', @Events,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[theta0 phi0 psi0 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
-[TOUT,YOUT] = ode45(@(t,y) EquationOfMotions(t,y,fileID),[0 tfin],Y0,options);
+
+[TOUT,YOUT] = ode45(@(t,y)EquationOfMotions(t,y,fileID,BoomInfo),[0 tfin],Y0,options); % 
 fclose(fileID);
 %%
 linecolors={'r' 'y' 'c' 'g' 'b' 'k'};
@@ -66,14 +67,14 @@ grid on
 
 %% prova
 %geometria
-R=0.30; %m
-c=0.0488; %m
+R=BoomInfo.Pianta.l; %0.30; %m
+c=BoomInfo.Profile.Chord; %0.0488; %m
 xac=0.0723; %va cambiato tra prima e seconda pala (DA FARE)
 
 %sdr PALA j
-sigma=120*pi/180;
-coning=0; %tipo diedro (rot asse x2)
-pitch=5*pi/180; %pitch della pala (rot asse y3)
+sigma=BoomInfo.Pianta.lamda +90*pi/180; %120*pi/180;
+coning=BoomInfo.Pianta.beta; %tipo diedro (rot asse x2)
+pitch=BoomInfo.Pianta.pitch; %5*pi/180; %pitch della pala (rot asse y3)
 
 %matrice di rotazione da body a blade
 Tj=[sin(sigma)*cos(pitch)+cos(sigma)*sin(coning)*sin(pitch), -cos(sigma)*cos(pitch)+sin(sigma)*sin(coning)*sin(pitch), -cos(coning)*sin(pitch)
@@ -83,9 +84,9 @@ Tj=[sin(sigma)*cos(pitch)+cos(sigma)*sin(coning)*sin(pitch), -cos(sigma)*cos(pit
 x_tipsx_bodyframe=[xac;0;0]+Tj'*[0;R;0];
 
 %sdr PALA dx
-sigma=240*pi/180;
-coning=0; %tipo diedro (rot asse x2)
-pitch=5*pi/180; %pitch della pala (rot asse y3)
+sigma= BoomInfo.Pianta.lamda + 210*pi/180;
+coning=BoomInfo.Pianta.beta; %tipo diedro (rot asse x2)
+pitch=BoomInfo.Pianta.pitch; %5*pi/180; %pitch della pala (rot asse y3)
 %matrice di rotazione da body a blade
 Tj=[sin(sigma)*cos(pitch)+cos(sigma)*sin(coning)*sin(pitch), -cos(sigma)*cos(pitch)+sin(sigma)*sin(coning)*sin(pitch), -cos(coning)*sin(pitch)
     cos(sigma)*cos(coning), sin(sigma)*cos(coning), +sin(coning)
