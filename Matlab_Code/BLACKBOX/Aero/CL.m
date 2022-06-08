@@ -1,6 +1,8 @@
 function [CL]=CL(AoA)
 %CL compute the CL for an angle of attack range -180/180
 %CL=CL(AoA) computes the lift coefficent for a given AoA
+% INPUT: AoA (Angle of Attack in rad);
+% OUTPUT: CL (Adimensional Lift coefficient);
 %Taken from: Azuma, Akira, et al. "Flight dynamics of the boomerang, part 1:
 %fundamental analysis." Journal of guidance, control, and dynamics
 27.4 (2004): 545-554.

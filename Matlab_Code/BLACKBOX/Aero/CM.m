@@ -2,7 +2,9 @@ function [CM]=CM(AoA)
 % CM compute the CD for an AoA range -pi/pi degree
 %
 % CM = CM(AoA) computes the momentum coefficient for given AoA
-%
+% INPUT: AoA (Angle of Attack in rad);
+% OUTPUT: CM (Adimensional Moment coefficient computed at 0.25Chord);
+
 % Taken from: Azuma, Akira, et al. "Flight dynamics of the boomerang, part 1: 
 % fundamental analysis." Journal of guidance, control, and dynamics 
 % 27.4 (2004): 545-554.

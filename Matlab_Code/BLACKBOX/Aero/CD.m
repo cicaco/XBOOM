@@ -3,9 +3,13 @@ function [CD]=CD_new(AoA)
 %
 % CD = CD_NEW(AoA) computes the drag coefficient for a given AoA
 %
+% INPUT: AoA (Angle of Attack in rad);
+% OUTPUT: CD (Adimensional drag coefficient);
+%
 % Taken from: Azuma, Akira, et al. "Flight dynamics of the boomerang, part 1: 
 % fundamental analysis." Journal of guidance, control, and dynamics 
 % 27.4 (2004): 545-554.
+
 alpha=AoA*180/pi;
 if alpha<-180 || alpha>180
     fprintf('error')

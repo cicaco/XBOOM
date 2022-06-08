@@ -19,24 +19,25 @@ function [F,M,AoAsx,AoAdx,Re]=AeroDynamics(u,omega,BoomInfo)
 
 %% import geometria
 c=BoomInfo.Pianta.Chord; %m
-L=BoomInfo.Pianta.l;
 freccia=BoomInfo.Pianta.freccia;
-coning=BoomInfo.Pianta.diedro; %(rot asse x2)
-pitch=BoomInfo.Pianta.pitch; %(rot asse y3)
+coning=BoomInfo.Pianta.diedro;
+pitch=BoomInfo.Pianta.pitch;
 %pala sx (denominata 1)
 xac1=BoomInfo.Aero.xac1; %posizione centro aerodinamico pala 1
 start1=BoomInfo.Aero.start1; %inizio pala 1 con profilo costante
+end1=BoomInfo.Aero.end1; %fine pala 1 con profilo costante
 %pala2
 xac2=BoomInfo.Aero.xac2;%posizione centro aerodinamico pala 2
-start2=BoomInfo.Aero.start2; %inizio pala 2 con profilo costante
+start1=BoomInfo.Aero.start1; %inizio pala 2 con profilo costante
+end1=BoomInfo.Aero.end1; %fine pala 2 con profilo costante
 
-%% definizione sistemi di riferimento pala
+%% 
 %PALA 1
 lambda=pi/2+freccia;
 %svergolamento
 twist1=zeros(1,length(eta1));
 %spanwise wing distance
-span1=linspace(start1,start1+L,20);
+span1=linspace(start1,end1,20);
 eta1=midspan(span1);
 %calcolo n° Re
 spanRe=3/4*end1;
@@ -49,10 +50,12 @@ Tj1=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos
 
 %SECONDA PALA
 %spanwise wing distance
-span2=linspace(start2,start2+L,20);
+span2=linspace(sqrt(L^2-(c/2)^2),R+sqrt(L^2-(c/2)^2),20);
 eta2=midspan(span2);
 %sdr PALA 2
-lambda=2*pi-lambda;
+lambda=(240)*pi/180;
+coning=0; %tipo diedro (rot asse x2)
+pitch=4*pi/180; %pitch della pala (rot asse y3)
 %svergolamento
 twist2=zeros(1,length(eta2));
 
@@ -60,9 +63,9 @@ twist2=zeros(1,length(eta2));
 Tj2=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos(pitch)+sin(lambda)*sin(coning)*sin(pitch), -cos(coning)*sin(pitch)
     cos(lambda)*cos(coning), sin(lambda)*cos(coning), +sin(coning)
     sin(lambda)*sin(pitch)-cos(lambda)*sin(coning)*cos(pitch), -cos(lambda)*sin(pitch)-sin(lambda)*sin(coning)*cos(pitch), cos(coning)*cos(pitch)];
-%% calcoli aerodinamici
+
 %vel indotta
-v_ind_old=0; %ipotesi iniziale
+v_ind_old=0*3*0.5; %ipotesi iniziale, DA CAMBIARE
 
 %inizializzazione
 rA1=[]; v1=[]; w1=[]; AoA1=[]; FA1=[]; MA1=[];F1=[];M1=[];
@@ -95,10 +98,10 @@ end
 
 %BET
 for i=1:length(eta1)
-    fa1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1(:,i))^2*[-CL(AoA1(i))*sin(AoA1(i))+CD(AoA1(i))*cos(AoA1(i)); 0; CL(AoA1(i))*cos(AoA1(i))+CD(AoA1(i))*sin(AoA1(i))];
-    ma1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1(:,i))^2*[(CL(AoA1(i))*cos(AoA1(i))+CD(AoA1(i))*sin(AoA1(i)))*eta1(i); c*CM(AoA1(i)); (CL(AoA1(i))*sin(AoA1(i))-CD(AoA1(i))*cos(AoA1(i)))*eta1(i)];
-    fa2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2(:,i))^2*[-CL(AoA2(i))*sin(AoA2(i))+CD(AoA2(i))*cos(AoA2(i)); 0; CL(AoA2(i))*cos(AoA2(i))+CD(AoA2(i))*sin(AoA2(i))];
-    ma2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2(:,i))^2*[(CL(AoA2(i))*cos(AoA2(i))+CD(AoA2(i))*sin(AoA2(i)))*eta2(i); c*CM(AoA2(i)); (CL(AoA2(i))*sin(AoA2(i))-CD(AoA2(i))*cos(AoA2(i)))*eta2(i)];
+    fa1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1(:,i))^2*[-CL(AoA1(i))*sin(AoA1(i))+CD_new(AoA1(i))*cos(AoA1(i)); 0; CL(AoA1(i))*cos(AoA1(i))+CD_new(AoA1(i))*sin(AoA1(i))];
+    ma1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1(:,i))^2*[(CL(AoA1(i))*cos(AoA1(i))+CD_new(AoA1(i))*sin(AoA1(i)))*eta1(i); c*CM(AoA1(i)); (CL(AoA1(i))*sin(AoA1(i))-CD_new(AoA1(i))*cos(AoA1(i)))*eta1(i)];
+    fa2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2(:,i))^2*[-CL(AoA2(i))*sin(AoA2(i))+CD_new(AoA2(i))*cos(AoA2(i)); 0; CL(AoA2(i))*cos(AoA2(i))+CD_new(AoA2(i))*sin(AoA2(i))];
+    ma2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2(:,i))^2*[(CL(AoA2(i))*cos(AoA2(i))+CD_new(AoA2(i))*sin(AoA2(i)))*eta2(i); c*CM(AoA2(i)); (CL(AoA2(i))*sin(AoA2(i))-CD_new(AoA2(i))*cos(AoA2(i)))*eta2(i)];
     %forze su sdr body
     f1=(Tj1')*fa1;
     m1=(Tj1')*ma1+cross(rA1(:,i),(Tj1')*fa1);
@@ -130,4 +133,4 @@ ra1_Re=[xac1;0;0]+Tj1'*[0;spanRe;0];
 vel1_Re=u+cross(omega,ra1_Re);
 wel1_Re= Tj1*(-vel1_Re-[0;0;v_ind_old]);
 
-Re=1.225*norm([wel1_Re(1), 0, wel1_Re(3)])*c/(1.81*10^-5);
+Re=1.225*norm([wel1_Re(1), wel1_Re(2), wel1_Re(3)])*c/(1.81*10^-5);
