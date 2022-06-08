@@ -8,12 +8,14 @@ Chord=0.0488;
 p_c=20; % numero di profili di "Transizione" nella parte centrale
 l=0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
 delta=30*pi/180; %Angolo di freccia
-beta=0*pi/180; %Angolo di Diedro
+beta=5*pi/180; %Angolo di Diedro
 pitch=0*pi/180; %Pitch angle
 num=40; %Numero di profili totale su ciascuna metà;
-PARA=2.; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
+PARA=2; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
 % Profile 2D Shape
 Profile2D=importdata('Naca0012.dat');
+
+C_fig=0;
 %% Profilo 2D flip e analisi
 Xp=-[Profile2D.data(2:67,1) ; fliplr(Profile2D.data(68:end,1)')'].*Chord;
 Zp=[Profile2D.data(2:67,2) ; fliplr(Profile2D.data(68:end,2)')'].*Chord;
@@ -61,6 +63,7 @@ C=linspace(0,-Chord,num);
 P=[C;zeros(1,num);zeros(1,num)];
 U_Delta=[0 0 1];
 li=linspace(l,0,num-p_c);
+% Va aggiunta anche una translazione del primo profilo pari a q
 Tx=[ -sin(delta).*li zeros(1,p_c*2-1) -sin(delta).*fliplr(li)];
 Ty=[ -cos(delta).*li zeros(1,p_c*2-1) cos(delta).*fliplr(li)];
 Tz=zeros(1,numel(Tx));
@@ -74,8 +77,8 @@ for i=1:2*num-1
     P_1(1,:)=P_1(1,:)+Tx(i);
     P_1(2,:)=P_1(2,:)+Ty(i);
     [C_aer] = AerCenter(P_1,Chord,Fract(i));
-    %plot(P_1(1,:),P_1(2,:),'r');
-    %text(P_1(1,1),P_1(2,1),string(i))
+    plot(P_1(1,:),P_1(2,:),'r');
+    text(P_1(1,1),P_1(2,1),string(i))
     hold on
     U_beta= Rot_Point(U_Delta,D_i_aer(i),[1; 0 ;0],[Chord 0 0]'); %devo ottenere il versore ruotato da x a x2 (body)
     [C_aer_rot] = Rot_Point(U_beta,B_i_aer(i),C_aer,[0;0;0]);
@@ -87,6 +90,11 @@ end
 set(gca,'Ydir','reverse')
 set(gca,'Xdir','reverse')
 axis equal
+hold on
+plot(C_fin(1,num-p_c),C_fin(2,num-p_c),'*g');
+plot(C_fin(1,:),C_fin(2,:),'ok');
+
+plot(C_fin(1,num+p_c),C_fin(2,num+p_c),'*b');
 figure()
 C_fin_rot(2,num)=0;
 plot3(C_fin_rot(1,:),C_fin_rot(2,:),C_fin_rot(3,:),'ob');
@@ -134,15 +142,16 @@ end
 
 %% Carattersitiche inerziali
 % Devo riportare il cad rispetto al baricentro (Solo posizione)
-
+if C_fig==1
 figure()
 for i=1:2*num-2
     plot3(P_tot(3*i-2,:),P_tot(3*i-1,:),P_tot(3*i,:),'*r');
     hold on
     axis equal
 end
+end
 % Start assembly each solid
-figure()
+
 n_prec=0;
 tr=[];
 xyz=[];
@@ -158,14 +167,19 @@ Izz = 0;
 Ixy = 0;
 Izy = 0;
 Ixz = 0;
-Dens_i=[600.*ones(1,num-p_c-1) 1200*ones(1,2*p_c-1) 600.*ones(1,num-p_c-1)];
+Dens_i=[1000.*ones(1,num-p_c-1) 1500*ones(1,2*p_c-1) 1000.*ones(1,num-p_c-1)];
+
+figure()
 for i=2:2*num-2
     P_prec=P_tot(3*(i-1)-2:3*(i-1),:);
     P_succ=P_tot(3*i-2:3*i,:);
-    figure(10)
+    if C_fig==1
+
+    figure(2)
     plot3(P_prec(1,:),P_prec(2,:),P_prec(3,:),'*r');
     hold on
     plot3(P_succ(1,:),P_succ(2,:),P_succ(3,:),'ob');
+    end
     if norm(P_prec-P_succ)~=0
         P_i=[P_prec';P_succ'];
         shp = alphaShape(P_i,1);
@@ -175,10 +189,12 @@ for i=2:2*num-2
         tr=[tr;tr_i+n_prec];
         xyz=[xyz;xyz_i];
         n_prec=n_succ;
-        figure(11)
+        if C_fig==1
+
+        figure(3)
         plot(shp)
         hold on
-        
+        end
         %Calcolo baricentro
         RBP=RigidBodyParams(triangulation(tr_i,xyz_i));
         
@@ -217,17 +233,15 @@ pr_fin=triangulation(tr,xyz);
 
 
 RBP=RigidBodyParams(pr_fin);
-CG=RBP.centroid
- 
+CG=RBP.centroid;
+
 xyz_CG=[xyz(:,1)-CG(1) xyz(:,2)-CG(2) xyz(:,3)-CG(3)];
 pr_CG=triangulation(tr,xyz_CG);
 RBP_CG=RigidBodyParams(pr_CG);
-%%
-m=0.220
-Rho=m/RBP_CG.volume;
-I=RBP_CG.inertia_tensor
+
+I=RBP_CG.inertia_tensor;
 save('Inertia.mat','I');
-CG=RBP_CG.centroid;
+
  %Stima baricentro cannata totalmente (Forse le tasche danno fastidio)?
  % Magari si può calcolare dentro direttamente
 %% Creazione file Stl 
@@ -238,9 +252,28 @@ stlwrite(pr_CG, filename);
 %per le caratterisitche aerodinamiche in C_fin_rot sono presenti le 
 %posizioni dei centri aerodinamici (non sono nel riferimento body)
 figure()
-    plot(shp)
-% Ce forse creando queste tasche fa qualche puttanata strana sto programma,
-% magari va solo utilizzato il teorema del trasporto e torna più sensato
-% Niente esce allo stesso modo........ assurdo
+plot3(C_fin_rot(1,:),C_fin_rot(2,:),C_fin_rot(3,:),'*r');
+axis equal
 hold on
-plot3(CG_tasche(1,:),CG_tasche(2,:),CG_tasche(3,:),'*r');
+plot3(C_fin_rot(1,num+p_c),C_fin_rot(2,num+p_c),C_fin_rot(3,num+p_c),'*b');
+
+
+Norm=(C_fin_rot(:,num+p_c)-C_fin_rot(:,num+p_c+1))/norm(C_fin_rot(:,num+p_c)-C_fin_rot(:,num+p_c+1));
+quiver3(C_fin_rot(1,num+p_c),C_fin_rot(2,num+p_c),C_fin_rot(3,num+p_c),Norm(1),Norm(2),Norm(3));
+[I_sx,~] = line_plane_intersection(Norm,C_fin_rot(:,num+p_c),[0 1 0]',[0 0 0]');
+plot3(I_sx(1),I_sx(2),I_sx(3),'ok');
+
+axis equal
+hold on
+plot3(C_fin_rot(1,num-p_c),C_fin_rot(2,num-p_c),C_fin_rot(3,num-p_c),'*g');
+
+
+Norm=(C_fin_rot(:,num-p_c-1)-C_fin_rot(:,num-p_c))/norm(C_fin_rot(:,num-p_c-1)-C_fin_rot(:,num-p_c));
+quiver3(C_fin_rot(1,num-p_c),C_fin_rot(2,num-p_c),C_fin_rot(3,num-p_c),Norm(1),Norm(2),Norm(3));
+[I_dx,rc] = line_plane_intersection(Norm,C_fin_rot(:,num-p_c),[0 1 0]',[0 0 0]');
+plot3(I_dx(1),I_dx(2),I_dx(3),'ok');
+grid on
+
+I_origin_Sx=I_sx-CG;
+I_Start_Sx=C_fin_rot(:,num-p_c)-CG;
+I_Finish_Sx=C_fin_rot(:,1)-CG;

@@ -18,29 +18,29 @@ function [F,M,AoAsx,AoAdx,Re]=AeroDynamics(u,omega,BoomInfo)
 
 
 %% import geometria
-c=BoomInfo.Pianta.Chord; %m
+c=BoomInfo.Profile.Chord; %m
 L=BoomInfo.Pianta.l;
 freccia=BoomInfo.Pianta.freccia;
 coning=BoomInfo.Pianta.diedro; %(rot asse x2)
 pitch=BoomInfo.Pianta.pitch; %(rot asse y3)
 %pala sx (denominata 1)
-xac1=BoomInfo.Aero.xac1; %posizione centro aerodinamico pala 1
-start1=BoomInfo.Aero.start1; %inizio pala 1 con profilo costante
+xac1=BoomInfo.Aero.P_origin_Sx(1); %posizione centro aerodinamico pala 1
+start1=BoomInfo.Aero.Start_Sx; %inizio pala 1 con profilo costante
 %pala2
-xac2=BoomInfo.Aero.xac2;%posizione centro aerodinamico pala 2
-start2=BoomInfo.Aero.start2; %inizio pala 2 con profilo costante
+xac2=BoomInfo.Aero.P_origin_Dx(1);%posizione centro aerodinamico pala 2
+start2=BoomInfo.Aero.Start_Dx; %inizio pala 2 con profilo costante
 
 %% definizione sistemi di riferimento pala
 %PALA 1
+span1=linspace(start1,start1+L,20);
+eta1=midspan(span1);
 lambda=pi/2+freccia;
-
 %svergolamento
 twist1=zeros(1,length(eta1));
 %spanwise wing distance
-span1=linspace(start1,start1+L,20);
-eta1=midspan(span1);
+
 %calcolo n° Re
-spanRe=3/4*end1;
+spanRe=3/4*(start1+L);
 
 %matrice di rotazione da body a blade pala 1
 Tj1=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos(pitch)+sin(lambda)*sin(coning)*sin(pitch), -cos(coning)*sin(pitch)
