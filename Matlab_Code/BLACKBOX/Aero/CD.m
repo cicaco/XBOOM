@@ -1,4 +1,4 @@
-function [CD]=CD_new(AoA)
+function [CD]=CD(AoA)
 % CD_NEW compute the CD for an AoA range -pi/pi degree
 %
 % CD = CD_NEW(AoA) computes the drag coefficient for a given AoA
