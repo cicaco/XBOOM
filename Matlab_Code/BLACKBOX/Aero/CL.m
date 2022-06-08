@@ -5,7 +5,7 @@ function [CL]=CL(AoA)
 % OUTPUT: CL (Adimensional Lift coefficient);
 %Taken from: Azuma, Akira, et al. "Flight dynamics of the boomerang, part 1:
 %fundamental analysis." Journal of guidance, control, and dynamics
-27.4 (2004): 545-554.
+%27.4 (2004): 545-554.
 alpha=AoA*180/pi;
 if alpha<-180 || alpha>180
     fprintf('error')

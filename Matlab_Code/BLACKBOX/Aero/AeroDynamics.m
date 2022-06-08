@@ -33,6 +33,7 @@ start2=BoomInfo.Aero.start2; %inizio pala 2 con profilo costante
 %% definizione sistemi di riferimento pala
 %PALA 1
 lambda=pi/2+freccia;
+
 %svergolamento
 twist1=zeros(1,length(eta1));
 %spanwise wing distance
@@ -51,7 +52,6 @@ Tj1=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos
 %spanwise wing distance
 span2=linspace(start2,start2+L,20);
 eta2=midspan(span2);
-%sdr PALA 2
 lambda=2*pi-lambda;
 %svergolamento
 twist2=zeros(1,length(eta2));

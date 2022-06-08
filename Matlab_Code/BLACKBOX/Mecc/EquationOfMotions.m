@@ -1,17 +1,19 @@
-function [dy]=EquationOfMotions(t,y,fileID)
+function [dy]=EquationOfMotions(t,y,fileID, BoomInfo)
 %This function calculates,for every point of the trajectory,the
-%angular velocities(dtheta,dphi,dpsi),the angular accellerations in the body
+% angular velocities(dtheta,dphi,dpsi),the angular accellerations in the body
 % frame(dp,dr,dq)and the 3 components of velocity(ux,uy,uz)
 t
-m=0.130; %Kg
+% global m
+% global I
+m=0.139923685334997; %Kg
 % Iz=1.0e-2*0.4360; %Kh m^2
 % Ix=1.0e-2*0.3542;%0.00407;
 % Iy=1.0e-2*0.0821;%0.0096;
 % Ixy=0.0004; %sbagliato
 % Ixz=0;
 % Iyz=0;
-R = 0.30; %m
-chord = 0.0488; %m hp
+R = BoomInfo.Pianta.l; % 0.3; m
+chord = BoomInfo.Profile.Chord; %0.0488; %m hp
 % Irr=0.5*m*R*R;
 % Ms=0;
 g=9.81;
@@ -27,6 +29,15 @@ Ixy=0.0002;
 Ixz=0;
 Iyz=0;
 
+Iz=0.026795908373485; %Kh m^2
+Ix=0.010304915283761;%0.00407;
+Iy=0.017073585024586;%0.0096;
+Ixy=-5.815249087214447e-05;
+
+% Iz=I(3,3); %Kh m^2
+% Ix= I(1,1);%0.00407;
+% Iy=I(2,2);%0.0096;
+% Ixy=I(1,2);
 
 
 theta=y(1);
