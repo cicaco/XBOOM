@@ -22,7 +22,7 @@ spanRe=3/4*R;
 %sdr PALA j
 sigma=120*pi/180;
 coning=0; %tipo diedro (rot asse x2)
-pitch=4*pi/180; %pitch della pala (rot asse y3)
+pitch=6*pi/180; %pitch della pala (rot asse y3)
 %svergolamento
 twist1=zeros(1,length(eta1));
 
@@ -40,7 +40,7 @@ eta2=midspan(span2);
 %sdr PALA 2
 sigma=(240)*pi/180;
 coning=0; %tipo diedro (rot asse x2)
-pitch=4*pi/180; %pitch della pala (rot asse y3)
+pitch=6*pi/180; %pitch della pala (rot asse y3)
 %svergolamento
 twist2=zeros(1,length(eta2));
 

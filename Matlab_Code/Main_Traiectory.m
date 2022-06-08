@@ -14,10 +14,12 @@ figure()
 plot(x,y)
 %%
 theta0=0*pi/180;
-phi0=-85*pi/180;  % initial inclination of the boomerang -70 / -90 degrees; baseline -85 degrees
+phi0=-70*pi/180;  % initial inclination of the boomerang -70 / -90 degrees; baseline -85 degrees
 psi0=0*pi/180;
-r0= 13*2*pi; % initial condition on spin rate 12/15 Hz; baseline 13
+r0= 100*2*pi; % initial condition on spin rate 12/15 Hz; baseline 13
 z0= 1; % initial altitude
+global m;
+m=10;
 
 % Tl_0_prova=[cos(psi)*cos(theta) cos(theta)*sin(psi) sin(theta);...
 % -cos(phi)*sin(psi)-cos(psi)*sin(phi)*sin(theta)   cos(phi)*cos(psi)-sin(phi)*sin(psi)*sin(theta) cos(theta)*sin(phi);...

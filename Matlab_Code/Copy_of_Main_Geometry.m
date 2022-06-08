@@ -11,7 +11,7 @@ delta=30*pi/180; %Angolo di freccia
 beta=0*pi/180; %Angolo di Diedro
 pitch=0*pi/180; %Pitch angle
 num=40; %Numero di profili totale su ciascuna metà;
-PARA=2.; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
+PARA=1.2; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
 % Profile 2D Shape
 Profile2D=importdata('Naca0012.dat');
 %% Profilo 2D flip e analisi
@@ -158,14 +158,13 @@ Izz = 0;
 Ixy = 0;
 Izy = 0;
 Ixz = 0;
-Dens_i=[1000.*ones(1,num-p_c-1) 1500*ones(1,2*p_c-1) 1000.*ones(1,num-p_c-1)];
 for i=2:2*num-2
     P_prec=P_tot(3*(i-1)-2:3*(i-1),:);
     P_succ=P_tot(3*i-2:3*i,:);
-%     figure(10)
-%     plot3(P_prec(1,:),P_prec(2,:),P_prec(3,:),'*r');
-%     hold on
-%     plot3(P_succ(1,:),P_succ(2,:),P_succ(3,:),'ob');
+    figure(10)
+    plot3(P_prec(1,:),P_prec(2,:),P_prec(3,:),'*r');
+    hold on
+    plot3(P_succ(1,:),P_succ(2,:),P_succ(3,:),'ob');
     if norm(P_prec-P_succ)~=0
         P_i=[P_prec';P_succ'];
         shp = alphaShape(P_i,1);
@@ -175,19 +174,17 @@ for i=2:2*num-2
         tr=[tr;tr_i+n_prec];
         xyz=[xyz;xyz_i];
         n_prec=n_succ;
-%         figure(11)
-%         plot(shp)
-%         hold on
+        figure(11)
+        plot(shp)
+        hold on
         
         %Calcolo baricentro
         RBP=RigidBodyParams(triangulation(tr_i,xyz_i));
-        
+        I_i=RBP.inertia_tensor;
         CG_i=RBP.centroid;
-        d=Dens_i(i-1); %densità unitaria
-        m_i=d*RBP.volume;
-        I_i=d*RBP.inertia_tensor;
+        m_i=RBP.volume;
         CG_tasche(:,i)=CG_i;
-        
+        d=1; %densità unitaria
         XCg_tot = (m_tot * Cg_tot(1) + m_i * CG_i(1)) / (m_tot + m_i);
         YCg_tot = (m_tot * Cg_tot(2) + m_i * CG_i(2)) / (m_tot + m_i);
         ZCg_tot = (m_tot * Cg_tot(3) + m_i * CG_i(3)) / (m_tot + m_i);
