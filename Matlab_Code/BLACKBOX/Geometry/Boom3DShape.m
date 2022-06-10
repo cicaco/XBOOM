@@ -29,6 +29,8 @@ function [BoomInfo] = Boom3DShape(BoomInfo,varargin)
 % - BoomInfo.Aero.Start_Sx:
 % - BoomInfo.Mecc.V: Volume Boomerang
 % - BoomInfo.Mecc.I: Inerzia Boomerang
+% - BoomInfo.Mecc.I_rho: inerzia con densità se specificata
+% - BoomInfo.Mecc.m: Massa se densità specificata
 % OPZIONI
 % - 'Plot_figure': Vengono mostrate le figure 
 % - 'Create_Stl': Viene creato il file sitl
@@ -36,7 +38,8 @@ function [BoomInfo] = Boom3DShape(BoomInfo,varargin)
 %   di densità sul boomerang (ad esempio creando una parte centrale del
 %   boomerang più pesante), in questo caso è necessario dare in input un
 %   secondo file avendo tali dimensione 1X(Num-3), ESEMPIO:
-%   Dens_i=[1000.*ones(1,num-p_c-1) 1500*ones(1,2*p_c-1) 1000.*ones(1,num-p_c-1)];
+%   n=num+p_c
+%   Dens_i=[1000.*ones(1,n-p_c-1) 1500*ones(1,2*p_c-1) 1000.*ones(1,n-p_c-1)];
 % - 'Info': Viene dichirato cosa sta facendo il codice
 % - 'FileName': Nome del FIle STL, altrimenti viene creato di default
 %% Import Data from BoomInfo
@@ -194,7 +197,7 @@ Ixx = 0;
 Iyy = 0;
 Izz = 0;
 Ixy = 0;
-Izy = 0;
+Iyz = 0;
 Ixz = 0;
 %Dens_i=[1000.*ones(1,num-p_c-1) 1500*ones(1,2*p_c-1) 1000.*ones(1,num-p_c-1)];
 if C_info==1
@@ -249,7 +252,7 @@ for i=2:2*num-2
             Iyy = Iyy + d * I_i(2,2) + m_tot * (dX * dX + dZ * dZ) + m_i * (dX_i * dX_i + dZ_i * dZ_i);
             Izz = Izz + d * I_i(3,3) + m_tot * (dX * dX + dY * dY) + m_i * (dY_i * dY_i + dX_i * dX_i);
             Ixy = Ixy + d * I_i(1,2) + m_tot * dX * dY + m_i * dX_i * dY_i;
-            Izy = Izy + d * I_i(2,3) + m_tot * dZ * dY + m_i * dZ_i * dY_i;
+            Iyz = Iyz + d * I_i(2,3) + m_tot * dZ * dY + m_i * dZ_i * dY_i;
             Ixz = Ixz + d * I_i(1,3) + m_tot * dZ * dX + m_i * dZ_i * dX_i;
             m_tot = m_i + m_tot;
             
@@ -341,5 +344,7 @@ BoomInfo.Aero.P_Finish_Sx=I_Finish_Sx;
 BoomInfo.Aero.Start_Sx=Start_Sx;
 BoomInfo.Mecc.V=V;
 BoomInfo.Mecc.I=I;
+BoomInfo.Mecc.I_rho=[Ixx Ixy Ixz; Ixy Iyy Iyz; Ixz Iyz Izz];
+BoomInfo.Mecc.m=m_tot;
 end
 
