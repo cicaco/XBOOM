@@ -91,7 +91,7 @@ grid on
 
 %% grafico
 PlotTipDxSx(TOUT,YOUT,BoomInfo)
-%% grafico rapporto di avanzamento e velocità
+%% grafico rapporto di avanzamento e
 chi= YOUT(:,6).*BoomInfo.Pianta.l*cos(BoomInfo.Pianta.freccia)/(vecnorm(YOUT(:,7:9)'))';
 V=(vecnorm(YOUT(:,7:9)'))';
 figure(20)
