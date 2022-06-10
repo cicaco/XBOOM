@@ -51,7 +51,7 @@ BoomInfo.Mecc.m=BoomInfo.Mecc.V*rho;
 theta0=0*pi/180;
 phi0=-80*pi/180;  % initial inclination of the boomerang -70 / -90 degrees; baseline -85 degrees
 psi0=0*pi/180;
-r0= 13*2*pi; % initial condition on spin rate 12/15 Hz; baseline 13
+r0= 17*2*pi; % initial condition on spin rate 12/15 Hz; baseline 13
 z0= 1; % initial altitude
 
 Tl_0=[cos(theta0)*cos(psi0), cos(theta0)*sin(psi0), -sin(theta0)
@@ -64,6 +64,8 @@ ustart=Tl_0*[25;0;0];
 fileID = fopen('debug.txt','a+');
 options = odeset('Events', @Events,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[theta0 phi0 psi0 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
+
+BoomInfo.Mecc.I_rho = 3*BoomInfo.Mecc.I_rho;
 
 [TOUT,YOUT] = ode45(@(t,y)EquationOfMotions(t,y,fileID,BoomInfo),[0 tfin],Y0,options); % 
 fclose(fileID);
@@ -125,8 +127,8 @@ theta=(YOUT(i,1));
     T0=[cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta)
     -cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi), sin(phi)*cos(theta)
     sin(phi)*sin(psi)+cos(phi)*sin(theta)*cos(psi), -sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi), cos(phi)*cos(theta)];
-x_tipdx=[x_tipdx  [YOUT(i,10); YOUT(i,11); YOUT(i,12)]+T0'*[x_tipdx_bodyframe]];
-x_tipsx=[ x_tipsx  [YOUT(i,10); YOUT(i,11); YOUT(i,12)]+T0'*[x_tipsx_bodyframe]];
+    x_tipdx=[x_tipdx  [YOUT(i,10); YOUT(i,11); YOUT(i,12)]+T0'*[x_tipdx_bodyframe]];
+    x_tipsx=[ x_tipsx  [YOUT(i,10); YOUT(i,11); YOUT(i,12)]+T0'*[x_tipsx_bodyframe]];
 end
 figure()
 plot3(YOUT(:,10),YOUT(:,11),YOUT(:,12))
@@ -138,3 +140,21 @@ xlabel('X');
 ylabel('Y');
 zlabel('Z');
 grid on;
+
+%% MASSIMA DISTANZA E TEMPO DI RITORNO
+% esclusione tocco terra
+if YOUT(end,12) <= 0.01
+    % messo a inf -> caso peggiore che sarà scartato dall'ottimizzatore
+    % perchè cade a terra
+    t_min = inf;
+    r_max = -inf;
+% il boomerang ritorna e sono in grado di riprenderlo
+elseif  TOUT(end)>2 && (sqrt(YOUT(end,10)^2+YOUT(end,11)^2+YOUT(end,12)^2)<=3)
+    t_min = TOUT(end);
+    r_max = max(sqrt(YOUT(:,10).^2+YOUT(:,11).^2+YOUT(:,12).^2));
+end
+
+disp('-------------------------------------------------------------------')
+fprintf('Tempo di ritorno calcolato: %.5f s\n', t_min)
+fprintf('Massima distanza percorsa: %.5f m\n', r_max)
+disp('-------------------------------------------------------------------')
