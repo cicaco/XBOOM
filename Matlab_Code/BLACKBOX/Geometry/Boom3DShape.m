@@ -38,7 +38,7 @@ function [BoomInfo] = Boom3DShape(BoomInfo,varargin)
 %   secondo file avendo tali dimensione 1X(Num-3), ESEMPIO:
 %   Dens_i=[1000.*ones(1,num-p_c-1) 1500*ones(1,2*p_c-1) 1000.*ones(1,num-p_c-1)];
 % - 'Info': Viene dichirato cosa sta facendo il codice
-% 
+% - 'FileName': Nome del FIle STL, altrimenti viene creato di default
 %% Import Data from BoomInfo
 Chord=BoomInfo.Profile.Chord;
 p_c=BoomInfo.Geom3D.p_c;
@@ -58,6 +58,7 @@ C_fig=0;
 C_stl=0;
 C_VarDens=0;
 C_info=0;
+C_name=0;
 nVarargs = length(varargin);
 i=1;
 cont=0;
@@ -67,13 +68,17 @@ while i<=nVarargs
         case 'Plot_figure'
             C_fig=1;
         case 'Create_Stl'
-            C_stl=0;
+            C_stl=1;
         case 'Density_variation'
             C_VarDens=1;
-            i=i+1;
             Dens_i= varargin{i+1};
+            i=i+1;
         case 'Info'
             C_info=1;
+        case 'FileName'
+            C_name=1;
+            filename= [varargin{i+1},'.stl'];
+            i=i+1;
         otherwise
             error('Verificare di aver inserito le opzioni corrette ')
     end
@@ -275,7 +280,9 @@ V=RBP_CG.volume;
 %% Creazione file Stl
 if C_stl==1
     
+    if C_name==0
     filename=['Boom_D'+string(delta*180/pi)+'_B'+string(beta*180/pi)+'_P'+string(pitch*180/pi)+'.stl'];
+    end
     stlwrite(pr_CG, filename);
     if C_info==1
         fprintf('STL file creation name: ');
