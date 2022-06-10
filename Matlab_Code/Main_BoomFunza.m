@@ -5,6 +5,7 @@ addpath(genpath('BLACKBOX'));
 
 %% Input Data
 Chord=0.06;
+pr
 p_c=3; % numero di profili di "Transizione" nella parte centrale
 l=0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
 delta=2*pi/180; %Angolo di freccia
