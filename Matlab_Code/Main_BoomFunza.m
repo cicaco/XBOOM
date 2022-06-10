@@ -5,7 +5,7 @@ addpath(genpath('BLACKBOX'));
 
 %% Input Data
 Chord=0.06;
-pr
+% pr
 p_c=3; % numero di profili di "Transizione" nella parte centrale
 l=0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
 delta=2*pi/180; %Angolo di freccia
@@ -106,3 +106,15 @@ Phi=YOUT(:,2)*180/pi;
 Psi=YOUT(:,3)*180/pi;
 Theta=YOUT(:,1)*180/pi;
 save('T.mat','Time','Theta' ,'Phi' ,'Psi' , 'x' ,'y' ,'z');
+
+%%
+chi= YOUT(:,6).*BoomInfo.Pianta.l*cos(BoomInfo.Pianta.freccia)/(vecnorm(YOUT(:,7:9)'))';
+V=(vecnorm(YOUT(:,7:9)'))';
+figure(20)
+plot(TOUT(:),chi);
+title('time vs $\chi$','Interpreter','latex');
+xlabel('t [s]');
+ylabel('$\chi$','Interpreter','latex');
+figure(21)
+plot(TOUT(:),V);
+title('Velocità');
