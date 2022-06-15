@@ -1,5 +1,5 @@
 %Initial Condition
-function InitialConditionPlot(Tl_0,T0,ustart,Om,BoomInfo)
+function InitialConditionPlot(Tl_0,T0,TOUT,YOUT,ustart,Om,BoomInfo)
 % U,Om sistema body
 num=BoomInfo.Geom3D.num;
 p_c=BoomInfo.Geom3D.p_c;
@@ -11,10 +11,9 @@ l=BoomInfo.Pianta.l;
 % U=[-15 0 0];
 % Om=[ 0 0 10*2*pi];
 P_tot=BoomInfo.Geom3D.Profile;
-
+P_tot(,)
 figure()
 for i=1:2*(num+p_c)-2
-    P_tot(3*i-2:3*i,:)=P_tot(3*i-2:3*i,:)-CG';
     P_ruot=Tl_0'*T0'*P_tot(3*i-2:3*i,:);
     plot3(P_ruot(1,:),P_ruot(2,:),P_ruot(3,:),'k');
     hold on
@@ -36,8 +35,8 @@ Us=Tl_0'*T0'*ustart;
 Us=Us/norm(Us);
 Oms=Tl_0'*T0'*Om;
 Oms=Oms/norm(Oms);
-h4=quiver3(0,0,0,Us(1),Us(2),Us(3),'g','linewidth',1);
-h5=quiver3(0,0,0,Oms(1),Oms(2),Oms(3),'c');
+h4=quiver3(CG(1),CG(2),CG(3),Us(1),Us(2),Us(3),'g','linewidth',1);
+h5=quiver3(CG(1),CG(2),CG(3),Oms(1),Oms(2),Oms(3),'c');
 
 legend([h1 h4 h5],{'Asse-Terreno','V','Om'},'fontsize',8,'interpreter','latex');
 set(gca,'TickLabelInterpreter','latex')
