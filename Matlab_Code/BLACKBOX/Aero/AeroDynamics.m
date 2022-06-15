@@ -65,7 +65,7 @@ Tj2=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos
 v_ind_old=0; %ipotesi iniziale
 % err=1;
 % while err>10^-3
-% [vel_ind]=vel_indotta_computation(u,omega,Tj1,Tj2,v_ind_old);
+% [vel_ind]=vel_indotta_computation(u,omega,v_ind_old,BoomInfo);
 % err=abs(vel_ind-v_ind_old);
 % v_ind_old=vel_ind;
 % end
