@@ -43,8 +43,8 @@ for i=1:length(TOUT)
     T0=[cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta)
         -cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi), sin(phi)*cos(theta)
         sin(phi)*sin(psi)+cos(phi)*sin(theta)*cos(psi), -sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi), cos(phi)*cos(theta)];
-    x_tipdx=[x_tipdx  [YOUT(i,10); YOUT(i,11); YOUT(i,12)]+T0'*Tl_0'*[x_tipdx_bodyframe]];
-    x_tipsx=[ x_tipsx  [YOUT(i,10); YOUT(i,11); YOUT(i,12)]+T0'*Tl_0'*[x_tipsx_bodyframe]];
+    x_tipdx=[x_tipdx  [YOUT(i,10); YOUT(i,11); YOUT(i,12)]+Tl_0'*T0'*x_tipdx_bodyframe];
+    x_tipsx=[ x_tipsx  [YOUT(i,10); YOUT(i,11); YOUT(i,12)]+Tl_0'*T0'*x_tipsx_bodyframe];
 end
 figure()
 plot3(YOUT(:,10),YOUT(:,11),YOUT(:,12),'b','linewidth',1.2)
