@@ -1,4 +1,4 @@
-function [dy]=EquationOfMotions(t,y,fileID, BoomInfo)
+function [dy]=EquationOfMotions(t,y,fileID, BoomInfo,Tl_0)
 %This function calculates,for every point of the trajectory,the
 % angular velocities(dtheta,dphi,dpsi),the angular accellerations in the body
 % frame(dp,dr,dq)and the 3 components of velocity(ux,uy,uz)
@@ -38,7 +38,7 @@ uz=y(9);
 T0=[cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta)
     -cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi), sin(phi)*cos(theta)
     sin(phi)*sin(psi)+cos(phi)*sin(theta)*cos(psi), -sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi), cos(phi)*cos(theta)];
-FG=T0*(-m*g*[0;0;1]);
+FG=T0*Tl_0*(-m*g*[0;0;1]);
 
 
 [F,M]=AeroDynamics([ux;uy;uz],[p;q;r],BoomInfo);
@@ -57,7 +57,7 @@ dy(7)=(-m*q*uz+m*r*uy+F(1)+FG(1))/m;
 dy(8)=(-m*r*ux+m*p*uz+F(2)+FG(2))/m;
 dy(9)=(-m*p*uy+m*q*ux+F(3)+FG(3))/m;
 
-VEL=T0'*[ux;uy;uz];
+VEL=Tl_0'*T0'*[ux;uy;uz];
 
 dy(10)=VEL(1);
 dy(11)=VEL(2);

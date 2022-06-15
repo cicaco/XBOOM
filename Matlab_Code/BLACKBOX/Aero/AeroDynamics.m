@@ -83,8 +83,8 @@ aoa1=atan2(wel1(3),wel1(1))+twist1(i);
 aoa2=atan2(wel2(3),wel2(1))+twist2(i);
 
 %salvataggio variabili
-rA1=[rA1, ra1];
-rA2=[rA2, ra2];
+% rA1=[rA1, ra1];
+% rA2=[rA2, ra2];
 % v1=[v1, vel1];
 % v2=[v2, vel2];
 w1=[w1, wel1];
@@ -101,9 +101,9 @@ for i=1:length(eta1)
     ma2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2(:,i))^2*[(CL(AoA2(i))*cos(AoA2(i))+CD(AoA2(i))*sin(AoA2(i)))*eta2(i); c*CM(AoA2(i)); (CL(AoA2(i))*sin(AoA2(i))-CD(AoA2(i))*cos(AoA2(i)))*eta2(i)];
     %forze su sdr body
     f1=(Tj1')*fa1;
-    m1=(Tj1')*ma1+cross(rA1(:,i),(Tj1')*fa1);
+    m1=(Tj1')*ma1+cross([xac1;0;0],(Tj1')*fa1);
     f2=Tj2'*fa2;
-    m2=Tj2'*ma2+cross(rA2(:,i),Tj2'*fa2);
+    m2=Tj2'*ma2+cross([xac2;0;0],Tj2'*fa2);
     
     %aggiornamento variabili
 %     FA1=[FA1, fa1 ];

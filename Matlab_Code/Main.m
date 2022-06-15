@@ -47,27 +47,35 @@ BoomInfo.Profile.Zp_sx=Zp_flip;
 rho=1000;
 BoomInfo.Mecc.I_rho=rho*BoomInfo.Mecc.I;
 BoomInfo.Mecc.m=BoomInfo.Mecc.V*rho;
-%% Traiectory
-theta0=0*pi/180;
-phi0=-80*pi/180;  % initial inclination of the boomerang -70 / -90 degrees; baseline -85 degrees
-psi0=0*pi/180;
-r0= 17*2*pi; % initial condition on spin rate 12/15 Hz; baseline 13
-z0= 1; % initial altitude
+%% Initial condition
+theta0=0.0*pi/180;
+phi0=70*pi/180;
+psi0=225*pi/180;
 
 Tl_0=[cos(theta0)*cos(psi0), cos(theta0)*sin(psi0), -sin(theta0)
     -cos(phi0)*sin(psi0)+sin(phi0)*sin(theta0)*cos(psi0), cos(phi0)*cos(psi0)+sin(phi0)*sin(theta0)*sin(psi0), sin(phi0)*cos(theta0)
     sin(phi0)*sin(psi0)+cos(phi0)*sin(theta0)*cos(psi0), -sin(phi0)*cos(psi0)+cos(phi0)*sin(theta0)*sin(psi0), cos(phi0)*cos(theta0)];
+%% Traiectory
+theta=0*pi/180;
+phi=0*pi/180; 
+psi=0*pi/180;
+r0= 10*2*pi; % initial condition on spin rate 10/15 Hz;
+z0= 1; % initial altitude
+
+T0=[cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta)
+    -cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi), sin(phi)*cos(theta)
+    sin(phi)*sin(psi)+cos(phi)*sin(theta)*cos(psi), -sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi), cos(phi)*cos(theta)];
 
 
-tfin=20;
-ustart=Tl_0*[25;0;0];
+tfin=5;
+ustart=T0*Tl_0*[25;0;0];
 fileID = fopen('debug.txt','a+');
 options = odeset('Events', @Events,'RelTol',1e-4,'AbsTol',1e-6);
-Y0=[theta0 phi0 psi0 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
+Y0=[theta phi psi 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 
-BoomInfo.Mecc.I_rho = 3*BoomInfo.Mecc.I_rho;
+% BoomInfo.Mecc.I_rho = 3*BoomInfo.Mecc.I_rho;
 
-[TOUT,YOUT] = ode45(@(t,y)EquationOfMotions(t,y,fileID,BoomInfo),[0 tfin],Y0,options); % 
+[TOUT,YOUT] = ode45(@(t,y)EquationOfMotions(t,y,fileID,BoomInfo,Tl_0),[0 tfin],Y0,options); % 
 fclose(fileID);
 %% Plot
 linecolors={'r' 'y' 'c' 'g' 'b' 'k'};
@@ -90,7 +98,7 @@ TOUT(:),YOUT(:,3)*180/pi,1,...
 grid on
 
 %% grafico
-PlotTipDxSx(TOUT,YOUT,BoomInfo)
+PlotTipDxSx(TOUT,YOUT,BoomInfo,Tl_0)
 %% grafico rapporto di avanzamento e velocità
 chi= YOUT(:,6).*BoomInfo.Pianta.l*cos(BoomInfo.Pianta.freccia)/(vecnorm(YOUT(:,7:9)'))';
 V=(vecnorm(YOUT(:,7:9)'))';
