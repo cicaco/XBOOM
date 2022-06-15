@@ -9,7 +9,7 @@ p_c=20; % numero di profili di "Transizione" nella parte centrale
 l=0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
 delta=30*pi/180; %Angolo di freccia
 beta=0*pi/180; %Angolo di Diedro
-pitch=5*pi/180; %Pitch angle
+pitch=2*pi/180; %Pitch angle
 num=20; %Numero di profili totale su ciascuna metà;
 PARA=2.; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
 % Profile 2D Shape
@@ -48,34 +48,37 @@ rho=1000;
 BoomInfo.Mecc.I_rho=rho*BoomInfo.Mecc.I;
 BoomInfo.Mecc.m=BoomInfo.Mecc.V*rho;
 %% Initial condition
-theta0=0.0*pi/180;
-phi0=70*pi/180;
-psi0=225*pi/180;
+theta0=35*pi/180;
+phi0=4*pi/180;
+psi0=0*pi/180;
+R=@(theta0,psi0,phi0)[cos(theta0)*cos(psi0), cos(theta0)*sin(psi0), -sin(theta0)
+    -cos(phi0)*sin(psi0)+sin(phi0)*sin(theta0)*cos(psi0), cos(phi0)*cos(psi0)+sin(phi0)*sin(theta0)*sin(psi0), sin(phi0)*cos(theta0)
+    sin(phi0)*sin(psi0)+cos(phi0)*sin(theta0)*cos(psi0), -sin(phi0)*cos(psi0)+cos(phi0)*sin(theta0)*sin(psi0), cos(phi0)*cos(theta0)];
 
 Tl_0=[cos(theta0)*cos(psi0), cos(theta0)*sin(psi0), -sin(theta0)
     -cos(phi0)*sin(psi0)+sin(phi0)*sin(theta0)*cos(psi0), cos(phi0)*cos(psi0)+sin(phi0)*sin(theta0)*sin(psi0), sin(phi0)*cos(theta0)
     sin(phi0)*sin(psi0)+cos(phi0)*sin(theta0)*cos(psi0), -sin(phi0)*cos(psi0)+cos(phi0)*sin(theta0)*sin(psi0), cos(phi0)*cos(theta0)];
 %% Traiectory
-theta=0*pi/180;
-phi=0*pi/180; 
-psi=0*pi/180;
+theta=35*pi/180;
+phi=45*pi/180; 
+psi=180*pi/180;
 r0= 10*2*pi; % initial condition on spin rate 10/15 Hz;
 z0= 1; % initial altitude
 
 T0=[cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta)
-    -cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi), sin(ph)*cos(theta)
-    sin(phi0)*sin(psi0)+cos(phi0)*sin(theta0)*cos(psi0), -sin(phi0)*cos(psi0)+cos(phi0)*sin(theta0)*sin(psi0), cos(phi0)*cos(theta0)];
+    -cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi), sin(phi)*cos(theta)
+    sin(phi)*sin(psi)+cos(phi)*sin(theta)*cos(psi), -sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi), cos(phi)*cos(theta)];
 
 
 tfin=20;
-ustart=Tl_0*[25;0;0];
+ustart=[-15;0;0];
 fileID = fopen('debug.txt','a+');
 options = odeset('Events', @Events,'RelTol',1e-4,'AbsTol',1e-6);
-Y0=[theta0 phi0 psi0 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
+Y0=[theta phi psi 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 
-BoomInfo.Mecc.I_rho = 3*BoomInfo.Mecc.I_rho;
+% BoomInfo.Mecc.I_rho = 3*BoomInfo.Mecc.I_rho;
 
-[TOUT,YOUT] = ode45(@(t,y)EquationOfMotions(t,y,fileID,BoomInfo),[0 tfin],Y0,options); % 
+[TOUT,YOUT] = ode45(@(t,y)EquationOfMotions(t,y,fileID,BoomInfo,Tl_0),[0 tfin],Y0,options); % 
 fclose(fileID);
 %% Plot
 linecolors={'r' 'y' 'c' 'g' 'b' 'k'};
@@ -98,7 +101,7 @@ TOUT(:),YOUT(:,3)*180/pi,1,...
 grid on
 
 %% grafico
-PlotTipDxSx(TOUT,YOUT,BoomInfo)
+PlotTipDxSx(TOUT,YOUT,BoomInfo,Tl_0)
 %% grafico rapporto di avanzamento e velocità
 chi= YOUT(:,6).*BoomInfo.Pianta.l*cos(BoomInfo.Pianta.freccia)/(vecnorm(YOUT(:,7:9)'))';
 V=(vecnorm(YOUT(:,7:9)'))';
@@ -127,3 +130,12 @@ disp('-------------------------------------------------------------------')
 fprintf('Tempo di ritorno calcolato: %.5f s\n', t_min)
 fprintf('Massima distanza percorsa: %.5f m\n', r_max)
 disp('-------------------------------------------------------------------')
+%%
+Time=TOUT(:);
+x=YOUT(:,10);
+y=YOUT(:,11);
+z=YOUT(:,12);
+Phi=YOUT(:,2)*180/pi;
+Psi=YOUT(:,3)*180/pi;
+Theta=YOUT(:,1)*180/pi;
+save('T.mat','Time','Theta' ,'Phi' ,'Psi' , 'x' ,'y' ,'z');

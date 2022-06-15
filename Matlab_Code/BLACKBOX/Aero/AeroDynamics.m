@@ -98,12 +98,22 @@ AoA1=[AoA1, aoa1];
 AoA2=[AoA2, aoa2];
 end
 
+% CD_fun=BoomInfo.Aero.Cl;
+% CL_fun=BoomInfo.Aero.Cd;
+% CM_fun=BoomInfo.Aero.Cm;
 %BET
 for i=1:length(eta1)
-    fa1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1([1 3],i))^2*[-CL(AoA1(i))*sin(AoA1(i))+CD(AoA1(i))*cos(AoA1(i)); 0; CL(AoA1(i))*cos(AoA1(i))+CD(AoA1(i))*sin(AoA1(i))];
+     fa1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1([1 3],i))^2*[-CL(AoA1(i))*sin(AoA1(i))+CD(AoA1(i))*cos(AoA1(i)); 0; CL(AoA1(i))*cos(AoA1(i))+CD(AoA1(i))*sin(AoA1(i))];
     ma1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1([1 3],i))^2*[(CL(AoA1(i))*cos(AoA1(i))+CD(AoA1(i))*sin(AoA1(i)))*eta1(i); c*CM(AoA1(i)); (CL(AoA1(i))*sin(AoA1(i))-CD(AoA1(i))*cos(AoA1(i)))*eta1(i)];
     fa2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2([1 3],i))^2*[-CL(AoA2(i))*sin(AoA2(i))+CD(AoA2(i))*cos(AoA2(i)); 0; CL(AoA2(i))*cos(AoA2(i))+CD(AoA2(i))*sin(AoA2(i))];
     ma2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2([1 3],i))^2*[(CL(AoA2(i))*cos(AoA2(i))+CD(AoA2(i))*sin(AoA2(i)))*eta2(i); c*CM(AoA2(i)); (CL(AoA2(i))*sin(AoA2(i))-CD(AoA2(i))*cos(AoA2(i)))*eta2(i)];
+
+%     fa1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1([1 3],i))^2*[-CL_naca(AoA1(i))*sin(AoA1(i))+CD_naca(AoA1(i))*cos(AoA1(i)); 0; CL_naca(AoA1(i))*cos(AoA1(i))+CD_naca(AoA1(i))*sin(AoA1(i))];
+%     ma1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1([1 3],i))^2*[(CL_naca(AoA1(i))*cos(AoA1(i))+CD_naca(AoA1(i))*sin(AoA1(i)))*eta1(i); c*CM_naca(AoA1(i)); (CL_naca(AoA1(i))*sin(AoA1(i))-CD_naca(AoA1(i))*cos(AoA1(i)))*eta1(i)];
+%     fa2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2([1 3],i))^2*[-CL_naca(AoA2(i))*sin(AoA2(i))+CD_naca(AoA2(i))*cos(AoA2(i)); 0; CL_naca(AoA2(i))*cos(AoA2(i))+CD_naca(AoA2(i))*sin(AoA2(i))];
+%     ma2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2([1 3],i))^2*[(CL_naca(AoA2(i))*cos(AoA2(i))+CD_naca(AoA2(i))*sin(AoA2(i)))*eta2(i); c*CM_naca(AoA2(i)); (CL_naca(AoA2(i))*sin(AoA2(i))-CD_naca(AoA2(i))*cos(AoA2(i)))*eta2(i)];
+
+    
     %forze su sdr body
     f1=(Tj1')*fa1;
     m1=(Tj1')*ma1+cross([xac1;0;0],(Tj1')*fa1);

@@ -165,12 +165,11 @@ for i=1:num*2-1
     P_fin(1,:)=P_fin(1,:)-Fract(i)*C(end)+C_fin_rot(1,i);
     P_fin(2,:)=P_fin(2,:)+C_fin_rot(2,i);
     P_fin(3,:)=P_fin(3,:)+C_fin_rot(3,i);
-    
+    C_fin_rot(1,i)=C_fin_rot(1,i);
     if i~=num
         P_tot=[P_tot;P_fin];
     end
 end
-
 
 %% Carattersitiche inerziali
 % Devo riportare il cad rispetto al baricentro (Solo posizione)
@@ -180,10 +179,13 @@ if C_fig==1
         plot3(P_tot(3*i-2,:),P_tot(3*i-1,:),P_tot(3*i,:),'*r');
         hold on
         axis equal
+        grid on
     end
+      plot3(C_fin_rot(1,:),C_fin_rot(2,:),C_fin_rot(3,:),'oc');
 end
-% Start assembly each solid
+      
 
+% Start assembly each solid
 n_prec=0;
 tr=[];
 xyz=[];
@@ -231,7 +233,7 @@ for i=2:2*num-2
         if C_VarDens==1
             %Calcolo baricentro
             RBP=RigidBodyParams(triangulation(tr_i,xyz_i));
-            
+             
             CG_i=RBP.centroid;
             d=Dens_i(i-1); %densità unitaria
             m_i=d*RBP.volume;
@@ -248,12 +250,12 @@ for i=2:2*num-2
             dY_i = YCg_tot - CG_i(2);
             dZ_i = ZCg_tot - CG_i(3);
             
-            Ixx = Ixx + d * I_i(1,1) + m_tot * (dY * dY + dZ * dZ) + m_i * (dY_i * dY_i + dZ_i * dZ_i);
-            Iyy = Iyy + d * I_i(2,2) + m_tot * (dX * dX + dZ * dZ) + m_i * (dX_i * dX_i + dZ_i * dZ_i);
-            Izz = Izz + d * I_i(3,3) + m_tot * (dX * dX + dY * dY) + m_i * (dY_i * dY_i + dX_i * dX_i);
-            Ixy = Ixy + d * I_i(1,2) + m_tot * dX * dY + m_i * dX_i * dY_i;
-            Iyz = Iyz + d * I_i(2,3) + m_tot * dZ * dY + m_i * dZ_i * dY_i;
-            Ixz = Ixz + d * I_i(1,3) + m_tot * dZ * dX + m_i * dZ_i * dX_i;
+            Ixx = Ixx + I_i(1,1) + m_tot * (dY * dY + dZ * dZ) + m_i * (dY_i * dY_i + dZ_i * dZ_i);
+            Iyy = Iyy + I_i(2,2) + m_tot * (dX * dX + dZ * dZ) + m_i * (dX_i * dX_i + dZ_i * dZ_i);
+            Izz = Izz + I_i(3,3) + m_tot * (dX * dX + dY * dY) + m_i * (dY_i * dY_i + dX_i * dX_i);
+            Ixy = Ixy + I_i(1,2) + m_tot * dX * dY + m_i * dX_i * dY_i;
+            Iyz = Iyz + I_i(2,3) + m_tot * dZ * dY + m_i * dZ_i * dY_i;
+            Ixz = Ixz + I_i(1,3) + m_tot * dZ * dX + m_i * dZ_i * dX_i;
             m_tot = m_i + m_tot;
             
             Cg_tot(1) = XCg_tot;
@@ -268,8 +270,12 @@ pr_fin=triangulation(tr,xyz);
 
 
 RBP=RigidBodyParams(pr_fin);
-CG=RBP.centroid;
-
+if C_VarDens==0
+    %densità costante
+    CG=RBP.centroid;
+else
+    CG=Cg_tot;
+end
 xyz_CG=[xyz(:,1)-CG(1) xyz(:,2)-CG(2) xyz(:,3)-CG(3)];
 pr_CG=triangulation(tr,xyz_CG);
 RBP_CG=RigidBodyParams(pr_CG);
@@ -306,7 +312,9 @@ Norm=(C_fin_rot(:,num+p_c)-C_fin_rot(:,num+p_c+1))/norm(C_fin_rot(:,num+p_c)-C_f
 Norm=(C_fin_rot(:,num-p_c-1)-C_fin_rot(:,num-p_c))/norm(C_fin_rot(:,num-p_c-1)-C_fin_rot(:,num-p_c));
 [I_dx,~] = line_plane_intersection(Norm,C_fin_rot(:,num-p_c),[0 1 0]',[0 0 0]');
 
-
+%Boomerang perfettamente bilanciato
+% CG(2)=0;
+% CG(3)=0;
 I_origin_Sx=I_sx-CG';
 I_Start_Sx=C_fin_rot(:,num-p_c)-CG';
 I_Finish_Sx=C_fin_rot(:,1)-CG';
@@ -346,5 +354,12 @@ BoomInfo.Mecc.V=V;
 BoomInfo.Mecc.I=I;
 BoomInfo.Mecc.I_rho=[Ixx Ixy Ixz; Ixy Iyy Iyz; Ixz Iyz Izz];
 BoomInfo.Mecc.m=m_tot;
+BoomInfo.Mecc.CG=CG;
+BoomInfo.Geom3D.Fr_i=D_i;
+BoomInfo.Geom3D.Di_i=B_i;
+BoomInfo.Geom3D.Pi_i=P_i;
+BoomInfo.Geom3D.Profile=P_tot;
+
+BoomInfo.Geom3D.C_aer=C_fin_rot-CG';
 end
 
