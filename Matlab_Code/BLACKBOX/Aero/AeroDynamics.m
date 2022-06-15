@@ -63,7 +63,12 @@ Tj2=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos
 %% calcoli aerodinamici
 %vel indotta
 v_ind_old=0; %ipotesi iniziale
-
+% err=1;
+% while err>10^-3
+% [vel_ind]=vel_indotta_computation(u,omega,Tj1,Tj2,v_ind_old);
+% err=abs(vel_ind-v_ind_old);
+% v_ind_old=vel_ind;
+% end
 %inizializzazione
 rA1=[]; v1=[]; w1=[]; AoA1=[]; FA1=[]; MA1=[];F1=[];M1=[];
 rA2=[]; v2=[]; w2=[]; AoA2=[]; FA2=[]; MA2=[];F2=[];M2=[];
