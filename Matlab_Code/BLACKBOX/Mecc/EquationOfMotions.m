@@ -64,6 +64,12 @@ dy(12)=VEL(3);
 dy=dy';
 
 % fprintf(fileID,'TIME: %.5f \n',t);
+% fprintf(fileID,'Re: %.5f ',Re); 
+
+% fprintf(fileID,' %.5f \n ',AoA1(1:end)*180/pi); 
+
+
+
 % fprintf(fileID,'dTheta: %.f ',dy(1));
 % fprintf(fileID,'dPhi: %.5f ',dy(2));
 % fprintf(fileID,'dPsi: %.5f ',dy(3));
