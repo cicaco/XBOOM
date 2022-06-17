@@ -21,6 +21,24 @@ for i=1:2*(num+p_c)-2
     axis equal
     grid on
 end
+C_fin_rot=BoomInfo.Geom3D.C_aer;
+
+% Calcolo velocità in questi punti
+P_dx=C_fin_rot(:,1:num)';
+P_sx=C_fin_rot(:,num+2*p_c:end)';
+for i=1:num
+V_dx(i,:)=ustart+cross(Om',P_dx(i,:))';
+V_sx(i,:)=ustart+cross(Om',P_sx(i,:))';
+% V_dx(i,:)=V_dx(i,:)/norm(V_dx(i,:));
+% V_sx(i,:)=V_sx(i,:)/norm(V_sx(i,:));
+
+end
+
+P_dx=(Tl_0'*T0'*P_dx')';
+P_sx=(Tl_0'*T0'*P_sx')';
+V_dx=(Tl_0'*T0'*V_dx')';
+V_sx=(Tl_0'*T0'*V_sx')';
+quiver3([P_dx(:,1); P_sx(:,1)],[P_dx(:,2) ;P_sx(:,2)],[P_dx(:,3) ;P_sx(:,3)],[V_dx(:,1) ;V_sx(:,1)],[V_dx(:,2); V_sx(:,2)],[V_sx(:,3); V_sx(:,3)],'r','linewidth',1);
 h1=quiver3(0.0,0,0,1,0 ,0,'b','linewidth',1);
 quiver3(0.0,0,0,0,1 ,0,'b','linewidth',1);
 quiver3(0.0,0,0,0,0 ,1,'b','linewidth',1);
