@@ -1,5 +1,5 @@
 %Initial Condition
-function InitialConditionPlot(Tl_0,T0,ustart,Om,BoomInfo)
+function [V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,T0,ustart,Om,BoomInfo)
 % U,Om sistema body
 num=BoomInfo.Geom3D.num;
 p_c=BoomInfo.Geom3D.p_c;
@@ -34,10 +34,13 @@ V_sx(i,:)=ustart+cross(Om',P_sx(i,:))';
 
 end
 
-P_dx=(Tl_0'*T0'*P_dx')';
-P_sx=(Tl_0'*T0'*P_sx')';
-V_dx=(Tl_0'*T0'*V_dx')';
-V_sx=(Tl_0'*T0'*V_sx')';
+P_dx=((T0*Tl_0)'*P_dx')';
+P_sx=((T0*Tl_0)'*P_sx')';
+V_dx=((T0*Tl_0)'*[V_dx(:,1) V_dx(:,2) V_dx(:,3)]')';
+V_sx=((T0*Tl_0)'*[V_sx(:,1) V_sx(:,2) V_sx(:,3)]')';
+V_dx_b=V_dx;
+V_sx_b=V_sx;
+
 quiver3([P_dx(:,1); P_sx(:,1)],[P_dx(:,2) ;P_sx(:,2)],[P_dx(:,3) ;P_sx(:,3)],[V_dx(:,1) ;V_sx(:,1)],[V_dx(:,2); V_sx(:,2)],[V_sx(:,3); V_sx(:,3)],'r','linewidth',1);
 h1=quiver3(0.0,0,0,1,0 ,0,'b','linewidth',1);
 quiver3(0.0,0,0,0,1 ,0,'b','linewidth',1);
