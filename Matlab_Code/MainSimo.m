@@ -2,7 +2,6 @@
 clear all 
 close all
 addpath(genpath('BLACKBOX'));
-
 %% Input Data
 Chord=0.0488;
 p_c=20; % numero di profili di "Transizione" nella parte centrale

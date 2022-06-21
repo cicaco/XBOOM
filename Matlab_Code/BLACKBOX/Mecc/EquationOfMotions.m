@@ -40,7 +40,7 @@ T0=[cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta)
 FG=T0*Tl_0*(-m*g*[0;0;1]);
 
 
-[F,M]=AeroDynamics([ux;uy;uz],[p;q;r],BoomInfo);
+[F,M,AoA1,AoA2,Re,Mn]=AeroDynamics([ux;uy;uz],[p;q;r],BoomInfo);
 
 
 dy(1)=q*cos(phi)-r*sin(phi);
@@ -63,11 +63,12 @@ dy(11)=VEL(2);
 dy(12)=VEL(3);
 dy=dy';
 
-% fprintf(fileID,'TIME: %.5f \n',t);
+% fprintf(fileID,'TIME: %.5f ',t);
 % fprintf(fileID,'Re: %.5f ',Re); 
 
 % fprintf(fileID,' %.5f \n ',AoA1(1:end)*180/pi); 
 
+% fprintf(fileID,' %.5f \n ',Mn); 
 
 
 % fprintf(fileID,'dTheta: %.f ',dy(1));

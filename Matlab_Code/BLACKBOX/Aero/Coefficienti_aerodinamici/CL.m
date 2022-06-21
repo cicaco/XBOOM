@@ -7,9 +7,13 @@ function [CL]=CL(AoA)
 %fundamental analysis." Journal of guidance, control, and dynamics
 %27.4 (2004): 545-554.
 alpha=AoA*180/pi;
-if alpha<-180 || alpha>180
-    fprintf('error')
-else if -180<=alpha && alpha<-170
+if alpha<(-180)
+    alpha=alpha+360;
+end
+if  alpha>(180)
+    alpha=alpha-360;
+end
+ if -180<=alpha && alpha<-170
         CL=0.7/10*(alpha+180);
     else if -170<=alpha && alpha<-130
             CL=0.7;
@@ -37,7 +41,7 @@ else if -180<=alpha && alpha<-170
         end
     end
 end
-end
+
 
                             
                     

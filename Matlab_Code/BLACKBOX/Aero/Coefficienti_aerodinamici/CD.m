@@ -11,9 +11,13 @@ function [CD]=CD(AoA)
 % 27.4 (2004): 545-554.
 
 alpha=AoA*180/pi;
-if alpha<-180 || alpha>180
-    fprintf('error')
-elseif -180<=alpha && alpha<-170
+if alpha<(-180)
+    alpha=alpha+360;
+end
+if  alpha>(180)
+    alpha=alpha-360;
+end
+if -180<=alpha && alpha<-170
     CD=0.01;
 elseif -170<=alpha && alpha<-160
     CD= 0.4/10*(alpha+170)+0.01;%ok

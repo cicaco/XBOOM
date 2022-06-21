@@ -1,8 +1,8 @@
-function [F,M,AoAsx,AoAdx,Re]=AeroDynamics(u,omega,BoomInfo)
+function [F,M,AoA1,AoA2,Re,Mn]=AeroDynamics(u,omega,BoomInfo)
 % AeroDynamics computes the force and momentum for the whole boomerang
 % and the angle of attack and Reynolds for each section spanwise
 %
-% [F,M,AoAsx,AoAdx,Re]=AERODYNAMICS(u,omega,BoomInfo) computes the quantity described as
+% [F,M,AoA1,AoA2,Re,Mn]=AeroDynamics(u,omega,BoomInfo) computes the quantity described as
 % function of u and omega
 %
 % INPUT:
@@ -15,7 +15,6 @@ function [F,M,AoAsx,AoAdx,Re]=AeroDynamics(u,omega,BoomInfo)
 % AoAsx: Angles of Attack of each section of left blade
 % AoAdx: Angles of Attack of each section of right blade
 % Re: Reynolds number of a charateristic blade section at 3/4 Length of blade
-
 
 %% import geometria
 c=BoomInfo.Profile.Chord; %m
@@ -37,6 +36,8 @@ eta1=midspan(span1);
 lambda=pi/2+freccia;
 %svergolamento
 twist1=zeros(1,length(eta1));
+% twist1=linspace(0,2*pi/180,length(eta1));
+
 %spanwise wing distance
 
 %calcolo n° Re
@@ -55,7 +56,7 @@ eta2=midspan(span2);
 lambda=2*pi-lambda;
 %svergolamento
 twist2=zeros(1,length(eta2));
-
+% twist2=linspace(0,2*pi/180,length(eta1));
 %matrice di rotazione da body a blade
 Tj2=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos(pitch)+sin(lambda)*sin(coning)*sin(pitch), -cos(coning)*sin(pitch)
     cos(lambda)*cos(coning), sin(lambda)*cos(coning), +sin(coning)
@@ -98,12 +99,9 @@ AoA1=[AoA1, aoa1];
 AoA2=[AoA2, aoa2];
 end
 
-% CD_fun=BoomInfo.Aero.Cl;
-% CL_fun=BoomInfo.Aero.Cd;
-% CM_fun=BoomInfo.Aero.Cm;
 %BET
 for i=1:length(eta1)
-     fa1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1([1 3],i))^2*[-CL(AoA1(i))*sin(AoA1(i))+CD(AoA1(i))*cos(AoA1(i)); 0; CL(AoA1(i))*cos(AoA1(i))+CD(AoA1(i))*sin(AoA1(i))];
+    fa1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1([1 3],i))^2*[-CL(AoA1(i))*sin(AoA1(i))+CD(AoA1(i))*cos(AoA1(i)); 0; CL(AoA1(i))*cos(AoA1(i))+CD(AoA1(i))*sin(AoA1(i))];
     ma1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1([1 3],i))^2*[(CL(AoA1(i))*cos(AoA1(i))+CD(AoA1(i))*sin(AoA1(i)))*eta1(i); c*CM(AoA1(i)); (CL(AoA1(i))*sin(AoA1(i))-CD(AoA1(i))*cos(AoA1(i)))*eta1(i)];
     fa2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2([1 3],i))^2*[-CL(AoA2(i))*sin(AoA2(i))+CD(AoA2(i))*cos(AoA2(i)); 0; CL(AoA2(i))*cos(AoA2(i))+CD(AoA2(i))*sin(AoA2(i))];
     ma2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2([1 3],i))^2*[(CL(AoA2(i))*cos(AoA2(i))+CD(AoA2(i))*sin(AoA2(i)))*eta2(i); c*CM(AoA2(i)); (CL(AoA2(i))*sin(AoA2(i))-CD(AoA2(i))*cos(AoA2(i)))*eta2(i)];
@@ -112,8 +110,7 @@ for i=1:length(eta1)
 %      ma1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1([1 3],i))^2*[(CL_naca(AoA1(i))*cos(AoA1(i))+CD_naca(AoA1(i))*sin(AoA1(i)))*eta1(i); c*CM_naca(AoA1(i)); (CL_naca(AoA1(i))*sin(AoA1(i))-CD_naca(AoA1(i))*cos(AoA1(i)))*eta1(i)];
 %      fa2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2([1 3],i))^2*[-CL_naca(AoA2(i))*sin(AoA2(i))+CD_naca(AoA2(i))*cos(AoA2(i)); 0; CL_naca(AoA2(i))*cos(AoA2(i))+CD_naca(AoA2(i))*sin(AoA2(i))];
 %      ma2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2([1 3],i))^2*[(CL_naca(AoA2(i))*cos(AoA2(i))+CD_naca(AoA2(i))*sin(AoA2(i)))*eta2(i); c*CM_naca(AoA2(i)); (CL_naca(AoA2(i))*sin(AoA2(i))-CD_naca(AoA2(i))*cos(AoA2(i)))*eta2(i)];
-
-    
+   
     %forze su sdr body
     f1=(Tj1')*fa1;
     m1=(Tj1')*ma1+cross([xac1;0;0],(Tj1')*fa1);
@@ -146,3 +143,6 @@ vel1_Re=u+cross(omega,ra1_Re);
 wel1_Re= Tj1*(-vel1_Re-[0;0;v_ind_old]);
 
 Re=1.225*norm([wel1_Re(1), 0, wel1_Re(3)])*c/(1.81*10^-5);
+%% Calcolo momento Mn
+vn_versore=-[u(1) u(2) 0]./norm([u(1) u(2) 0]);
+Mn=vn_versore*M;
