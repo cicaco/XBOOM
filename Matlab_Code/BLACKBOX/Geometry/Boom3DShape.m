@@ -55,6 +55,7 @@ Xp_dx=BoomInfo.Profile.Xp_dx;
 Zp_dx=BoomInfo.Profile.Zp_dx;
 Xp_sx=BoomInfo.Profile.Xp_sx;
 Zp_sx=BoomInfo.Profile.Zp_sx;
+ni=num;
 num=num+p_c;
 %% Set option of the function
 C_fig=0;
@@ -137,7 +138,7 @@ for i=1:2*num-1
     P_1(2,:)=P_1(2,:)+Ty(i);
     [C_aer] = AerCenter(P_1,Chord,Fract(i));
     
-    U_beta= Rot_Point(U_Delta,D_i_aer(i),[1; 0 ;0],[Chord 0 0]'); %devo ottenere il versore ruotato da x a x2 (body)
+    U_beta= Rot_Point(U_Delta,D_i_aer(i),[1; 0 ;0],[0 0 0]'); %devo ottenere il versore ruotato da x a x2 (body)
     [C_aer_rot] = Rot_Point(U_beta,B_i_aer(i),C_aer,[0;0;0]);
     
     C_fin(:,i)=C_aer;
@@ -174,16 +175,37 @@ end
 %% Carattersitiche inerziali
 % Devo riportare il cad rispetto al baricentro (Solo posizione)
 if C_fig==1
-    figure(1)
+    figure()
     for i=1:2*num-2
-        plot3(P_tot(3*i-2,:),P_tot(3*i-1,:),P_tot(3*i,:),'*r');
+        %plot3(P_tot(3*i-2,:),P_tot(3*i-1,:),P_tot(3*i,:),'*r');
+        subplot(1,2,1)
+        plot(P_tot(3*i-2,:),P_tot(3*i-1,:),'k');
+        hold on
+        axis equal
+        grid on
+        subplot(1,2,2)
+        plot(P_tot(3*i-1,:),P_tot(3*i,:),'k');
         hold on
         axis equal
         grid on
     end
-      plot3(C_fin_rot(1,:),C_fin_rot(2,:),C_fin_rot(3,:),'oc');
+    %plot3(C_fin_rot(1,:),C_fin_rot(2,:),C_fin_rot(3,:),'oc');
+    subplot(1,2,1)
+    plot(C_fin_rot(1,:),C_fin_rot(2,:),'oc');
+    subplot(1,2,2)
+    plot(C_fin_rot(2,:),C_fin_rot(3,:),'oc');
+    subplot(1,2,1)
+    
+    xlabel('X','fontsize',11,'interpreter','latex');
+    set(gca,'TickLabelInterpreter','latex')
+    ylabel('Y','fontsize',11,'interpreter','latex');
+    subplot(1,2,2)
+    
+    xlabel('Y','fontsize',11,'interpreter','latex');
+    set(gca,'TickLabelInterpreter','latex')
+    ylabel('Z','fontsize',11,'interpreter','latex');
+    sgtitle('Posizione finale dei centri aerodinamici','fontsize',12,'interpreter','latex');
 end
-      
 
 % Start assembly each solid
 n_prec=0;
@@ -210,10 +232,10 @@ for i=2:2*num-2
     P_succ=P_tot(3*i-2:3*i,:);
     if C_fig==1
         
-        figure(2)
-        plot3(P_prec(1,:),P_prec(2,:),P_prec(3,:),'*r');
+        figure(20)
+        plot3(P_prec(1,:),P_prec(2,:),P_prec(3,:),'k');
         hold on
-        plot3(P_succ(1,:),P_succ(2,:),P_succ(3,:),'ob');
+        plot3(P_succ(1,:),P_succ(2,:),P_succ(3,:),'k');
     end
     if norm(P_prec-P_succ)~=0
         P_i=[P_prec';P_succ'];
@@ -226,14 +248,23 @@ for i=2:2*num-2
         n_prec=n_succ;
         if C_fig==1
             
-            figure(3)
-            plot(shp)
+            figure(30)
+            if i<=ni
+            plot(shp,'FaceColor',[0.153 0.255 0.102],'EdgeColor','k','LineStyle','none','LineWidth',0.1)
             hold on
+            elseif i>=ni+2*p_c
+            plot(shp,'FaceColor',[0.106 0.186 0.252],'EdgeColor','k','LineStyle','none','LineWidth',0.01)
+            hold on
+            else
+            plot(shp,'FaceColor',[0.251 0.162 0.107],'EdgeColor','k','LineStyle','none','LineWidth',0.01)
+            hold on
+            end
+                    
         end
         if C_VarDens==1
             %Calcolo baricentro
             RBP=RigidBodyParams(triangulation(tr_i,xyz_i));
-             
+            
             CG_i=RBP.centroid;
             d=Dens_i(i-1); %densità unitaria
             m_i=d*RBP.volume;
@@ -250,12 +281,12 @@ for i=2:2*num-2
             dY_i = YCg_tot - CG_i(2);
             dZ_i = ZCg_tot - CG_i(3);
             
-            Ixx = Ixx + I_i(1,1) + m_tot * (dY * dY + dZ * dZ) + m_i * (dY_i * dY_i + dZ_i * dZ_i);
-            Iyy = Iyy + I_i(2,2) + m_tot * (dX * dX + dZ * dZ) + m_i * (dX_i * dX_i + dZ_i * dZ_i);
-            Izz = Izz + I_i(3,3) + m_tot * (dX * dX + dY * dY) + m_i * (dY_i * dY_i + dX_i * dX_i);
-            Ixy = Ixy + I_i(1,2) + m_tot * dX * dY + m_i * dX_i * dY_i;
-            Iyz = Iyz + I_i(2,3) + m_tot * dZ * dY + m_i * dZ_i * dY_i;
-            Ixz = Ixz + I_i(1,3) + m_tot * dZ * dX + m_i * dZ_i * dX_i;
+            Ixx = Ixx +  I_i(1,1) + m_tot * (dY * dY + dZ * dZ) + m_i * (dY_i * dY_i + dZ_i * dZ_i);
+            Iyy = Iyy +  I_i(2,2) + m_tot * (dX * dX + dZ * dZ) + m_i * (dX_i * dX_i + dZ_i * dZ_i);
+            Izz = Izz +  I_i(3,3) + m_tot * (dX * dX + dY * dY) + m_i * (dY_i * dY_i + dX_i * dX_i);
+            Ixy = Ixy +  I_i(1,2) + m_tot * dX * dY + m_i * dX_i * dY_i;
+            Iyz = Iyz +  I_i(2,3) + m_tot * dZ * dY + m_i * dZ_i * dY_i;
+            Ixz = Ixz +  I_i(1,3) + m_tot * dZ * dX + m_i * dZ_i * dX_i;
             m_tot = m_i + m_tot;
             
             Cg_tot(1) = XCg_tot;
@@ -264,8 +295,26 @@ for i=2:2*num-2
         end
     end
 end
+if C_fig==1
+figure (20)
+axis equal
+xlabel('X','fontsize',11,'interpreter','latex');
+set(gca,'TickLabelInterpreter','latex')
+ylabel('Y','fontsize',11,'interpreter','latex');
+zlabel('Z','fontsize',11,'interpreter','latex');
+title('Boomerang Profile 3D space','fontsize',12,'interpreter','latex');
+grid on
+figure (30)
+axis equal
+grid on
+axis equal
+xlabel('X','fontsize',11,'interpreter','latex');
+set(gca,'TickLabelInterpreter','latex')
+ylabel('Y','fontsize',11,'interpreter','latex');
+zlabel('Z','fontsize',11,'interpreter','latex');
+title('Boomerang Triangulation','fontsize',12,'interpreter','latex');
 warning('on','all')
-
+end
 pr_fin=triangulation(tr,xyz);
 
 
@@ -316,12 +365,12 @@ Norm=(C_fin_rot(:,num-p_c-1)-C_fin_rot(:,num-p_c))/norm(C_fin_rot(:,num-p_c-1)-C
 % CG(2)=0;
 % CG(3)=0;
 I_origin_Sx=I_sx-CG';
-I_Start_Sx=C_fin_rot(:,num-p_c)-CG';
-I_Finish_Sx=C_fin_rot(:,1)-CG';
+I_Start_Sx=C_fin_rot(:,num+p_c)-CG';
+I_Finish_Sx=C_fin_rot(:,end)-CG';
 
 I_origin_Dx=I_dx-CG';
-I_Start_Dx=C_fin_rot(:,num+p_c)-CG';
-I_Finish_Dx=C_fin_rot(:,end)-CG';
+I_Start_Dx=C_fin_rot(:,num-p_c)-CG';
+I_Finish_Dx=C_fin_rot(:,1)-CG';
 
 Start_Dx=norm(I_Start_Dx-I_origin_Dx);
 l_check_Dx=norm(-I_Start_Dx+I_Finish_Dx);
@@ -336,9 +385,9 @@ if C_fig==1
     
     hold on
     plot3(C_fin_rot(1,num+p_c),C_fin_rot(2,num+p_c),C_fin_rot(3,num+p_c),'*b');
-    plot3(I_sx(1),I_sx(2),I_sx(3),'ok');
-    plot3(I_dx(1),I_dx(2),I_dx(3),'ok');
-    plot3(C_fin_rot(1,num-p_c),C_fin_rot(2,num-p_c),C_fin_rot(3,num-p_c),'*g');
+    plot3(I_sx(1),I_sx(2),I_sx(3),'ob');
+    plot3(I_dx(1),I_dx(2),I_dx(3),'or');
+    plot3(C_fin_rot(1,num-p_c),C_fin_rot(2,num-p_c),C_fin_rot(3,num-p_c),'*r');
     axis equal
     grid on
 end

@@ -17,9 +17,9 @@ Profile2D=importdata('Naca0012.dat');
 %% Profilo 2D flip e analisi
 Xp=-[Profile2D.data(2:67,1) ; fliplr(Profile2D.data(68:end,1)')'].*Chord;
 Zp=[Profile2D.data(2:67,2) ; fliplr(Profile2D.data(68:end,2)')'].*Chord;
-% Profile2D=importdata('Naca0020.dat');
-% Xp=-[0; fliplr(Profile2D(1:65,1)) ; fliplr(Profile2D(66:end,1)')'].*Chord;
-% Zp=[0 ;fliplr(Profile2D(1:65,2)) ; fliplr(Profile2D(66:end,2)')'].*Chord;
+Profile2D=importdata('Naca0020.dat');
+Xp=-[0; fliplr(Profile2D(1:65,1)) ; fliplr(Profile2D(66:end,1)')'].*Chord;
+Zp=[0 ;fliplr(Profile2D(1:65,2)) ; fliplr(Profile2D(66:end,2)')'].*Chord;
 Xp_flip=-(Chord/2.*ones(size(Xp))+Xp)+Chord/2.*ones(size(Xp))-Chord;
 Zp_flip=(Zp);
 figure()
@@ -98,24 +98,30 @@ psi0=0*pi/180;
 Tl_0=[cos(theta0)*cos(psi0), cos(theta0)*sin(psi0), -sin(theta0)
     -cos(phi0)*sin(psi0)+sin(phi0)*sin(theta0)*cos(psi0), cos(phi0)*cos(psi0)+sin(phi0)*sin(theta0)*sin(psi0), sin(phi0)*cos(theta0)
     sin(phi0)*sin(psi0)+cos(phi0)*sin(theta0)*cos(psi0), -sin(phi0)*cos(psi0)+cos(phi0)*sin(theta0)*sin(psi0), cos(phi0)*cos(theta0)];
-r0= 8.7*2*pi; % initial condition on spin rate 10/15 Hz;
-z0= 1.6; % initial altitude
+r0= 9.2*2*pi; % initial condition on spin rate 10/15 Hz;
+z0= 1.8; % initial altitude
 theta=0*pi/180;
 D=64*pi/180;
 psi=pi-D;
 
-phi=86*pi/180;
+phi=87*pi/180;
 
 T0=[cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta)
     -cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi), sin(phi)*cos(theta)
     sin(phi)*sin(psi)+cos(phi)*sin(theta)*cos(psi), -sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi), cos(phi)*cos(theta)];
+%ustart=T0*Tl_0*[33*cos(theta)*cos(D);-33*cos(theta)*sin(D);33*sin(theta)];
+Vs=15;
+V_tip=(T0*Tl_0*[Vs*cos(theta)*cos(D);-Vs*cos(theta)*sin(D);Vs*sin(theta)])'; %Velocità della tip nel piano del boomerang
+r_mano=[0 0 r0];
+P_tip=BoomInfo.Aero.P_Finish_Dx;
+ustart=V_tip+cross(r_mano,-P_tip');
+[V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,T0,ustart',[0;0;r0],BoomInfo);
 
-ustart=T0*Tl_0*[28*cos(theta)*cos(D);-28*cos(theta)*sin(D);28*sin(theta)];
 eul=[psi theta phi];
 quat = eul2quat( eul );
-quat=[quat(2:4) quat(1)];
-tfin=12;
-T0_e = quatToAtt( quat );
+
+tfin=40;
+
 
 %[V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,T0,ustart,[0;0;r0],BoomInfo);
 
@@ -127,10 +133,12 @@ Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 %fclose(fileID);
 euler=[];
 for i=1:numel(TOUT)
-euli = quatToEuler(YOUT_quat(i,1:4) )*180/pi;
-euler(i,:)=[euli(2) euli(3) euli(1)];
+euli = quatToEuler(YOUT_quat(i,1:4) );
+euler(i,:)=[euli(2) euli(1) euli(3)];
 end
-YOUT=[euler YOUT_quat(:,5:end)];
+YOUT=[unwrap(euler) YOUT_quat(:,5:end)];
+YOUT_Q=YOUT;
+save('YOUT_QUAT','YOUT_Q')
 %%
 % figure()
 % plot(phi_vect*180/pi,Dist,'b','linewidth',1.2)
