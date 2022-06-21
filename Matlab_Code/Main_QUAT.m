@@ -98,19 +98,21 @@ psi0=0*pi/180;
 Tl_0=[cos(theta0)*cos(psi0), cos(theta0)*sin(psi0), -sin(theta0)
     -cos(phi0)*sin(psi0)+sin(phi0)*sin(theta0)*cos(psi0), cos(phi0)*cos(psi0)+sin(phi0)*sin(theta0)*sin(psi0), sin(phi0)*cos(theta0)
     sin(phi0)*sin(psi0)+cos(phi0)*sin(theta0)*cos(psi0), -sin(phi0)*cos(psi0)+cos(phi0)*sin(theta0)*sin(psi0), cos(phi0)*cos(theta0)];
-r0= 9.2*2*pi; % initial condition on spin rate 10/15 Hz;
 z0= 1.8; % initial altitude
-theta=0*pi/180;
-D=64*pi/180;
+r0= 10*2*pi; % initial condition on spin rate 10/15 Hz;
+theta=1*pi/180;
+D=83*pi/180;
+phi=47*pi/180;
+Vs=11;
+
 psi=pi-D;
 
-phi=87*pi/180;
+
 
 T0=[cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta)
     -cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi), sin(phi)*cos(theta)
     sin(phi)*sin(psi)+cos(phi)*sin(theta)*cos(psi), -sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi), cos(phi)*cos(theta)];
 %ustart=T0*Tl_0*[33*cos(theta)*cos(D);-33*cos(theta)*sin(D);33*sin(theta)];
-Vs=15;
 V_tip=(T0*Tl_0*[Vs*cos(theta)*cos(D);-Vs*cos(theta)*sin(D);Vs*sin(theta)])'; %Velocità della tip nel piano del boomerang
 r_mano=[0 0 r0];
 P_tip=BoomInfo.Aero.P_Finish_Dx;

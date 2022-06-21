@@ -20,7 +20,7 @@ function [value, isterminal, direction] = EventsQUAT(T, Y)
 value      = (Y(13) <= 0.01); % tocco con il terreno
 
 if T>2 && value==0
-    value = (sqrt(Y(11)^2+Y(12)^2+Y(13)^2)<=4); % distanza dal punto di lancio 
+    value = (sqrt(Y(11)^2+Y(12)^2+Y(13)^2)<=1); % distanza dal punto di lancio 
     %a cui interrompo l'integrazione: 3 metri
 end
 % 

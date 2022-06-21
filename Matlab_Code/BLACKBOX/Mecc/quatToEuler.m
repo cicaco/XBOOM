@@ -20,9 +20,9 @@ A13 = 2*quat(1)*quat(3) - 2*quat(2)*quat(4);
 A23 = 2*quat(1)*quat(4) + 2*quat(2)*quat(3);
 A33 = - quat(1)^2 - quat(2)^2 + quat(3)^2 + quat(4)^2;
 
-phi = atan2(A23, A33);
-theta = - asin(A13);
-psi = atan2(A12, A11);
+phi = unwrap(atan2(A23, A33));
+theta = unwrap(- asin(A13));
+psi = unwrap(atan2(A12, A11));
 
 euler = [ phi, theta, psi]';
 
