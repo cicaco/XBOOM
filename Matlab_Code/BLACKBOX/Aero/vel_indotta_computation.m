@@ -1,6 +1,6 @@
 function [vel_ind]=vel_indotta_computation(u,omega,v_ind_old,BoomInfo)
 
-psi_ciclo=linspace(0,2*pi,30);
+psi_ciclo=linspace(0,2*pi,5);
 psi_vect=midspan(psi_ciclo);
 
 %% import geometria
@@ -18,7 +18,7 @@ start2=BoomInfo.Aero.Start_Dx; %inizio pala 2 con profilo costante
 
 %% definizione sistemi di riferimento pala
 %PALA 1
-span1=linspace(start1,start1+L,20);
+span1=linspace(start1,start1+L,10);
 eta1=midspan(span1);
 lambda=pi/2+freccia;
 %svergolamento
@@ -36,7 +36,7 @@ Tj1=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos
 
 %SECONDA PALA
 %spanwise wing distance
-span2=linspace(start2,start2+L,20);
+span2=linspace(start2,start2+L,10);
 eta2=midspan(span2);
 lambda=2*pi-lambda;
 %svergolamento
