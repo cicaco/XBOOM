@@ -65,42 +65,31 @@ Tj2=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos
 %vel indotta
 v_ind_old=0; %ipotesi iniziale
 err=1;
-while err>10^-3
-[vel_ind]=vel_indotta_computation(u,omega,v_ind_old,BoomInfo);
-err=abs((vel_ind-v_ind_old)/vel_ind);
-v_ind_old=vel_ind;
-end
+% while err>10^-2
+% [vel_ind]=vel_indotta_computation(u,omega,v_ind_old,BoomInfo);
+% err=abs((vel_ind-v_ind_old)/vel_ind);
+% v_ind_old=vel_ind;
+% end
 % inizializzazione
 rA1=[]; v1=[]; w1=[]; AoA1=[]; FA1=[]; MA1=[];F1=[];M1=[];
 rA2=[]; v2=[]; w2=[]; AoA2=[]; FA2=[]; MA2=[];F2=[];M2=[];
 Re=[];
-for i=1:length(eta1)
-%blade element position in body frame
-ra1=[xac1;0;0]+Tj1'*[0;eta1(i);0];
-ra2=[xac2;0;0]+Tj2'*[0;eta2(i);0];
+
+ra1=([xac1;0;0]+(Tj1'*[zeros(1,numel(eta1));eta1;zeros(1,numel(eta1))]))';
+ra2=([xac2;0;0]+(Tj2'*[zeros(1,numel(eta2));eta1;zeros(1,numel(eta2))]))';
 %velocity of blade element
-vel1=u+cross(omega,ra1);
-vel2=u+cross(omega,ra2);
+omega_m=[omega(1).*ones(numel(eta1),1) omega(2).*ones(numel(eta1),1) omega(3).*ones(numel(eta1),1)];
+vel1=u'+cross(omega_m,ra1);
+vel2=u'+cross(omega_m,ra2);
 %relative velocity of blade in blade frame
-wel1= Tj1*(-vel1-[0;0;v_ind_old]);
-wel2= Tj2*(-vel2-[0;0;v_ind_old]);
+w1= Tj1*(-vel1-[0 0 v_ind_old])';
+w2= Tj2*(-vel2-[0 0 v_ind_old])';
 %AoA
-aoa1=atan2(wel1(3),wel1(1))+twist1(i);
-aoa2=atan2(wel2(3),wel2(1))+twist2(i);
-
-%salvataggio variabili
-% rA1=[rA1, ra1];
-% rA2=[rA2, ra2];
-% v1=[v1, vel1];
-% v2=[v2, vel2];
-w1=[w1, wel1];
-w2=[w2, wel2];
-AoA1=[AoA1, aoa1];
-AoA2=[AoA2, aoa2];
-end
-
+AoA1=atan2(w1(3,:),w1(1,:))+twist1;
+AoA2=atan2(w2(3,:),w2(1,:))+twist2;
 %BET
-for i=1:length(eta1)
+net=length(eta1);
+for i=1:net
     fa1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1([1 3],i))^2*[-CL(AoA1(i))*sin(AoA1(i))+CD(AoA1(i))*cos(AoA1(i)); 0; CL(AoA1(i))*cos(AoA1(i))+CD(AoA1(i))*sin(AoA1(i))];
     ma1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1([1 3],i))^2*[(CL(AoA1(i))*cos(AoA1(i))+CD(AoA1(i))*sin(AoA1(i)))*eta1(i); c*CM(AoA1(i)); (CL(AoA1(i))*sin(AoA1(i))-CD(AoA1(i))*cos(AoA1(i)))*eta1(i)];
     fa2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2([1 3],i))^2*[-CL(AoA2(i))*sin(AoA2(i))+CD(AoA2(i))*cos(AoA2(i)); 0; CL(AoA2(i))*cos(AoA2(i))+CD(AoA2(i))*sin(AoA2(i))];
@@ -127,6 +116,12 @@ for i=1:length(eta1)
     F2=[F2, f2];
     M2=[M2, m2 ];
 end
+
+% fa1=(span1(2:net+1)-span1(1:net))'.*0.5.*1.225.*c.*(vecnorm(w1([1 3],:)).^2)'*[-CL(AoA1(i))*sin(AoA1(i))+CD(AoA1(i))*cos(AoA1(i)); 0; CL(AoA1(i))*cos(AoA1(i))+CD(AoA1(i))*sin(AoA1(i))];
+% ma1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1([1 3],i))^2*[(CL(AoA1(i))*cos(AoA1(i))+CD(AoA1(i))*sin(AoA1(i)))*eta1(i); c*CM(AoA1(i)); (CL(AoA1(i))*sin(AoA1(i))-CD(AoA1(i))*cos(AoA1(i)))*eta1(i)];
+% fa2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2([1 3],i))^2*[-CL(AoA2(i))*sin(AoA2(i))+CD(AoA2(i))*cos(AoA2(i)); 0; CL(AoA2(i))*cos(AoA2(i))+CD(AoA2(i))*sin(AoA2(i))];
+% ma2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2([1 3],i))^2*[(CL(AoA2(i))*cos(AoA2(i))+CD(AoA2(i))*sin(AoA2(i)))*eta2(i); c*CM(AoA2(i)); (CL(AoA2(i))*sin(AoA2(i))-CD(AoA2(i))*cos(AoA2(i)))*eta2(i)];
+
 
 F1=sum(F1,2);
 M1=sum(M1,2);

@@ -4,14 +4,14 @@ close all
 addpath(genpath('BLACKBOX'));
 
 %% Input Data
-Chord=0.04;
-p_c=20; % numero di profili di "Transizione" nella parte centrale
-l=0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
+Chord=0.03;
+p_c=10; % numero di profili di "Transizione" nella parte centrale
+l=0.2; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
 delta=40*pi/180; %Angolo di freccia
 beta=0*pi/180; %Angolo di Diedro
 pitch=3*pi/180; %Pitch angle
-num=20; %Numero di profili totale su ciascuna metà;
-PARA=1.6; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
+num=5; %Numero di profili totale su ciascuna metà;
+PARA=2.0; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
 % Profile 2D Shape
 Profile2D=importdata('Naca0012.dat');
 %% Profilo 2D flip e analisi
@@ -56,21 +56,24 @@ BoomInfo.Mecc.m
 
 % x=[r0 theta D phi Vs];
 lb=[7 0 0 0 8]*10; %[Hz gradi m/s]
-ub=[11 10  90  90 15]*10;
+ub=[10 10  90  90 12]*10;
 fitnessfcn=@(x) GA_para1(x,BoomInfo);
-options = optimoptions('ga', 'MaxStallGenerations', 10, 'MaxGenerations', 15, 'NonlinearConstraintAlgorithm', 'penalty',...
-    'PopulationSize', 20, 'PlotFcn', {'gaplotbestindiv', 'gaplotbestf'},...
-    'Display', 'iter', 'UseParallel', true, 'UseVectorized', false);
-x = ga(fitnessfcn,5,[],[],[],[],lb,ub,[],1:5,options);
-[PAR] = GA_para1(x,BoomInfo,'Ciao')
+options = optimoptions('ga', 'MaxStallGenerations', 10, 'MaxGenerations', 5, 'NonlinearConstraintAlgorithm', 'penalty',...
+    'PopulationSize', 80, 'PlotFcn', {'gaplotbestindiv', 'gaplotbestf'},...
+    'Display', 'iter', 'UseParallel', true, 'UseVectorized', false,'FitnessLimit',3 );
+X_ini = ga(fitnessfcn,5,[],[],[],[],lb,ub,[],1:5,options);
+[PAR] = GA_para1(X_ini,BoomInfo,'Ciao');
 %%
 
 %% Initial condition
-r0=x(1)*2*pi/10;
-theta=x(2)*pi/180/10;
-D=x(3)*pi/180/10;
-phi=x(4)*pi/180/10;
-Vs=x(5)/10;
+X_ini_right=[X_ini(1)/10 X_ini(2)/10 X_ini(3)/10 X_ini(4)/10 X_ini(5)/10]
+
+%%
+r0=X_ini(1)*2*pi/10;
+theta=X_ini(2)*pi/180/10;
+D=X_ini(3)*pi/180/10;
+phi=X_ini(4)*pi/180/10;
+Vs=X_ini(5)/10;
 
 
 theta0=0*pi/180;
@@ -96,14 +99,18 @@ quat = eul2quat( eul );
 
 tfin=40;
 
-[V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,T0,ustart,[0;0;r0],BoomInfo);
 
-fileID = fopen('debug.txt','a+');
-options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
+%[V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,T0,ustart,[0;0;r0],BoomInfo);
+
+
+options = odeset('Events', @EventsQUAT,'RelTol',1e-2,'AbsTol',1e-3);
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 %%
-[TOUT,YOUT_quat] = ode15s(@(t,y)EquationOfMotionsQuaternion(t,y,fileID,BoomInfo,Tl_0),[0 tfin],Y0,options); %
-%fclose(fileID);
+%[TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
+[TOUT,YOUT_quat] = ode45(@(t,y)TestEquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
+if not( PAR(2)==TOUT(end) && PAR(1)==norm(YOUT_quat(end,11:13)))
+    fprintf('Errore \n');
+end
 euler=[];
 for i=1:numel(TOUT)
 euli = quatToEuler(YOUT_quat(i,1:4) );
