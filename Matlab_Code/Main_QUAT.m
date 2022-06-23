@@ -1,25 +1,21 @@
 %% Script per creare la Geometria 3D
-clear all
+clear all 
 close all
 addpath(genpath('BLACKBOX'));
-
 %% Input Data
-Chord=0.04;
+Chord=0.0488;
 p_c=20; % numero di profili di "Transizione" nella parte centrale
 l=0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
-delta=40*pi/180; %Angolo di freccia
-beta=0*pi/180; %Angolo di Diedro
-pitch=3*pi/180; %Pitch angle
+delta=30*pi/180; %Angolo di freccia
+beta=0.5*pi/180; %Angolo di Diedro
+pitch=4*pi/180; %Pitch angle
 num=20; %Numero di profili totale su ciascuna metà;
-PARA=1.6; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
+PARA=2.; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
 % Profile 2D Shape
 Profile2D=importdata('Naca0012.dat');
 %% Profilo 2D flip e analisi
 Xp=-[Profile2D.data(2:67,1) ; fliplr(Profile2D.data(68:end,1)')'].*Chord;
 Zp=[Profile2D.data(2:67,2) ; fliplr(Profile2D.data(68:end,2)')'].*Chord;
-Profile2D=importdata('Naca0020.dat');
-Xp=-[0; fliplr(Profile2D(1:65,1)) ; fliplr(Profile2D(66:end,1)')'].*Chord;
-Zp=[0 ;fliplr(Profile2D(1:65,2)) ; fliplr(Profile2D(66:end,2)')'].*Chord;
 Xp_flip=-(Chord/2.*ones(size(Xp))+Xp)+Chord/2.*ones(size(Xp))-Chord;
 Zp_flip=(Zp);
 figure()
@@ -45,75 +41,34 @@ BoomInfo.Profile.Xp_dx=Xp;
 BoomInfo.Profile.Xp_sx=Xp_flip;
 BoomInfo.Profile.Zp_dx=Zp;
 BoomInfo.Profile.Zp_sx=Zp_flip;
-%%
-[Cl,Cd,Cm] = AeroCoeff;
-BoomInfo.Aero.Cl=Cl;
-BoomInfo.Aero.Cd=Cd;
-BoomInfo.Aero.Cm=Cm;
-global alpha_t
-global CM_t
-global CD_t
-global CL_t
-
-T_0025=readmatrix('Cl_CD_naca0025.dat');
-AoA=T_0025(:,2);
-Cl=T_0025(:,3);
-Cd=T_0025(:,4);
-Cm=T_0025(:,5);
-
-alpha_t=[-fliplr(AoA(2:end)')' ;AoA];
-CD_t=[fliplr(Cd(2:end)')'; Cd];
-CL_t=[-fliplr(Cl(2:end)')'; Cl];
-CM_t=[-fliplr(Cm(2:end)')'; Cm];
-
-figure(2)
-plot(alpha_t,CL_t,'r');
-hold on
-plot(alpha_t,CD_t,'b');
-plot(alpha_t,CM_t,'k');
-
-legend('Cl_0025','Cd_0025','Cm_0025','Cl_0012','Cd_0012');
 %% Geometry
-n=num+p_c;
-
-Dens_i=[1100.*ones(1,n-p_c-1) 900*ones(1,2*p_c-1) 1100.*ones(1,n-p_c-1)];
-R=800;
-Dens_i=[R.*ones(1,n-p_c-1) R*ones(1,2*p_c-1) R.*ones(1,n-p_c-1)];
-
-%Dens_i=[1500 1500 1000.*ones(1,n-p_c-1-2) 1000.*ones(1,2*p_c-1)   1000.*ones(1,n-p_c-3) 1500 1500];
-
-[BoomInfo] = Boom3DShape(BoomInfo,'Info','Density_variation',Dens_i);
-
-BoomInfo.Mecc.I_rho
-BoomInfo.Mecc.m
-
+[BoomInfo] = Boom3DShape(BoomInfo,'Info');
+rho=1000;
+BoomInfo.Mecc.I_rho=rho*BoomInfo.Mecc.I;
+BoomInfo.Mecc.m=BoomInfo.Mecc.V*rho;
 %% Initial condition
-theta0=0*pi/180;
-phi0=0*pi/180;
-psi0=0*pi/180;
+theta0=0.0*pi/180;
+phi0=90*pi/180;
+psi0=180*pi/180;
+
 Tl_0=[cos(theta0)*cos(psi0), cos(theta0)*sin(psi0), -sin(theta0)
     -cos(phi0)*sin(psi0)+sin(phi0)*sin(theta0)*cos(psi0), cos(phi0)*cos(psi0)+sin(phi0)*sin(theta0)*sin(psi0), sin(phi0)*cos(theta0)
     sin(phi0)*sin(psi0)+cos(phi0)*sin(theta0)*cos(psi0), -sin(phi0)*cos(psi0)+cos(phi0)*sin(theta0)*sin(psi0), cos(phi0)*cos(theta0)];
-z0= 1.8; % initial altitude
-r0= 8.3*2*pi; % initial condition on spin rate 10/15 Hz;
-theta=8.6*pi/180;
-D=78.4*pi/180;
-phi=41.1*pi/180;
-Vs=10;
 
-psi=pi-D;
-
-
+%% Traiectory
+theta=0*pi/180;
+phi=0*pi/180; 
+psi=-60*pi/180;
+r0= 14*2*pi; % initial condition on spin rate 10/15 Hz;
+z0= 2; % initial altitude
 
 T0=[cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta)
     -cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi), sin(phi)*cos(theta)
     sin(phi)*sin(psi)+cos(phi)*sin(theta)*cos(psi), -sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi), cos(phi)*cos(theta)];
-%ustart=T0*Tl_0*[33*cos(theta)*cos(D);-33*cos(theta)*sin(D);33*sin(theta)];
-V_tip=(T0*Tl_0*[Vs*cos(theta)*cos(D);-Vs*cos(theta)*sin(D);Vs*sin(theta)])'; %Velocità della tip nel piano del boomerang
-r_mano=[0 0 r0];
-P_tip=BoomInfo.Aero.P_Finish_Dx;
-ustart=V_tip+cross(r_mano,-P_tip');
-[V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,T0,ustart',[0;0;r0],BoomInfo);
+
+
+
+ustart=T0*Tl_0*[25*cos(5*pi/180);0;25*sin(5*pi/180)];
 
 eul=[psi theta phi];
 quat = eul2quat( eul );
@@ -123,12 +78,12 @@ tfin=40;
 
 %[V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,T0,ustart,[0;0;r0],BoomInfo);
 
-fileID = fopen('debug.txt','a+');
 options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 %%
-[TOUT,YOUT_quat] = ode15s(@(t,y)EquationOfMotionsQuaternion(t,y,fileID,BoomInfo,Tl_0),[0 tfin],Y0,options); %
-%fclose(fileID);
+tic
+[TOUT,YOUT_quat] = ode15s(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
+toc
 euler=[];
 for i=1:numel(TOUT)
 euli = quatToEuler(YOUT_quat(i,1:4) );

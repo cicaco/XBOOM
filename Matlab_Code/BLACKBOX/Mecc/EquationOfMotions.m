@@ -50,8 +50,9 @@ M_pqr=[Ix -Ixy -Ixz; -Ixy Iy -Iyz ; -Ixz -Iyz Iz ];
 R=[-(Iz-Iy)*q*r-(Ixy*p+Iyz*r)*r+(Ixz*p+Iyz*q)*q+M(1);...
     -(Ix-Iz)*p*r-(Iyz*q+Ixz*p)*p+(Ixy*p+Ixz*r)*r+M(2);...
     -(Iy-Ix)*p*q-(Ixz*r+Ixy*q)*q+(Iyz*r+Ixy*p)*p+M(3)];
+dy(4:6)=M_pqr\R
+dy(4:6)=M_pqr\(-cross([p;q;r],M_pqr*[p;q;r])+M)
 
-dy(4:6)=M_pqr\R;
 dy(7)=(-m*q*uz+m*r*uy+F(1)+FG(1))/m;
 dy(8)=(-m*r*ux+m*p*uz+F(2)+FG(2))/m;
 dy(9)=(-m*p*uy+m*q*ux+F(3)+FG(3))/m;

@@ -1,4 +1,4 @@
-function [dy]=EquationOfMotionsQuaternion(t,y,fileID, BoomInfo,Tl_0)
+function [dy]=EquationOfMotionsQuaternion(t,y, BoomInfo,Tl_0)
 %This function calculates,for every point of the trajectory,the
 % angular velocities(dtheta,dphi,dpsi),the angular accellerations in the body
 % frame(dp,dr,dq)and the 3 components of velocity(ux,uy,uz)
@@ -38,21 +38,26 @@ T0 = quatToAtt( quat );
 %     -cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi), sin(phi)*cos(theta)
 %     sin(phi)*sin(psi)+cos(phi)*sin(theta)*cos(psi), -sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi), cos(phi)*cos(theta)];
 
+
 FG=T0*Tl_0*(-m*g*[0;0;1]);
-
-
 [F,M]=AeroDynamics([ux;uy;uz],[p;q;r],BoomInfo);
-
+% dy(1:13)=[1/2*[0 r -q p; -r 0 p q; q -p 0 r; -p -q -r 0]*[q1 q2 q3 q4]';...
+%             [Ix -Ixy -Ixz; -Ixy Iy -Iyz ; -Ixz -Iyz Iz ]\...
+%             ([-(Iz-Iy)*q*r-(Ixy*p+Iyz*r)*r+(Ixz*p+Iyz*q)*q;...
+%                 -(Ix-Iz)*p*r-(Iyz*q+Ixz*p)*p+(Ixy*p+Ixz*r)*r;...
+%                 -(Iy-Ix)*p*q-(Ixz*r+Ixy*q)*q+(Iyz*r+Ixy*p)*p]+M);...
+%             ([-m*q*uz+m*r*uy;-m*r*ux+m*p*uz;-m*p*uy+m*q*ux]+F+T0*Tl_0*(-m*g*[0;0;1]))./m;...
+%             Tl_0'*T0'*[ux;uy;uz]];
+        
 dy(1:4)=1/2*[0 r -q p; -r 0 p q; q -p 0 r; -p -q -r 0]*[q1 q2 q3 q4]';
-% dy(1)=q*cos(phi)-r*sin(phi);
-% dy(2)=p+q*sin(phi)*tan(theta)+r*cos(phi)*tan(theta);
-% dy(3)=q*sin(phi)/cos(theta)+r*cos(phi)/cos(theta);
 M_pqr=[Ix -Ixy -Ixz; -Ixy Iy -Iyz ; -Ixz -Iyz Iz ];
-R=[-(Iz-Iy)*q*r-(Ixy*p+Iyz*r)*r+(Ixz*p+Iyz*q)*q+M(1);...
-    -(Ix-Iz)*p*r-(Iyz*q+Ixz*p)*p+(Ixy*p+Ixz*r)*r+M(2);...
-    -(Iy-Ix)*p*q-(Ixz*r+Ixy*q)*q+(Iyz*r+Ixy*p)*p+M(3)];
+% Deprecate
+% R=[-(Iz-Iy)*q*r-(Ixy*p+Iyz*r)*r+(Ixz*p+Iyz*q)*q+M(1);...
+%     -(Ix-Iz)*p*r-(Iyz*q+Ixz*p)*p+(Ixy*p+Ixz*r)*r+M(2);...
+%     -(Iy-Ix)*p*q-(Ixz*r+Ixy*q)*q+(Iyz*r+Ixy*p)*p+M(3)];
+% dy(5:7)=M_pqr\R;
+dy(5:7)=M_pqr\(-cross([p;q;r],M_pqr*[p;q;r])+M);
 
-dy(5:7)=M_pqr\R;
 dy(8)=(-m*q*uz+m*r*uy+F(1)+FG(1))/m;
 dy(9)=(-m*r*ux+m*p*uz+F(2)+FG(2))/m;
 dy(10)=(-m*p*uy+m*q*ux+F(3)+FG(3))/m;
@@ -63,24 +68,5 @@ dy(11)=VEL(1);
 dy(12)=VEL(2);
 dy(13)=VEL(3);
 dy=dy';
-
-% fprintf(fileID,'TIME: %.5f \n',t);
-% fprintf(fileID,'Re: %.5f ',Re); 
-
-% fprintf(fileID,' %.5f \n ',AoA1(1:end)*180/pi); 
-
-
-
-% fprintf(fileID,'dTheta: %.f ',dy(1));
-% fprintf(fileID,'dPhi: %.5f ',dy(2));
-% fprintf(fileID,'dPsi: %.5f ',dy(3));
-% fprintf(fileID,'dp: %.5f ',dy(4));
-% fprintf(fileID,'dq: %.5f ',dy(5));
-% fprintf(fileID,'dr: %.5f ',dy(6));
-% fprintf(fileID,'ux: %.5f ',VEL(1));
-% fprintf(fileID,'uy: %.5f ',VEL(2));
-% fprintf(fileID,'uz: %.5f ',VEL(3));
-
-
 
 end

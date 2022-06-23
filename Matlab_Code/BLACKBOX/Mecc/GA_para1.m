@@ -34,12 +34,12 @@ tfin=40;
 %[V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,T0,ustart,[0;0;r0],BoomInfo);
 
 
-options = odeset('Events', @EventsQUAT,'RelTol',1e-2,'AbsTol',1e-3);
+options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 %%
-%[TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
-[TOUT,YOUT_quat] = ode45(@(t,y)TestEquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
+[TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
 
+% La distanza ed il tempo vengono minimizzati
 Dist=norm(YOUT_quat(end,11:13));
 
 if max(vecnorm(YOUT_quat(:,11:13)'))/1.1<=Dist

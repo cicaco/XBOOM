@@ -67,7 +67,7 @@ T0=[cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta)
     sin(phi)*sin(psi)+cos(phi)*sin(theta)*cos(psi), -sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi), cos(phi)*cos(theta)];
 
 
-tfin=5;
+tfin=0.2;
 ustart=T0*Tl_0*[25*cos(5*pi/180);0;25*sin(5*pi/180)];
 fileID = fopen('debug.txt','a+');
 options = odeset('Events', @Events,'RelTol',1e-4,'AbsTol',1e-6);

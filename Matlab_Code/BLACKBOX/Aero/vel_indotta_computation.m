@@ -1,7 +1,5 @@
 function [vel_ind]=vel_indotta_computation(u,omega,v_ind_old,BoomInfo)
 
-psi_ciclo=linspace(0,2*pi,5);
-psi_vect=midspan(psi_ciclo);
 
 %% import geometria
 c=BoomInfo.Profile.Chord; %m
@@ -46,6 +44,8 @@ twist2=zeros(1,length(eta2));
 Tj2=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos(pitch)+sin(lambda)*sin(coning)*sin(pitch), -cos(coning)*sin(pitch)
     cos(lambda)*cos(coning), sin(lambda)*cos(coning), +sin(coning)
     sin(lambda)*sin(pitch)-cos(lambda)*sin(coning)*cos(pitch), -cos(lambda)*sin(pitch)-sin(lambda)*sin(coning)*cos(pitch), cos(coning)*cos(pitch)];
+psi_ciclo=linspace(0,2*pi,5);
+psi_vect=midspan(psi_ciclo);
 
 F_ciclopsi=[];
 % M_ciclopsi=[];
@@ -62,30 +62,19 @@ xac2_ciclopsi=T_ciclopsi'*[xac2; 0; 0];
 rA1=[]; v1=[]; w1=[]; AoA1=[]; FA1=[]; MA1=[];F1=[];M1=[];
 rA2=[]; v2=[]; w2=[]; AoA2=[]; FA2=[]; MA2=[];F2=[];M2=[];
 Re=[];
-for i=1:length(eta1)
-%blade element position in body frame
-ra1=xac1_ciclopsi+Tj1'*[0;eta1(i);0];
-ra2=xac2_ciclopsi+Tj2'*[0;eta2(i);0];
-%velocity of blade element
-vel1=u+cross(omega,ra1);
-vel2=u+cross(omega,ra2);
-%relative velocity of blade in blade frame
-wel1= Tj1*(-vel1-[0;0;-v_ind_old]);
-wel2= Tj2*(-vel2-[0;0;-v_ind_old]);
-%AoA
-aoa1=atan2(wel1(3),wel1(1));
-aoa2=atan2(wel2(3),wel2(1));
 
-%salvataggio variabili
-% rA1=[rA1, ra1];
-% rA2=[rA2, ra2];
-% v1=[v1, vel1];
-% v2=[v2, vel2];
-w1=[w1, wel1];
-w2=[w2, wel2];
-AoA1=[AoA1, aoa1];
-AoA2=[AoA2, aoa2];
-end
+ra1=([xac1;0;0]+(Tj1'*[zeros(1,numel(eta1));eta1;zeros(1,numel(eta1))]))';
+ra2=([xac2;0;0]+(Tj2'*[zeros(1,numel(eta2));eta1;zeros(1,numel(eta2))]))';
+%velocity of blade element
+omega_m=[omega(1).*ones(numel(eta1),1) omega(2).*ones(numel(eta1),1) omega(3).*ones(numel(eta1),1)];
+vel1=u'+cross(omega_m,ra1);
+vel2=u'+cross(omega_m,ra2);
+%relative velocity of blade in blade frame
+w1= Tj1*(-vel1-[0 0 v_ind_old])';
+w2= Tj2*(-vel2-[0 0 v_ind_old])';
+%AoA
+AoA1=atan2(w1(3,:),w1(1,:))+twist1;
+AoA2=atan2(w2(3,:),w2(1,:))+twist2;
 
 %BET
 for i=1:length(eta1)

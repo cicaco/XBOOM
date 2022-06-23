@@ -4,22 +4,22 @@ close all
 addpath(genpath('BLACKBOX'));
 
 %% Input Data
-Chord=0.03;
+Chord=0.0488;
 p_c=10; % numero di profili di "Transizione" nella parte centrale
-l=0.2; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
+l=0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
 delta=40*pi/180; %Angolo di freccia
 beta=0*pi/180; %Angolo di Diedro
-pitch=3*pi/180; %Pitch angle
+pitch=1*pi/180; %Pitch angle
 num=5; %Numero di profili totale su ciascuna metà;
-PARA=2.0; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
+PARA=1.0; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
 % Profile 2D Shape
 Profile2D=importdata('Naca0012.dat');
 %% Profilo 2D flip e analisi
 Xp=-[Profile2D.data(2:67,1) ; fliplr(Profile2D.data(68:end,1)')'].*Chord;
 Zp=[Profile2D.data(2:67,2) ; fliplr(Profile2D.data(68:end,2)')'].*Chord;
-Profile2D=importdata('Naca0020.dat');
-Xp=-[0; fliplr(Profile2D(1:65,1)) ; fliplr(Profile2D(66:end,1)')'].*Chord;
-Zp=[0 ;fliplr(Profile2D(1:65,2)) ; fliplr(Profile2D(66:end,2)')'].*Chord;
+% Profile2D=importdata('Naca0020.dat');
+% Xp=-[0; fliplr(Profile2D(1:65,1)) ; fliplr(Profile2D(66:end,1)')'].*Chord;
+% Zp=[0 ;fliplr(Profile2D(1:65,2)) ; fliplr(Profile2D(66:end,2)')'].*Chord;
 Xp_flip=-(Chord/2.*ones(size(Xp))+Xp)+Chord/2.*ones(size(Xp))-Chord;
 Zp_flip=(Zp);
 [n,~]=size(Xp);
@@ -43,24 +43,24 @@ BoomInfo.Profile.Zp_sx=Zp_flip;
 n=num+p_c;
 
 Dens_i=[1100.*ones(1,n-p_c-1) 900*ones(1,2*p_c-1) 1100.*ones(1,n-p_c-1)];
-R=800;
+R=1.0619e+03;
 Dens_i=[R.*ones(1,n-p_c-1) R*ones(1,2*p_c-1) R.*ones(1,n-p_c-1)];
 
 %Dens_i=[1500 1500 1000.*ones(1,n-p_c-1-2) 1000.*ones(1,2*p_c-1)   1000.*ones(1,n-p_c-3) 1500 1500];
 
-[BoomInfo] = Boom3DShape(BoomInfo,'Info','Density_variation',Dens_i);
+[BoomInfo] = Boom3DShape(BoomInfo,'Info','Density_variation',Dens_i,'Create_Stl');
 
 BoomInfo.Mecc.I_rho
 BoomInfo.Mecc.m
 %% Initial condition
 
 % x=[r0 theta D phi Vs];
-lb=[7 0 0 0 8]*10; %[Hz gradi m/s]
-ub=[10 10  90  90 12]*10;
+lb=[8 0 0 0 8]*10; %[Hz gradi m/s]
+ub=[12 10  90  90 15]*10;
 fitnessfcn=@(x) GA_para1(x,BoomInfo);
-options = optimoptions('ga', 'MaxStallGenerations', 10, 'MaxGenerations', 5, 'NonlinearConstraintAlgorithm', 'penalty',...
-    'PopulationSize', 80, 'PlotFcn', {'gaplotbestindiv', 'gaplotbestf'},...
-    'Display', 'iter', 'UseParallel', true, 'UseVectorized', false,'FitnessLimit',3 );
+options = optimoptions('ga', 'MaxStallGenerations', 10, 'MaxGenerations', 10, 'NonlinearConstraintAlgorithm', 'penalty',...
+    'PopulationSize', 150, 'PlotFcn', {'gaplotbestindiv', 'gaplotbestf'},...
+    'Display', 'iter', 'UseParallel', true, 'UseVectorized', false,'FitnessLimit',4 );
 X_ini = ga(fitnessfcn,5,[],[],[],[],lb,ub,[],1:5,options);
 [PAR] = GA_para1(X_ini,BoomInfo,'Ciao');
 %%
@@ -103,11 +103,11 @@ tfin=40;
 %[V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,T0,ustart,[0;0;r0],BoomInfo);
 
 
-options = odeset('Events', @EventsQUAT,'RelTol',1e-2,'AbsTol',1e-3);
+options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 %%
-%[TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
-[TOUT,YOUT_quat] = ode45(@(t,y)TestEquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
+[TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
+%[TOUT,YOUT_quat] = ode45(@(t,y)TestEquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
 if not( PAR(2)==TOUT(end) && PAR(1)==norm(YOUT_quat(end,11:13)))
     fprintf('Errore \n');
 end
@@ -129,6 +129,8 @@ save('YOUT_QUAT','YOUT_Q')
 % ylabel('DIST','fontsize',11,'interpreter','latex');
 % title('Boomerang Traiectory Function of $\Phi$','fontsize',12,'interpreter','latex');
 %% Plot
+%Calcolo Energia Cinetica e Potenziale
+
 linecolors={'r' 'y' 'c' 'g' 'b' 'k'};
 [handles]=plotNy(TOUT(:),YOUT(:,1)*180/pi,1,...
     TOUT(:),YOUT(:,2)*180/pi,1,...

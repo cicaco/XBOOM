@@ -74,7 +74,32 @@ err=1;
 rA1=[]; v1=[]; w1=[]; AoA1=[]; FA1=[]; MA1=[];F1=[];M1=[];
 rA2=[]; v2=[]; w2=[]; AoA2=[]; FA2=[]; MA2=[];F2=[];M2=[];
 Re=[];
-
+%% OLD
+% for i=1:length(eta1)
+%     %blade element position in body frame
+%     ra1=[xac1;0;0]+Tj1'*[0;eta1(i);0];
+%     ra2=[xac2;0;0]+Tj2'*[0;eta2(i);0];
+%     %velocity of blade element
+%     vel1=u+cross(omega,ra1);
+%     vel2=u+cross(omega,ra2);
+%     %relative velocity of blade in blade frame
+%     wel1= Tj1*(-vel1-[0;0;v_ind_old]);
+%     wel2= Tj2*(-vel2-[0;0;v_ind_old]);
+%     %AoA
+%     aoa1=atan2(wel1(3),wel1(1))+twist1(i);
+%     aoa2=atan2(wel2(3),wel2(1))+twist2(i);
+%     
+%     %salvataggio variabili
+%     % rA1=[rA1, ra1];
+%     % rA2=[rA2, ra2];
+%     % v1=[v1, vel1];
+%     % v2=[v2, vel2];
+%     w1=[w1, wel1];
+%     w2=[w2, wel2];
+%     AoA1=[AoA1, aoa1];
+%     AoA2=[AoA2, aoa2];
+% end
+%% new Lore
 ra1=([xac1;0;0]+(Tj1'*[zeros(1,numel(eta1));eta1;zeros(1,numel(eta1))]))';
 ra2=([xac2;0;0]+(Tj2'*[zeros(1,numel(eta2));eta1;zeros(1,numel(eta2))]))';
 %velocity of blade element
