@@ -4,14 +4,14 @@ close all
 addpath(genpath('BLACKBOX'));
 
 %% Input Data
-Chord=0.0488;
+Chord=0.04;
 p_c=10; % numero di profili di "Transizione" nella parte centrale
-l=0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
+l=0.2; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
 delta=40*pi/180; %Angolo di freccia
-beta=0*pi/180; %Angolo di Diedro
+beta=1*pi/180; %Angolo di Diedro
 pitch=1*pi/180; %Pitch angle
 num=5; %Numero di profili totale su ciascuna metà;
-PARA=1.0; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
+PARA=2.0; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
 % Profile 2D Shape
 Profile2D=importdata('Naca0012.dat');
 %% Profilo 2D flip e analisi
@@ -26,6 +26,21 @@ Zp_flip=(Zp);
 %Clock-wise direction regeneration
 Xp_flip=[fliplr(Xp_flip(1:n/2)')';fliplr(Xp_flip(n/2+1:end)')'];
 Zp_flip=[fliplr(Zp_flip(1:n/2)')';fliplr(Zp_flip(n/2+1:end)')'];
+
+T_0025=readmatrix('Cl_CD_naca0025.dat');
+AoA=T_0025(:,2);
+Cl=T_0025(:,3);
+Cd=T_0025(:,4);
+Cm=T_0025(:,5);
+
+alpha_t=[-fliplr(AoA(2:end)')'*pi/180 ;AoA*pi/180];
+CD_t=[fliplr(Cd(2:end)')'; Cd];
+CL_t=[-fliplr(Cl(2:end)')'; Cl];
+CM_t=[-fliplr(Cm(2:end)')'; Cm]; 
+BoomInfo.Aero.alpha_t=alpha_t;
+BoomInfo.Aero.Cl=CL_t;
+BoomInfo.Aero.Cd=CD_t;
+BoomInfo.Aero.Cm=CM_t;
 %% Creazione dell Info Box
 BoomInfo.Pianta.l=l;
 BoomInfo.Pianta.freccia=delta;
@@ -44,6 +59,7 @@ n=num+p_c;
 
 Dens_i=[1100.*ones(1,n-p_c-1) 900*ones(1,2*p_c-1) 1100.*ones(1,n-p_c-1)];
 R=1.0619e+03;
+R=650;
 Dens_i=[R.*ones(1,n-p_c-1) R*ones(1,2*p_c-1) R.*ones(1,n-p_c-1)];
 
 %Dens_i=[1500 1500 1000.*ones(1,n-p_c-1-2) 1000.*ones(1,2*p_c-1)   1000.*ones(1,n-p_c-3) 1500 1500];
@@ -94,9 +110,11 @@ tfin=40;
 options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 %%
+tic
 [TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
+toc
 %[TOUT,YOUT_quat] = ode45(@(t,y)TestEquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
-
+%%
 euler=[];
 for i=1:numel(TOUT)
 euli = quatToEuler(YOUT_quat(i,1:4) );
@@ -183,7 +201,7 @@ linecolors={'r' 'y' 'c' 'g' 'b' 'k'};
 grid on
 %% grafico
 PlotTipDxSx(TOUT,YOUT,BoomInfo,Tl_0)
-PlotAeroForce(YOUT,TOUT,BoomInfo)
+% PlotAeroForce(YOUT,TOUT,BoomInfo)
 %% grafico rapporto di avanzamento e velocità
 chi= YOUT(:,6).*BoomInfo.Pianta.l*cos(BoomInfo.Pianta.freccia)/(vecnorm(YOUT(:,7:9)'))';
 V=(vecnorm(YOUT(:,7:9)'))';

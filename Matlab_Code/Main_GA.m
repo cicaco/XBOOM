@@ -4,28 +4,44 @@ close all
 addpath(genpath('BLACKBOX'));
 
 %% Input Data
-Chord=0.0488;
+Chord=0.045;
 p_c=10; % numero di profili di "Transizione" nella parte centrale
 l=0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
 delta=40*pi/180; %Angolo di freccia
 beta=0*pi/180; %Angolo di Diedro
-pitch=1*pi/180; %Pitch angle
+pitch=0*pi/180; %Pitch angle
 num=5; %Numero di profili totale su ciascuna metà;
-PARA=1.0; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
+PARA=2.0; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
 % Profile 2D Shape
 Profile2D=importdata('Naca0012.dat');
 %% Profilo 2D flip e analisi
 Xp=-[Profile2D.data(2:67,1) ; fliplr(Profile2D.data(68:end,1)')'].*Chord;
 Zp=[Profile2D.data(2:67,2) ; fliplr(Profile2D.data(68:end,2)')'].*Chord;
-% Profile2D=importdata('Naca0020.dat');
-% Xp=-[0; fliplr(Profile2D(1:65,1)) ; fliplr(Profile2D(66:end,1)')'].*Chord;
-% Zp=[0 ;fliplr(Profile2D(1:65,2)) ; fliplr(Profile2D(66:end,2)')'].*Chord;
+Profile2D=importdata('Naca0018.dat');
+Xp=-[0; fliplr(Profile2D(1:65,1)) ; fliplr(Profile2D(66:end,1)')'].*Chord;
+Zp=[0 ;fliplr(Profile2D(1:65,2)) ; fliplr(Profile2D(66:end,2)')'].*Chord;
 Xp_flip=-(Chord/2.*ones(size(Xp))+Xp)+Chord/2.*ones(size(Xp))-Chord;
 Zp_flip=(Zp);
 [n,~]=size(Xp);
 %Clock-wise direction regeneration
 Xp_flip=[fliplr(Xp_flip(1:n/2)')';fliplr(Xp_flip(n/2+1:end)')'];
 Zp_flip=[fliplr(Zp_flip(1:n/2)')';fliplr(Zp_flip(n/2+1:end)')'];
+
+
+T_0025=readmatrix('Cl_CD_naca0018.dat');
+AoA=T_0025(:,2);
+Cl=T_0025(:,3);
+Cd=T_0025(:,4);
+Cm=T_0025(:,5);
+
+alpha_t=[-fliplr(AoA(2:end)')'*pi/180 ;AoA*pi/180];
+CD_t=[fliplr(Cd(2:end)')'; Cd];
+CL_t=[-fliplr(Cl(2:end)')'; Cl];
+CM_t=[-fliplr(Cm(2:end)')'; Cm]; 
+BoomInfo.Aero.alpha_t=alpha_t;
+BoomInfo.Aero.Cl=CL_t;
+BoomInfo.Aero.Cd=CD_t;
+BoomInfo.Aero.Cm=CM_t;
 %% Creazione dell Info Box
 BoomInfo.Pianta.l=l;
 BoomInfo.Pianta.freccia=delta;
@@ -44,6 +60,7 @@ n=num+p_c;
 
 Dens_i=[1100.*ones(1,n-p_c-1) 900*ones(1,2*p_c-1) 1100.*ones(1,n-p_c-1)];
 R=1.0619e+03;
+R=650;
 Dens_i=[R.*ones(1,n-p_c-1) R*ones(1,2*p_c-1) R.*ones(1,n-p_c-1)];
 
 %Dens_i=[1500 1500 1000.*ones(1,n-p_c-1-2) 1000.*ones(1,2*p_c-1)   1000.*ones(1,n-p_c-3) 1500 1500];
@@ -59,13 +76,14 @@ lb=[8 0 0 0 8]*10; %[Hz gradi m/s]
 ub=[12 10  90  90 15]*10;
 fitnessfcn=@(x) GA_para1(x,BoomInfo);
 options = optimoptions('ga', 'MaxStallGenerations', 10, 'MaxGenerations', 10, 'NonlinearConstraintAlgorithm', 'penalty',...
-    'PopulationSize', 150, 'PlotFcn', {'gaplotbestindiv', 'gaplotbestf'},...
+    'PopulationSize', 50, 'PlotFcn', {'gaplotbestindiv', 'gaplotbestf'},...
     'Display', 'iter', 'UseParallel', true, 'UseVectorized', false,'FitnessLimit',4 );
 X_ini = ga(fitnessfcn,5,[],[],[],[],lb,ub,[],1:5,options);
-[PAR] = GA_para1(X_ini,BoomInfo,'Ciao');
+
 %%
 
 %% Initial condition
+[PAR] = GA_para1(X_ini,BoomInfo,'Ciao');
 X_ini_right=[X_ini(1)/10 X_ini(2)/10 X_ini(3)/10 X_ini(4)/10 X_ini(5)/10]
 
 %%
@@ -101,6 +119,7 @@ tfin=40;
 
 
 %[V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,T0,ustart,[0;0;r0],BoomInfo);
+[V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,T0,ustart',[0;0;r0],BoomInfo);
 
 
 options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
@@ -128,9 +147,37 @@ save('YOUT_QUAT','YOUT_Q')
 % set(gca,'TickLabelInterpreter','latex')
 % ylabel('DIST','fontsize',11,'interpreter','latex');
 % title('Boomerang Traiectory Function of $\Phi$','fontsize',12,'interpreter','latex');
-%% Plot
-%Calcolo Energia Cinetica e Potenziale
+%%
+Ecin=[];
+E_pot=[];
+Inerzia=BoomInfo.Mecc.I_rho;
 
+% Iz=Inerzia(3,3);
+% Ix= Inerzia(1,1);
+% Iy=Inerzia(2,2);
+% Ixy=Inerzia(1,2);
+% Ixz=Inerzia(1,3);
+% Iyz=Inerzia(2,3);
+% 
+% Inerzia=[Ix -Ixy -Ixz; -Ixy Iy -Iyz ; -Ixz -Iyz Iz ];
+M=BoomInfo.Mecc.m;
+for i=1:numel(TOUT)
+    p=YOUT(i,4);
+q=YOUT(i,5);
+r=YOUT(i,6);
+ux=YOUT(i,7);
+uy=YOUT(i,8);
+uz=YOUT(i,9);
+
+Ecin(i)=1/2*([p q r]*Inerzia*[p;q;r]+[ux uy uz]*M*[ux;uy;uz]);
+E_pot(i)=M*9.81*YOUT(i,12);
+V(i)=norm([ux uy uz]);
+Om(i)=norm([p q r]);
+end
+if max(diff(Ecin+E_pot))>0
+    fprintf('Il boomerang sta creando energia IMPOSSIBILE \n');
+end
+%% Plot
 linecolors={'r' 'y' 'c' 'g' 'b' 'k'};
 [handles]=plotNy(TOUT(:),YOUT(:,1)*180/pi,1,...
     TOUT(:),YOUT(:,2)*180/pi,1,...
@@ -150,6 +197,23 @@ linecolors={'r' 'y' 'c' 'g' 'b' 'k'};
     'LegendString',{'Theta' 'Phi' 'Psi' 'r' 'p' 'q' 'x' 'y' 'z'});
 grid on
 
+
+linecolors={'r' 'y' 'c' 'g' 'b' 'k'};
+[handles]=plotNy(TOUT(:),YOUT(:,6),1,...
+    TOUT(:),YOUT(:,12),2,...
+    TOUT(:),Ecin',3,...
+    TOUT(:),E_pot',3,...
+    TOUT(:),E_pot'+Ecin',3,...
+    TOUT(:),V',4,...
+    TOUT(:),Om',1,...
+    'YAxisLabels',{ 'Angular Rate [rad/s]' 'Position [m]' 'Energy [J]' 'Velocità [m/s]'},...
+    'Linewidth',1,...
+    'XLim',[0,TOUT(end)],...
+    'XAxisLabel','time[s]',...
+    'TitleStr','Lancio Finale',...
+    'FontSize',10,...
+    'LegendString',{ 'r' 'z' 'E. Cinetica' 'E. Potenziale' 'E. Totale' 'Modulo V' 'Modulo Om'});
+grid on
 %% grafico
 PlotTipDxSx(TOUT,YOUT,BoomInfo,Tl_0)
 PlotAeroForce(YOUT,TOUT,BoomInfo)

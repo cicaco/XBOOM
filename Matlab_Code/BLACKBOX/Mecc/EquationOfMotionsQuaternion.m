@@ -2,7 +2,7 @@ function [dy]=EquationOfMotionsQuaternion(t,y, BoomInfo,Tl_0)
 %This function calculates,for every point of the trajectory,the
 % angular velocities(dtheta,dphi,dpsi),the angular accellerations in the body
 % frame(dp,dr,dq)and the 3 components of velocity(ux,uy,uz)
-%t
+
 I=BoomInfo.Mecc.I_rho;
 m=BoomInfo.Mecc.m;
 
@@ -40,7 +40,7 @@ T0 = quatToAtt( quat );
 
 
 FG=T0*Tl_0*(-m*g*[0;0;1]);
-[F,M]=AeroDynamics([ux;uy;uz],[p;q;r],BoomInfo);
+[F,M]=AeroDynamics_FAST([ux;uy;uz],[p;q;r],BoomInfo);
 % dy(1:13)=[1/2*[0 r -q p; -r 0 p q; q -p 0 r; -p -q -r 0]*[q1 q2 q3 q4]';...
 %             [Ix -Ixy -Ixz; -Ixy Iy -Iyz ; -Ixz -Iyz Iz ]\...
 %             ([-(Iz-Iy)*q*r-(Ixy*p+Iyz*r)*r+(Ixz*p+Iyz*q)*q;...

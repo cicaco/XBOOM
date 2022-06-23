@@ -1,8 +1,8 @@
-function [vel_ind]=vel_indotta_computation(u,omega,v_ind_old,BoomInfo)
-
-psi_ciclo=linspace(0,2*pi,5);
-psi_vect=midspan(psi_ciclo);
-
+function [vel_ind]=vel_ind_FAST(u,omega,v_ind_old,BoomInfo)
+alpha_t=BoomInfo.Aero.alpha_t;
+CL_t=BoomInfo.Aero.Cl;
+CD_t=BoomInfo.Aero.Cd;
+CM_t=BoomInfo.Aero.Cm;
 %% import geometria
 c=BoomInfo.Profile.Chord; %m
 L=BoomInfo.Pianta.l;
@@ -46,8 +46,10 @@ twist2=zeros(1,length(eta2));
 Tj2=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos(pitch)+sin(lambda)*sin(coning)*sin(pitch), -cos(coning)*sin(pitch)
     cos(lambda)*cos(coning), sin(lambda)*cos(coning), +sin(coning)
     sin(lambda)*sin(pitch)-cos(lambda)*sin(coning)*cos(pitch), -cos(lambda)*sin(pitch)-sin(lambda)*sin(coning)*cos(pitch), cos(coning)*cos(pitch)];
+psi_ciclo=linspace(0,2*pi,5);
+psi_vect=midspan(psi_ciclo);
 
-F_ciclopsi=[];
+F_ciclopsi=zeros(3,5);
 % M_ciclopsi=[];
 for j=1:length(psi_vect)
     psi=psi_vect(j);
@@ -58,72 +60,40 @@ T_ciclopsi=[cos(psi), sin(psi), 0
 xac1_ciclopsi=T_ciclopsi'*[xac1; 0; 0];
 xac2_ciclopsi=T_ciclopsi'*[xac2; 0; 0];
 
-%inizializzazione
-rA1=[]; v1=[]; w1=[]; AoA1=[]; FA1=[]; MA1=[];F1=[];M1=[];
-rA2=[]; v2=[]; w2=[]; AoA2=[]; FA2=[]; MA2=[];F2=[];M2=[];
-Re=[];
-for i=1:length(eta1)
-%blade element position in body frame
-ra1=xac1_ciclopsi+Tj1'*[0;eta1(i);0];
-ra2=xac2_ciclopsi+Tj2'*[0;eta2(i);0];
+
+ra1=(xac1_ciclopsi+(Tj1'*[zeros(1,numel(eta1));eta1;zeros(1,numel(eta1))]))';
+ra2=(xac2_ciclopsi+(Tj2'*[zeros(1,numel(eta2));eta1;zeros(1,numel(eta2))]))';
 %velocity of blade element
-vel1=u+cross(omega,ra1);
-vel2=u+cross(omega,ra2);
+omega_m=[omega(1).*ones(numel(eta1),1) omega(2).*ones(numel(eta1),1) omega(3).*ones(numel(eta1),1)];
+vel1=u'+cross(omega_m,ra1);
+vel2=u'+cross(omega_m,ra2);
 %relative velocity of blade in blade frame
-wel1= Tj1*(-vel1-[0;0;-v_ind_old]);
-wel2= Tj2*(-vel2-[0;0;-v_ind_old]);
+w1= Tj1*(-vel1-[0 0 -v_ind_old])';
+w2= Tj2*(-vel2-[0 0 -v_ind_old])';
 %AoA
-aoa1=atan2(wel1(3),wel1(1));
-aoa2=atan2(wel2(3),wel2(1));
+AoA1=atan2(w1(3,:),w1(1,:));
+AoA2=atan2(w2(3,:),w2(1,:));
 
-%salvataggio variabili
-% rA1=[rA1, ra1];
-% rA2=[rA2, ra2];
-% v1=[v1, vel1];
-% v2=[v2, vel2];
-w1=[w1, wel1];
-w2=[w2, wel2];
-AoA1=[AoA1, aoa1];
-AoA2=[AoA2, aoa2];
-end
+net=length(eta1);
 
-%BET
-for i=1:length(eta1)
-    fa1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1([1 3],i))^2*[-CL(AoA1(i))*sin(AoA1(i))+CD(AoA1(i))*cos(AoA1(i)); 0; CL(AoA1(i))*cos(AoA1(i))+CD(AoA1(i))*sin(AoA1(i))];
-    fa2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2([1 3],i))^2*[-CL(AoA2(i))*sin(AoA2(i))+CD(AoA2(i))*cos(AoA2(i)); 0; CL(AoA2(i))*cos(AoA2(i))+CD(AoA2(i))*sin(AoA2(i))];
 
-    %  
-%     fa1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1([1 3],i))^2*[-CL_naca(AoA1(i))*sin(AoA1(i))+CD_naca(AoA1(i))*cos(AoA1(i)); 0; CL_naca(AoA1(i))*cos(AoA1(i))+CD_naca(AoA1(i))*sin(AoA1(i))];
-%     fa2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2([1 3],i))^2*[-CL_naca(AoA2(i))*sin(AoA2(i))+CD_naca(AoA2(i))*cos(AoA2(i)); 0; CL_naca(AoA2(i))*cos(AoA2(i))+CD_naca(AoA2(i))*sin(AoA2(i))];
+CL_naca=interp1(alpha_t, CL_t, AoA1);
+CD_naca=interp1(alpha_t, CD_t, AoA1);
+CM_naca=interp1(alpha_t, CM_t, AoA1);
+F1_i=(span1(2:net+1)-span1(1:net))'.*0.5.*1.225.*c.*(vecnorm(w1([1 3],:)).^2)'.*([-CL_naca.*sin(AoA1)+CD_naca.*cos(AoA1); zeros(size(AoA1)); CL_naca.*cos(AoA1)+CD_naca.*sin(AoA1)])';
+CL_naca=interp1(alpha_t, CL_t, AoA2);
+CD_naca=interp1(alpha_t, CD_t, AoA2);
+CM_naca=interp1(alpha_t, CM_t, AoA2);
+F2_i=(span2(2:net+1)-span2(1:net))'.*0.5.*1.225.*c.*(vecnorm(w2([1 3],:)).^2)'.*([-CL_naca.*sin(AoA2)+CD_naca.*cos(AoA2); zeros(size(AoA2)); CL_naca.*cos(AoA2)+CD_naca.*sin(AoA2)])';
 
-    %forze su sdr body
-    f1=(Tj1')*fa1;
-%     m1=(Tj1')*ma1+cross(xac1_ciclopsi,(Tj1')*fa1);
-    f2=Tj2'*fa2;
-%     m2=Tj2'*ma2+cross(xac2_ciclopsi,(Tj2')*fa2);
-    
-    %aggiornamento variabili
-%     FA1=[FA1, fa1 ];
-%     MA1=[MA1, ma1];
-    F1=[F1,f1];
-%     M1=[M1,m1];
-%     FA2=[FA2, fa2];
-%     MA2=[MA2, ma2];
-    F2=[F2, f2];
-%     M2=[M2, m2 ];
-end
+F1_i=((Tj1')*F1_i');
+F2_i=((Tj2')*F2_i');
 
-F1=sum(F1,2);
-% M1=sum(M1,2);
+F1t=sum(F1_i,2);
+F2t=sum(F2_i,2);
+F=F1t+F2t;
 
-F2=sum(F2,2);
-% M2=sum(M2,2);
-
-F=F1+F2;
-% M=M1+M2;
-
-F_ciclopsi=[F_ciclopsi F];
-% M_ciclopsi=[M_ciclopsi M];
+F_ciclopsi(:,j)=F;
 end
 
 %calcolo v_indotta

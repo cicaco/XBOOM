@@ -65,11 +65,11 @@ Tj2=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos
 %vel indotta
 v_ind_old=0; %ipotesi iniziale
 err=1;
-% while err>10^-2
-% [vel_ind]=vel_indotta_computation(u,omega,v_ind_old,BoomInfo);
-% err=abs((vel_ind-v_ind_old)/vel_ind);
-% v_ind_old=vel_ind;
-% end
+while err>10^-2
+[vel_ind]=vel_indotta_computation(u,omega,v_ind_old,BoomInfo);
+err=abs((vel_ind-v_ind_old)/vel_ind);
+v_ind_old=vel_ind;
+end
 % inizializzazione
 rA1=[]; v1=[]; w1=[]; AoA1=[]; FA1=[]; MA1=[];F1=[];M1=[];
 rA2=[]; v2=[]; w2=[]; AoA2=[]; FA2=[]; MA2=[];F2=[];M2=[];
@@ -101,7 +101,7 @@ Re=[];
 % end
 %% new Lore
 ra1=([xac1;0;0]+(Tj1'*[zeros(1,numel(eta1));eta1;zeros(1,numel(eta1))]))';
-ra2=([xac2;0;0]+(Tj2'*[zeros(1,numel(eta2));eta1;zeros(1,numel(eta2))]))';
+ra2=([xac2;0;0]+(Tj2'*[zeros(1,numel(eta2));eta2;zeros(1,numel(eta2))]))';
 %velocity of blade element
 omega_m=[omega(1).*ones(numel(eta1),1) omega(2).*ones(numel(eta1),1) omega(3).*ones(numel(eta1),1)];
 vel1=u'+cross(omega_m,ra1);
@@ -124,7 +124,7 @@ for i=1:net
 %      ma1=(span1(i+1)-span1(i))*0.5*1.225*c*norm(w1([1 3],i))^2*[(CL_naca(AoA1(i))*cos(AoA1(i))+CD_naca(AoA1(i))*sin(AoA1(i)))*eta1(i); c*CM_naca(AoA1(i)); (CL_naca(AoA1(i))*sin(AoA1(i))-CD_naca(AoA1(i))*cos(AoA1(i)))*eta1(i)];
 %      fa2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2([1 3],i))^2*[-CL_naca(AoA2(i))*sin(AoA2(i))+CD_naca(AoA2(i))*cos(AoA2(i)); 0; CL_naca(AoA2(i))*cos(AoA2(i))+CD_naca(AoA2(i))*sin(AoA2(i))];
 %      ma2=(span2(i+1)-span2(i))*0.5*1.225*c*norm(w2([1 3],i))^2*[(CL_naca(AoA2(i))*cos(AoA2(i))+CD_naca(AoA2(i))*sin(AoA2(i)))*eta2(i); c*CM_naca(AoA2(i)); (CL_naca(AoA2(i))*sin(AoA2(i))-CD_naca(AoA2(i))*cos(AoA2(i)))*eta2(i)];
-   
+%    
     %forze su sdr body
     f1=(Tj1')*fa1;
     m1=(Tj1')*ma1+cross([xac1;0;0],(Tj1')*fa1);
