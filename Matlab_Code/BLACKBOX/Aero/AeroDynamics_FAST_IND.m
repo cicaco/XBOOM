@@ -1,4 +1,4 @@
-function [F,M,AoA1,AoA2,Re,Mn]=AeroDynamics_FAST(u,omega,BoomInfo)
+function [F,M,AoA1,AoA2,Re,Mn]=AeroDynamics_FAST_IND(u,omega,BoomInfo)
 % AeroDynamics computes the force and momentum for the whole boomerang
 % and the angle of attack and Reynolds for each section spanwise
 %
@@ -71,17 +71,17 @@ Tj2=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos
 v_ind_old=0; %ipotesi iniziale
 err=1;
 cont=0;
-% while err>10^-2
-%     [vel_ind]=VelInd_FAST2(u,omega,v_ind_old,BoomInfo);
-%     err=abs((vel_ind-v_ind_old)/vel_ind);
-%     v_ind_old=vel_ind;
-%     cont=cont+1;
-%     if cont>1000
-%         err=10^-3;
-%         error('Velocità indotta non convergente')
-%         v_ind_old=0;
-%     end
-% end
+while err>10^-2
+    [vel_ind]=VelInd_FAST2(u,omega,v_ind_old,BoomInfo);
+    err=abs((vel_ind-v_ind_old)/vel_ind);
+    v_ind_old=vel_ind;
+    cont=cont+1;
+    if cont>100
+        err=10^-3;
+        fprintf('Velocità indotta non convergente BUG \n')
+        v_ind_old=0;
+    end
+end
 
 
 %% new Lore

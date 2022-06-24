@@ -29,13 +29,12 @@ plot(Xp_flip,Zp_flip,'b');
 axis equal
 set(gca,'Xdir','reverse')
 %% Creazione dell Info Box
+alpha_cd=[-180 -170 -160 -130 -90 -50 -20 -10 10 20 50 90 130 160 170 180];
+CD_t=[0.01 0.01 0.41 1.25 1.7 1.25 0.41 0.01 0.01 0.41 1.25 1.7 1.25 0.41 0.01 0.01];
 alpha_cm=[-180 -150 -90 0 90 150 180];
 CM_t=[0 0.4 0.4 0 -0.4 -0.4 0];
-T=readmatrix('NACA_0006_T1_Re0.050_M0.00_N9.0_360_M.dat');
-alpha_cd=T(13:383,1);
-alpha_cl=T(13:383,1);
-CD_t=T(13:383,3);
-CL_t=T(13:383,2);
+alpha_cl=[-180 -170 -130 -60 -12 12 60 130 170 180];
+CL_t=[0 0.7 0.7 -1.0 -1.0 1.0 1.0 -0.7 -0.7 0];
 figure()
 plot(alpha_cl,CL_t,'--r');
 hold on
@@ -65,7 +64,7 @@ BoomInfo.Profile.Zp_sx=Zp_flip;
 
 %%
 n=num+p_c;
-R=1000;
+R=650;
 Dens_i=[R.*ones(1,n-p_c-1) R*ones(1,2*p_c-1) R.*ones(1,n-p_c-1)];
 [BoomInfo] = Boom3DShape(BoomInfo,'Info','Density_variation',Dens_i);
 BoomInfo.Mecc.I_rho
@@ -77,14 +76,16 @@ psi0=0*pi/180;
 Tl_0=[cos(theta0)*cos(psi0), cos(theta0)*sin(psi0), -sin(theta0)
     -cos(phi0)*sin(psi0)+sin(phi0)*sin(theta0)*cos(psi0), cos(phi0)*cos(psi0)+sin(phi0)*sin(theta0)*sin(psi0), sin(phi0)*cos(theta0)
     sin(phi0)*sin(psi0)+cos(phi0)*sin(theta0)*cos(psi0), -sin(phi0)*cos(psi0)+cos(phi0)*sin(theta0)*sin(psi0), cos(phi0)*cos(theta0)];
-r0=10*2*pi;
-theta=0;
-psi=0;
-phi=0;
+
 T0=[cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta)
     -cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi), sin(phi)*cos(theta)
     sin(phi)*sin(psi)+cos(phi)*sin(theta)*cos(psi), -sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi), cos(phi)*cos(theta)];
 
+r0=10*2*pi;
+theta=10*pi/180;
+D=60*pi/180;
+phi=85*pi/180;
+Vs=15;
 z0= 1.8; % initial altitude
 tfin=40;
 %[quat,ustart] = HandInitial(r0,theta,D,phi,Vs,Tl_0);

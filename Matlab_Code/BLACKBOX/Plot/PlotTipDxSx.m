@@ -49,11 +49,11 @@ end
 figure()
 plot3(YOUT(:,10),YOUT(:,11),YOUT(:,12),'b','linewidth',1.2)
 hold on
-% plot3(x_tipsx(1,:),x_tipsx(2,:),x_tipsx(3,:),'g','linewidth',1.2)
-% plot3(x_tipdx(1,:),x_tipdx(2,:),x_tipdx(3,:),'r','linewidth',1.2)
-% legend('CG','tipSX','tipDX','fontsize',10,'interpreter','latex')
+plot3(x_tipsx(1,:),x_tipsx(2,:),x_tipsx(3,:),'g','linewidth',1.2)
+plot3(x_tipdx(1,:),x_tipdx(2,:),x_tipdx(3,:),'r','linewidth',1.2)
+legend('CG','tipSX','tipDX','fontsize',10,'interpreter','latex')
 
-legend('CG','fontsize',10,'interpreter','latex')
+% legend('CG','fontsize',10,'interpreter','latex')
 xlabel('X','fontsize',11,'interpreter','latex');
 set(gca,'TickLabelInterpreter','latex')
 ylabel('Y','fontsize',11,'interpreter','latex');

@@ -13,7 +13,7 @@ num=20; %Numero di profili totale su ciascuna metà;
 PARA=2.; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
 % Profile 2D Shape
 %% Profilo 2D flip e analisi
-Profile2D=importdata('Naca0018.dat');
+Profile2D=importdata('Naca0006.dat');
 Xp=-[0; fliplr(Profile2D(1:65,1)')' ; fliplr(Profile2D(66:end,1)')'].*Chord;
 Zp=[0 ;fliplr(Profile2D(1:65,2)')' ; fliplr(Profile2D(66:end,2)')'].*Chord;
 Xp_flip=-(Chord/2.*ones(size(Xp))+Xp)+Chord/2.*ones(size(Xp))-Chord;
@@ -32,30 +32,12 @@ set(gca,'Xdir','reverse')
 %Clock-wise direction regeneration
 
 %% Creazione dell Info Box
-
 alpha_cd=[-180 -170 -160 -130 -90 -50 -20 -10 10 20 50 90 130 160 170 180];
 CD_t=[0.01 0.01 0.41 1.25 1.7 1.25 0.41 0.01 0.01 0.41 1.25 1.7 1.25 0.41 0.01 0.01];
-
 alpha_cm=[-180 -150 -90 0 90 150 180];
 CM_t=[0 0.4 0.4 0 -0.4 -0.4 0];
-
-
 alpha_cl=[-180 -170 -130 -60 -12 12 60 130 170 180];
 CL_t=[0 0.7 0.7 -1.0 -1.0 1.0 1.0 -0.7 -0.7 0];
-for i=1:10
-    Cl_simo(i)=CL(alpha_cl(i)*pi/180);
-    
-end
-for i=1:16
-     Cd_simo(i)=CD(alpha_cd(i)*pi/180);
-end
-for i=1:7
-     Cm_simo(i)=CM(alpha_cm(i)*pi/180);
-end
-% norm(CL_t-Cl_simo)
-% norm(CD_t-Cd_simo)
-% norm(CM_t-Cm_simo)
-%%
 figure()
 plot(alpha_cl,CL_t,'--r');
 hold on
@@ -92,41 +74,54 @@ BoomInfo.Mecc.I_rho
 BoomInfo.Mecc.m
 %% Initial condition
 theta0=0.0*pi/180;
-phi0=90*pi/180;
-psi0=180*pi/180;
+phi0=0*pi/180;
+psi0=0*pi/180;
 
 Tl_0=[cos(theta0)*cos(psi0), cos(theta0)*sin(psi0), -sin(theta0)
     -cos(phi0)*sin(psi0)+sin(phi0)*sin(theta0)*cos(psi0), cos(phi0)*cos(psi0)+sin(phi0)*sin(theta0)*sin(psi0), sin(phi0)*cos(theta0)
     sin(phi0)*sin(psi0)+cos(phi0)*sin(theta0)*cos(psi0), -sin(phi0)*cos(psi0)+cos(phi0)*sin(theta0)*sin(psi0), cos(phi0)*cos(theta0)];
 
-%% Traiectory
-theta=0*pi/180;
-phi=0*pi/180; 
-psi=-60*pi/180;
-r0= 14*2*pi; % initial condition on spin rate 10/15 Hz;
-z0= 2; % initial altitude
+r0=10*2*pi;
+theta=10*pi/180;
+D=60*pi/180;
+phi=85*pi/180;
+Vs=15;
+
+
+theta0=0*pi/180;
+phi0=0*pi/180;
+psi0=0*pi/180;
+Tl_0=[cos(theta0)*cos(psi0), cos(theta0)*sin(psi0), -sin(theta0)
+    -cos(phi0)*sin(psi0)+sin(phi0)*sin(theta0)*cos(psi0), cos(phi0)*cos(psi0)+sin(phi0)*sin(theta0)*sin(psi0), sin(phi0)*cos(theta0)
+    sin(phi0)*sin(psi0)+cos(phi0)*sin(theta0)*cos(psi0), -sin(phi0)*cos(psi0)+cos(phi0)*sin(theta0)*sin(psi0), cos(phi0)*cos(theta0)];
+z0= 1.8; % initial altitude
+psi=pi-D;
 
 T0=[cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta)
     -cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi), sin(phi)*cos(theta)
     sin(phi)*sin(psi)+cos(phi)*sin(theta)*cos(psi), -sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi), cos(phi)*cos(theta)];
-
-
-
-ustart=T0*Tl_0*[25*cos(5*pi/180);0;25*sin(5*pi/180)];
+V_tip=(T0*Tl_0*[Vs*cos(theta)*cos(D);-Vs*cos(theta)*sin(D);Vs*sin(theta)])'; %Velocità della tip nel piano del boomerang
+r_mano=[0 0 r0];
+P_tip=BoomInfo.Aero.P_Finish_Dx;
+ustart=V_tip+cross(r_mano,-P_tip');
 
 eul=[psi theta phi];
 quat = eul2quat( eul );
+quat=[quat(2) quat(3) quat(4) quat(1)];
 
+A = quatToAtt( quat )
+T0
 tfin=40;
 
 
-%[V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,T0,ustart,[0;0;r0],BoomInfo);
+[V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,T0,ustart',[0;0;r0],BoomInfo);
+
 
 options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 %%
 tic
-[TOUT,YOUT_quat] = ode15s(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
+[TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
 toc
 euler=[];
 for i=1:numel(TOUT)
