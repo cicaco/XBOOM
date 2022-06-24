@@ -7,8 +7,8 @@ Chord=0.0488;
 p_c=20; % numero di profili di "Transizione" nella parte centrale
 l=0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
 delta=30*pi/180; %Angolo di freccia
-beta=0.5*pi/180; %Angolo di Diedro
-pitch=4*pi/180; %Pitch angle
+beta=-0.8*pi/180; %Angolo di Diedro
+pitch=0*pi/180; %Pitch angle
 num=20; %Numero di profili totale su ciascuna metà;
 PARA=2.; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
 % Profile 2D Shape
@@ -55,6 +55,12 @@ end
 % norm(CL_t-Cl_simo)
 % norm(CD_t-Cd_simo)
 % norm(CM_t-Cm_simo)
+
+T=readmatrix('NACA_0006_T1_Re0.050_M0.00_N9.0_360_M.dat');
+alpha_cd=T(13:383,1);
+alpha_cl=T(13:383,1);
+CD_t=T(13:383,3);
+CL_t=T(13:383,2);
 %%
 figure()
 plot(alpha_cl,CL_t,'--r');
@@ -83,7 +89,7 @@ BoomInfo.Profile.Xp_sx=Xp_flip;
 BoomInfo.Profile.Zp_dx=Zp;
 BoomInfo.Profile.Zp_sx=Zp_flip;
 n=num+p_c;
-R=650;
+R=1000;
 Dens_i=[R.*ones(1,n-p_c-1) R*ones(1,2*p_c-1) R.*ones(1,n-p_c-1)];
 [BoomInfo] = Boom3DShape(BoomInfo,'Info','Density_variation',Dens_i);
 
@@ -92,8 +98,8 @@ BoomInfo.Mecc.I_rho
 BoomInfo.Mecc.m
 %% Initial condition
 theta0=0.0*pi/180;
-phi0=90*pi/180;
-psi0=180*pi/180;
+phi0=0*pi/180;
+psi0=0*pi/180;
 
 Tl_0=[cos(theta0)*cos(psi0), cos(theta0)*sin(psi0), -sin(theta0)
     -cos(phi0)*sin(psi0)+sin(phi0)*sin(theta0)*cos(psi0), cos(phi0)*cos(psi0)+sin(phi0)*sin(theta0)*sin(psi0), sin(phi0)*cos(theta0)
@@ -101,9 +107,9 @@ Tl_0=[cos(theta0)*cos(psi0), cos(theta0)*sin(psi0), -sin(theta0)
 
 %% Traiectory
 theta=0*pi/180;
-phi=0*pi/180; 
-psi=-60*pi/180;
-r0= 14*2*pi; % initial condition on spin rate 10/15 Hz;
+phi=90*pi/180; 
+psi=180*pi/180;
+r0= 10*2*pi; % initial condition on spin rate 10/15 Hz;
 z0= 2; % initial altitude
 
 T0=[cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta)
@@ -116,6 +122,7 @@ ustart=T0*Tl_0*[25*cos(5*pi/180);0;25*sin(5*pi/180)];
 
 eul=[psi theta phi];
 quat = eul2quat( eul );
+quat=[quat(2:4) quat(1)];
 
 tfin=40;
 
