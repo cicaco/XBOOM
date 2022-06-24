@@ -39,9 +39,10 @@ PAR=Dist;
 if not(isempty(varargin))
     PAR(1)=Dist;
     PAR(2)=TOUT(end);
-    fprintf ('SIMULAZIONE senza velocità indotta:\n');
+    fprintf ('SIMULAZIONE senza velocità indotta:
     fprintf('Rotational Rate %.2f, Speed Tip %.2f \n',r0/2/pi,Vs);
     [YOUT] = Eul_Quat(YOUT_quat,TOUT);
+
     FinalReport(YOUT,TOUT)
     
 end

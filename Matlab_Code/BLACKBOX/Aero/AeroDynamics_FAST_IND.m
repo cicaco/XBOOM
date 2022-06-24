@@ -92,11 +92,11 @@ omega_m=[omega(1).*ones(numel(eta1),1) omega(2).*ones(numel(eta1),1) omega(3).*o
 vel1=u'+cross(omega_m,ra1);
 vel2=u'+cross(omega_m,ra2);
 %relative velocity of blade in blade frame
-w1= Tj1*(-vel1-[0 0 v_ind_old])';
-w2= Tj2*(-vel2-[0 0 v_ind_old])';
+w1= Tj1*(-vel1-[0 0 -v_ind_old])';
+w2= Tj2*(-vel2-[0 0 -v_ind_old])';
 %AoA
-AoA1=atan2(w1(3,:),w1(1,:))+twist1;
-AoA2=atan2(w2(3,:),w2(1,:))+twist2;
+AoA1=(atan2(w1(3,:),w1(1,:))+twist1);
+AoA2=(atan2(w2(3,:),w2(1,:))+twist2);
 %BET
 net=length(eta1);
 CL_naca=interp1(alpha_cl, CL_t, AoA1*180/pi);

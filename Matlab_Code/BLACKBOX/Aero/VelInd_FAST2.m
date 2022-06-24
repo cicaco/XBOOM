@@ -26,7 +26,7 @@ span1=linspace(start1,start1+L,10);
 eta1=midspan(span1);
 lambda=pi/2+freccia;
 %svergolamento
-twist1=zeros(1,length(eta1));
+twist1=zeros(1,length(eta1)).*ones(1,length(eta1),length(psi_vect));
 %spanwise wing distance
 
 %calcolo n° Re
@@ -44,7 +44,7 @@ span2=linspace(start2,start2+L,10);
 eta2=midspan(span2);
 lambda=2*pi-lambda;
 %svergolamento
-twist2=zeros(1,length(eta2));
+twist2=zeros(1,length(eta2)).*ones(1,length(eta2),length(psi_vect));
 
 %matrice di rotazione da body a blade
 Tj2=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos(pitch)+sin(lambda)*sin(coning)*sin(pitch), -cos(coning)*sin(pitch)
@@ -70,8 +70,8 @@ vel2_vect=U_vect+cross(omega_m_vect,ra2_vect);
 
 w1_vect=pagemtimes(ones(3,3,length(psi_vect)).*Tj1, permute(-vel1_vect,[2 1 3])-[zeros(1,numel(eta1)) ;zeros(1,numel(eta1)); -v_ind_old.*ones(1,numel(eta1))].*ones(3,numel(eta1),length(psi_vect)));
 w2_vect=pagemtimes(ones(3,3,length(psi_vect)).*Tj2, permute(-vel2_vect,[2 1 3])-[zeros(1,numel(eta2)) ;zeros(1,numel(eta2)); -v_ind_old.*ones(1,numel(eta2))].*ones(3,numel(eta2),length(psi_vect)));
-AoA1_vect=atan2(w1_vect(3,:,:),w1_vect(1,:,:));
-AoA2_vect=atan2(w2_vect(3,:,:),w2_vect(1,:,:));
+AoA1_vect=wrapToPi(atan2(w1_vect(3,:,:),w1_vect(1,:,:))+twist1);
+AoA2_vect=wrapToPi(atan2(w2_vect(3,:,:),w2_vect(1,:,:))+twist2);
 CL_naca1_vect=interp1(alpha_cl, CL_t, AoA1_vect.*180/pi);
 CL_naca2_vect=interp1(alpha_cl, CL_t, AoA2_vect.*180/pi);
 CD_naca1_vect=interp1(alpha_cd, CD_t, AoA1_vect.*180/pi);
