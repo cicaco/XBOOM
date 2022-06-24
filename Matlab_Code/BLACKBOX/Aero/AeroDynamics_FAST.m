@@ -28,7 +28,9 @@ start1=BoomInfo.Aero.Start_Sx; %inizio pala 1 con profilo costante
 %pala2
 xac2=BoomInfo.Aero.P_origin_Dx(1);%posizione centro aerodinamico pala 2
 start2=BoomInfo.Aero.Start_Dx; %inizio pala 2 con profilo costante
-alpha_t=BoomInfo.Aero.alpha_t;
+alpha_cl=BoomInfo.Aero.alpha_cl;
+alpha_cd=BoomInfo.Aero.alpha_cd;
+alpha_cm=BoomInfo.Aero.alpha_cm;
 CL_t=BoomInfo.Aero.Cl;
 CD_t=BoomInfo.Aero.Cd;
 CM_t=BoomInfo.Aero.Cm;
@@ -68,10 +70,11 @@ Tj2=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos
 %vel indotta
 v_ind_old=0; %ipotesi iniziale
 err=1;
-while err>10^-1
-    [vel_ind]=vel_ind_FAST(u,omega,v_ind_old,BoomInfo);
+while err>10^-2
+    [vel_ind]=VelInd_FAST2(u,omega,v_ind_old,BoomInfo);
     err=abs((vel_ind-v_ind_old)/vel_ind);
     v_ind_old=vel_ind;
+    
 end
 % inizializzazione
 
@@ -90,14 +93,14 @@ AoA1=atan2(w1(3,:),w1(1,:))+twist1;
 AoA2=atan2(w2(3,:),w2(1,:))+twist2;
 %BET
 net=length(eta1);
-CL_naca=interp1(alpha_t, CL_t, AoA1);
-CD_naca=interp1(alpha_t, CD_t, AoA1);
-CM_naca=interp1(alpha_t, CM_t, AoA1);
+CL_naca=interp1(alpha_cl, CL_t, AoA1*180/pi);
+CD_naca=interp1(alpha_cd, CD_t, AoA1*180/pi);
+CM_naca=interp1(alpha_cm, CM_t, AoA1*180/pi);
 F1_i=(span1(2:net+1)-span1(1:net))'.*0.5.*1.225.*c.*(vecnorm(w1([1 3],:)).^2)'.*([-CL_naca.*sin(AoA1)+CD_naca.*cos(AoA1); zeros(size(AoA1)); CL_naca.*cos(AoA1)+CD_naca.*sin(AoA1)])';
 M1_i=(span1(2:net+1)-span1(1:net))'.*0.5.*1.225.*c.*(vecnorm(w1([1 3],:)).^2)'.*([(CL_naca.*cos(AoA1)+CD_naca.*sin(AoA1)).*eta1; c.*CM_naca; (CL_naca.*sin(AoA1)-CD_naca.*cos(AoA1)).*eta1])';
-CL_naca=interp1(alpha_t, CL_t, AoA2);
-CD_naca=interp1(alpha_t, CD_t, AoA2);
-CM_naca=interp1(alpha_t, CM_t, AoA2);
+CL_naca=interp1(alpha_cl, CL_t, AoA2*180/pi);
+CD_naca=interp1(alpha_cd, CD_t, AoA2*180/pi);
+CM_naca=interp1(alpha_cm, CM_t, AoA2*180/pi);
 F2_i=(span2(2:net+1)-span2(1:net))'.*0.5.*1.225.*c.*(vecnorm(w2([1 3],:)).^2)'.*([-CL_naca.*sin(AoA2)+CD_naca.*cos(AoA2); zeros(size(AoA2)); CL_naca.*cos(AoA2)+CD_naca.*sin(AoA2)])';
 M2_i=(span2(2:net+1)-span2(1:net))'.*0.5.*1.225.*c.*(vecnorm(w2([1 3],:)).^2)'.*([(CL_naca.*cos(AoA2)+CD_naca.*sin(AoA2)).*eta2; c.*CM_naca; (CL_naca.*sin(AoA2)-CD_naca.*cos(AoA2)).*eta2])';
 
