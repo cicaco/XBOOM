@@ -12,7 +12,7 @@ pitch=4*pi/180; %Pitch angle
 num=20; %Numero di profili totale su ciascuna metà;
 PARA=2.; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
 % Profile 2D Shape
-%% Profilo 2D flip e analisi
+%% Profilo 2D e caratteristiche aerodinamiche
 Profile2D=importdata('Naca0006.dat');
 Xp=-[0; fliplr(Profile2D(1:65,1)')' ; fliplr(Profile2D(66:end,1)')'].*Chord;
 Zp=[0 ;fliplr(Profile2D(1:65,2)')' ; fliplr(Profile2D(66:end,2)')'].*Chord;
@@ -22,33 +22,13 @@ Zp_flip=(Zp);
 %Clock-wise direction regeneration
 Xp_flip=[fliplr(Xp_flip(1:n/2)')';fliplr(Xp_flip(n/2+1:end)')'];
 Zp_flip=[fliplr(Zp_flip(1:n/2)')';fliplr(Zp_flip(n/2+1:end)')'];
-figure()
-plot(Xp,Zp,'r');
-hold on
-plot(Xp_flip,Zp_flip,'b');
-axis equal
-set(gca,'Xdir','reverse')
-%% Creazione dell Info Box
-alpha_cm=[-180 -150 -90 0 90 150 180];
-CM_t=[0 0.4 0.4 0 -0.4 -0.4 0];
 T=readmatrix('NACA_0006_T1_Re0.050_M0.00_N9.0_360_M.dat');
 alpha_cd=T(13:383,1);
 alpha_cl=T(13:383,1);
 CD_t=T(13:383,3);
 CL_t=T(13:383,2);
-figure()
-plot(alpha_cl,CL_t,'--r');
-hold on
-plot(alpha_cd,CD_t,'.-b');
-plot(alpha_cm,CM_t,'k');
-grid on
-legend('CL','CD','CM');
-BoomInfo.Aero.alpha_cl=alpha_cl;
-BoomInfo.Aero.alpha_cd=alpha_cd;
-BoomInfo.Aero.alpha_cm=alpha_cm;
-BoomInfo.Aero.Cl=CL_t;
-BoomInfo.Aero.Cd=CD_t;
-BoomInfo.Aero.Cm=CM_t;
+alpha_cm=[-180 -150 -90 0 90 150 180];
+CM_t=[0 0.4 0.4 0 -0.4 -0.4 0];
 %% Creazione dell Info Box
 BoomInfo.Pianta.l=l;
 BoomInfo.Pianta.freccia=delta;
@@ -62,39 +42,23 @@ BoomInfo.Profile.Xp_dx=Xp;
 BoomInfo.Profile.Xp_sx=Xp_flip;
 BoomInfo.Profile.Zp_dx=Zp;
 BoomInfo.Profile.Zp_sx=Zp_flip;
-
+BoomInfo.Aero.alpha_cl=alpha_cl;
+BoomInfo.Aero.alpha_cd=alpha_cd;
+BoomInfo.Aero.alpha_cm=alpha_cm;
+BoomInfo.Aero.Cl=CL_t;
+BoomInfo.Aero.Cd=CD_t;
+BoomInfo.Aero.Cm=CM_t;
+BoomInfo.Mecc.Dens=1000;
 %%
-n=num+p_c;
-R=1000;
-Dens_i=[R.*ones(1,n-p_c-1) R*ones(1,2*p_c-1) R.*ones(1,n-p_c-1)];
-[BoomInfo] = Boom3DShape(BoomInfo,'Info','Density_variation',Dens_i);
-BoomInfo.Mecc.I_rho
-BoomInfo.Mecc.m
-%% Initial condition
-fprintf('Starting Genetic Alghoritm...\n');
-% x=[r0 theta D phi Vs];
-lb=[8 0 0 0 8]*10; %[Hz gradi m/s]
-ub=[12 10  90  90 15]*10;
-fitnessfcn=@(x) GA_para1(x,BoomInfo);
-options = optimoptions('ga', 'MaxStallGenerations', 10, 'MaxGenerations', 10, 'NonlinearConstraintAlgorithm', 'penalty',...
-    'PopulationSize', 50, 'PlotFcn', {'gaplotbestindiv', 'gaplotbestf'},...
-    'Display', 'iter', 'UseParallel', true, 'UseVectorized', false,'FitnessLimit',4 );
-X_ini = ga(fitnessfcn,5,[],[],[],[],lb,ub,[],1:5,options);
-
-%%
-
-%% Initial condition
-[PAR] = GA_para1(X_ini,BoomInfo,'Ciao');
-X_ini_right=[X_ini(1)/10 X_ini(2)/10 X_ini(3)/10 X_ini(4)/10 X_ini(5)/10]
-
-%%
+[BoomInfo] = Boom3DShape(BoomInfo,'Info','Create_Stl');
+CheckBoomInfo(BoomInfo,'Plot')
+%% Initial Condition
+X_ini=[8.4 2.7 82.6 74.5 11.5]*10;
 r0=X_ini(1)*2*pi/10;
 theta=X_ini(2)*pi/180/10;
 D=X_ini(3)*pi/180/10;
 phi=X_ini(4)*pi/180/10;
 Vs=X_ini(5)/10;
-
-
 theta0=0*pi/180;
 phi0=0*pi/180;
 psi0=0*pi/180;
@@ -103,21 +67,17 @@ Tl_0=[cos(theta0)*cos(psi0), cos(theta0)*sin(psi0), -sin(theta0)
     sin(phi0)*sin(psi0)+cos(phi0)*sin(theta0)*cos(psi0), -sin(phi0)*cos(psi0)+cos(phi0)*sin(theta0)*sin(psi0), cos(phi0)*cos(theta0)];
 z0= 1.8; % initial altitude
 [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,Tl_0,BoomInfo);
-
 tfin=40;
-
-
-%[V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,T0,ustart,[0;0;r0],BoomInfo);
 [V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,quatToAtt(quat),ustart',[0;0;r0],BoomInfo);
 
-
+%%
 options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
-%%
-%%
+
 tic
 [TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion_IND(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
 toc
+%% Grafici Finali
 [YOUT] = Eul_Quat(YOUT_quat,TOUT);
 Energy(TOUT,YOUT,BoomInfo)
 PlotTipDxSx(TOUT,YOUT,BoomInfo,Tl_0)

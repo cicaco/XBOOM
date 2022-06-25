@@ -32,7 +32,7 @@ function [BoomInfo] = Boom3DShape(BoomInfo,varargin)
 % - BoomInfo.Mecc.I_rho: inerzia con densità se specificata
 % - BoomInfo.Mecc.m: Massa se densità specificata
 % OPZIONI
-% - 'Plot_figure': Vengono mostrate le figure 
+% - 'Plot_figure': Vengono mostrate le figure
 % - 'Create_Stl': Viene creato il file sitl
 % - 'Density_variation': Opzione che permmette di creare una distribuzione
 %   di densità sul boomerang (ad esempio creando una parte centrale del
@@ -66,8 +66,9 @@ C_name=0;
 nVarargs = length(varargin);
 i=1;
 cont=0;
+warning ('off');
+Err_1=0;
 while i<=nVarargs
-    
     switch varargin{i}
         case 'Plot_figure'
             C_fig=1;
@@ -88,6 +89,10 @@ while i<=nVarargs
     end
     i=i+1;
 end
+%
+C_VarDens=1; %densità costante
+R=BoomInfo.Mecc.Dens;
+Dens_i=[R.*ones(1,num-p_c-1) R*ones(1,2*p_c-1) R.*ones(1,num-p_c-1)];
 
 %% Dati per il calettamento lungo la pala e la rotazione
 % Divisione del boomernag come segue:
@@ -117,7 +122,8 @@ B_i_aer=[-beta.*ones(1,num) beta.*ones(1,num-1)];
 
 %% Trovo la posizione finale del centro aerodinamico di ogni sezione
 if C_info==1
-    fprintf('Start Computing Aerodynamic center \n');
+    disp('-------------------------------------------------------------------')
+    fprintf('Calcolo dei centri aerodinamici \n');
 end
 C=linspace(0,-Chord,num);
 P=[C;zeros(1,num);zeros(1,num)];
@@ -151,7 +157,7 @@ end
 % Capire se si puù fare una parte centrale un po migliore
 P_tot=[];
 if C_info==1
-    fprintf('Start Computing Boomerang Shape by Points\n');
+    fprintf('Calcolo della geometria del Boomerang per punti\n');
 end
 for i=1:num*2-1
     P_2d=[X_2d_i(i,:);zeros(size(Z_2d_i(i,:)));Z_2d_i(i,:)];
@@ -211,7 +217,7 @@ end
 n_prec=0;
 tr=[];
 xyz=[];
-warning('off','all')
+%warning('off','all')
 % calcolo il centro di massa per ogni tasca
 m_tot = 0;
 
@@ -225,7 +231,7 @@ Iyz = 0;
 Ixz = 0;
 %Dens_i=[1000.*ones(1,num-p_c-1) 1500*ones(1,2*p_c-1) 1000.*ones(1,num-p_c-1)];
 if C_info==1
-    fprintf('Start Computing Boomerang inertial characteristics \n');
+    fprintf('Calcolo caratteristiche inerziali del Boomerang \n');
 end
 for i=2:2*num-2
     P_prec=P_tot(3*(i-1)-2:3*(i-1),:);
@@ -239,31 +245,46 @@ for i=2:2*num-2
     end
     if norm(P_prec-P_succ)~=0
         P_i=[P_prec';P_succ'];
-        shp = alphaShape(P_i,1);
+        shp = alphaShape(P_i*100,1);
+        %         tr_i = boundary(P_i*100,0.9);
+        %         xyz_i=P_i;
         [tr_i, xyz_i] = boundaryFacets(shp);
-        
+        xyz_i=xyz_i./100;
+        %
+        %         try
+        %
+        %             RBP=RigidBodyParams(triangulation(tr_i,xyz_i));
+        %         catch
+        %             Err_1=1;
+        %             [tr_i, xyz_i] = boundaryFacets(shp);
+        %         end
         n_succ=length(xyz_i)+n_prec;
         tr=[tr;tr_i+n_prec];
         xyz=[xyz;xyz_i];
         n_prec=n_succ;
+        
         if C_fig==1
             
             figure(30)
             if i<=ni
-            plot(shp,'FaceColor',[0.153 0.255 0.102],'EdgeColor','k','LineStyle','none','LineWidth',0.1)
-            hold on
+                plot(shp,'FaceColor',[0.153 0.255 0.102],'EdgeColor','k','LineStyle','none','LineWidth',0.1)
+                hold on
             elseif i>=ni+2*p_c
-            plot(shp,'FaceColor',[0.106 0.186 0.252],'EdgeColor','k','LineStyle','none','LineWidth',0.01)
-            hold on
+                plot(shp,'FaceColor',[0.106 0.186 0.252],'EdgeColor','k','LineStyle','none','LineWidth',0.01)
+                hold on
             else
-            plot(shp,'FaceColor',[0.251 0.162 0.107],'EdgeColor','k','LineStyle','none','LineWidth',0.01)
-            hold on
+                plot(shp,'FaceColor',[0.251 0.162 0.107],'EdgeColor','k','LineStyle','none','LineWidth',0.01)
+                hold on
             end
-                    
+            
         end
         if C_VarDens==1
             %Calcolo baricentro
-            RBP=RigidBodyParams(triangulation(tr_i,xyz_i));
+            try
+                RBP=RigidBodyParams(triangulation(tr_i,xyz_i));
+            catch
+                error('Provo ad aumentare NUM.....');
+            end
             
             CG_i=RBP.centroid;
             d=Dens_i(i-1); %densità unitaria
@@ -295,30 +316,35 @@ for i=2:2*num-2
         end
     end
 end
+if Err_1==1
+    fprintf('POSSIBILE errore nella costruzione geometrica.\nSe necessario prova a modificare num/p_c a secondo della posizione\n');
+end
+
 if C_fig==1
-figure (20)
-axis equal
-xlabel('X','fontsize',11,'interpreter','latex');
-set(gca,'TickLabelInterpreter','latex')
-ylabel('Y','fontsize',11,'interpreter','latex');
-zlabel('Z','fontsize',11,'interpreter','latex');
-title('Boomerang Profile 3D space','fontsize',12,'interpreter','latex');
-grid on
-figure (30)
-axis equal
-grid on
-axis equal
-xlabel('X','fontsize',11,'interpreter','latex');
-set(gca,'TickLabelInterpreter','latex')
-ylabel('Y','fontsize',11,'interpreter','latex');
-zlabel('Z','fontsize',11,'interpreter','latex');
-title('Boomerang Triangulation','fontsize',12,'interpreter','latex');
-warning('on','all')
+    figure (20)
+    axis equal
+    xlabel('X','fontsize',11,'interpreter','latex');
+    set(gca,'TickLabelInterpreter','latex')
+    ylabel('Y','fontsize',11,'interpreter','latex');
+    zlabel('Z','fontsize',11,'interpreter','latex');
+    title('Boomerang Profile 3D space','fontsize',12,'interpreter','latex');
+    grid on
+    figure (30)
+    axis equal
+    grid on
+    axis equal
+    xlabel('X','fontsize',11,'interpreter','latex');
+    set(gca,'TickLabelInterpreter','latex')
+    ylabel('Y','fontsize',11,'interpreter','latex');
+    zlabel('Z','fontsize',11,'interpreter','latex');
+    title('Boomerang Triangulation','fontsize',12,'interpreter','latex');
+    %warning('on','all')
 end
 pr_fin=triangulation(tr,xyz);
 
 
 RBP=RigidBodyParams(pr_fin);
+
 if C_VarDens==0
     %densità costante
     CG=RBP.centroid;
@@ -339,11 +365,11 @@ V=RBP_CG.volume;
 if C_stl==1
     
     if C_name==0
-    filename=['Boom_D'+string(delta*180/pi)+'_B'+string(beta*180/pi)+'_P'+string(pitch*180/pi)+'.stl'];
+        filename=['Boom_D'+string(delta*180/pi)+'_B'+string(beta*180/pi)+'_P'+string(pitch*180/pi)+'.stl'];
     end
     stlwrite(pr_CG, filename);
     if C_info==1
-        fprintf('STL file creation name: ');
+        fprintf('Creazione del file STL: ');
         fprintf(filename);
         fprintf('\n');
     end
@@ -400,15 +426,29 @@ BoomInfo.Aero.P_Start_Sx=I_Start_Sx;
 BoomInfo.Aero.P_Finish_Sx=I_Finish_Sx;
 BoomInfo.Aero.Start_Sx=Start_Sx;
 BoomInfo.Mecc.V=V;
-BoomInfo.Mecc.I=I;
-BoomInfo.Mecc.I_rho=[Ixx Ixy Ixz; Ixy Iyy Iyz; Ixz Iyz Izz];
+
+if Ixy<0
+    BoomInfo.Mecc.I_rho=[Ixx Ixy Ixz; Ixy Iyy Iyz; Ixz Iyz Izz];
+    BoomInfo.Mecc.I=I.*R;
+else
+    BoomInfo.Mecc.I=[Ixx Ixy Ixz; Ixy Iyy Iyz; Ixz Iyz Izz];
+    BoomInfo.Mecc.I_rho=I.*R;
+end
+% Inerzia=BoomInfo.Mecc.I_rho;
 BoomInfo.Mecc.m=m_tot;
 BoomInfo.Mecc.CG=CG;
 BoomInfo.Geom3D.Fr_i=D_i;
 BoomInfo.Geom3D.Di_i=B_i;
 BoomInfo.Geom3D.Pi_i=P_i;
 BoomInfo.Geom3D.Profile=P_tot;
-
 BoomInfo.Geom3D.C_aer=C_fin_rot-CG';
+% if C_info==0
+%     fprintf('Inerzia: \n');
+%     fprintf('%.4f \t \n%.4f \t \n%.4f \t \n',Inerzia(1,:),Inerzia(2,:),Inerzia(3,:))
+%     fprintf('Massa: \n');
+%     fprintf(m_tot)
+% end
+disp('-------------------------------------------------------------------')
+
 end
 

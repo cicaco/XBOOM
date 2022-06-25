@@ -17,8 +17,9 @@ E_pot(i)=M*9.81*YOUT(i,12);
 V(i)=norm([ux uy uz]);
 Om(i)=norm([p q r]);
 end
-if max(diff(Ecin+E_pot))>0
+if max(diff(Ecin+E_pot))>10^-3
     fprintf('Il boomerang sta creando energia IMPOSSIBILE \n');
+    fprintf('%.4f \n',max(diff(Ecin+E_pot)));
 end
 linecolors={'r' 'y' 'c' 'g' 'b' 'k'};
 [handles]=plotNy(TOUT(:),YOUT(:,6),1,...

@@ -35,6 +35,9 @@ if max(vecnorm(YOUT_quat(:,11:13)'))/1.1<=Dist
     Dist=1000;
 end
 PAR=Dist;
+if isnan(Dist)
+    fprintf('Lol \n');
+end
 %PAR=Dist;
 if not(isempty(varargin))
     PAR(1)=Dist;
