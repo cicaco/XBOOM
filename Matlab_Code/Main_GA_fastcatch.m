@@ -46,6 +46,7 @@ BoomInfo.Aero.Cl=CL_t;
 BoomInfo.Aero.Cd=CD_t;
 BoomInfo.Aero.Cm=CM_t;
 BoomInfo.Mecc.Dens=650;
+BoomInfo.Aero.V_ind=0;
 %%
 [BoomInfo] = Boom3DShape(BoomInfo,'Info','Create_Stl');
 BoomInfo.Mecc.I_rho
@@ -95,7 +96,7 @@ Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 %%
 %%
 tic
-[TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
+[TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion_IND(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
 toc
 [YOUT] = Eul_Quat(YOUT_quat,TOUT);
 Energy(TOUT,YOUT,BoomInfo)

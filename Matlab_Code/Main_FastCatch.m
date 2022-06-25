@@ -51,6 +51,7 @@ BoomInfo.Mecc.Dens=650;
 CheckBoomInfo(BoomInfo,'Plot')
 %% Initial Condition
 X_ini=[8.7 6.8 7.3 56.6 10.8]*10;
+X_ini=[10.0000    9.9000    1.6000   65.5000    8.3000]*10;
 r0=X_ini(1)*2*pi/10;
 theta=X_ini(2)*pi/180/10;
 D=X_ini(3)*pi/180/10;
@@ -72,7 +73,7 @@ options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 
 tic
-[TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
+[TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion_IND(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
 toc
 %% Grafici Finali
 [YOUT] = Eul_Quat(YOUT_quat,TOUT);
