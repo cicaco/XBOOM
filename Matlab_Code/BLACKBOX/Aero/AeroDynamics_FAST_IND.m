@@ -44,7 +44,7 @@ twist1=zeros(1,length(eta1));
 % twist1=linspace(0,2*pi/180,length(eta1));
 
 %spanwise wing distance
-
+warning('on','all');
 %calcolo n° Re
 spanRe=3/4*(start1+L);
 
@@ -69,17 +69,42 @@ Tj2=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos
 %% calcoli aerodinamici
 %vel indotta
 err=1;
-cont=0;
+cont=-1;
+cont2=0;
+
 while err>10^-2
+    cont=cont+1;
     [vel_ind]=VelInd_FAST2(u,omega,v_ind_old,BoomInfo);
+    
     err=abs((vel_ind-v_ind_old)/vel_ind);
     v_ind_old=vel_ind;
-    cont=cont+1;
-    if cont>100
-        err=10^-3;
-        fprintf('Velocità indotta non convergente BUG \n')
+    if cont==0
+        vel_prec=vel_ind;
+    elseif cont==2
+        
+        if norm(vel_prec-vel_ind)<10^-(10)
+            warning('Loop');
+            [~,F1]=VelInd_FAST2(u,omega,vel_prec,BoomInfo);
+            [~,F2]=VelInd_FAST2(u,omega,vel_succ,BoomInfo);
+            if abs(F1)>abs(F2)
+                v_ind_old=vel_succ;
+            else
+                v_ind_old=vel_prec;
+            end
+            err=10^-4;
+            
+        end
+        cont=-1;
+    else
+        vel_succ=vel_ind;
+    end
+    if cont2>100
+        warning('Loop');
+        err=10^-4;
         v_ind_old=0;
     end
+    cont2=cont2+1;
+    
 end
 
 

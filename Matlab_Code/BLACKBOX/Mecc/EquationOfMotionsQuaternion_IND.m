@@ -6,6 +6,7 @@ persistent V_ind
     if isempty(V_ind)
         V_ind = 0;
     end
+ 
 I=BoomInfo.Mecc.I_rho;
 m=BoomInfo.Mecc.m;
 
