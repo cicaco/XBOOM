@@ -1,13 +1,14 @@
 function PlotTipDxSx(TOUT,YOUT,BoomInfo,Tl_0)
-%PlotTipDxSx è una funzione che permette di plottare il comportamento del
-%boomerang mostrando la posizione della tip Dx e Sx e della posizione del
-%baricentro
-%INPUT:
-%- YOUT: Vettore d'uscita della ode
-%- TOUT: Tempo  rispetto a YOUT
-%- BoomInfo: Struct con le informazioni geometriche del boomerang
-%OUTPUT:
-%- Grafico
+%% PlotTipDxSx è una funzione che permette di plottare il comportamento del
+% boomerang mostrando la posizione della tip Dx e Sx e della posizione del
+% baricentro
+% INPUT:
+% - YOUT: Vettore d'uscita della ode con angoli di eulero
+% - TOUT: Tempo  rispetto a YOUT
+% - BoomInfo: Struct con le informazioni geometriche del boomerang
+% OUTPUT:
+% - Grafico
+%%
 R=BoomInfo.Pianta.l; %0.30; %m
 xac=BoomInfo.Aero.P_origin_Sx(1); %va cambiato tra prima e seconda pala (DA FARE)
 

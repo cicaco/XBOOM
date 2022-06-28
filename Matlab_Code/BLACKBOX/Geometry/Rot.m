@@ -1,9 +1,12 @@
 function [R] = Rot(u,T)
-%ROT è una funzione che fornisce la matrice di rotazione da un asse e un
+%% ROT è una funzione che fornisce la matrice di rotazione da un asse e un
 %angolo assegnato come input
-% Input:
+% INPUT:
 % u: 1x3 di norma 1
-% T: Angolo in radianti
+% T: Angolo in radianti 
+% OUTPUT:
+% R: Matrice 3D
+%% 
 ux=u(1);
 uy=u(2);
 uz=u(3);

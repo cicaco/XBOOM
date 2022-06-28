@@ -1,24 +1,24 @@
 function [BoomInfo] = Boom3DShape(BoomInfo,varargin)
-% La funzione permette di creare la dimensione tridimensionale del boomerang
-% dati in input un file struct, conentente tutti i dati del boomerang.
+%% Boom3DShapes creates the 3D shapes of the boomerang by traingulation
+% method
 % INPUT
-% BoomInfo, struct contente:
+% BoomInfo, struct with this information:
 % - BoomInfo.Profile.Chord
 % - BoomInfo.Profile.Chord;
-% - BoomInfo.Geom3D.p_c: numero di profili di "Transizione" nella parte centrale
-% - BoomInfo.Pianta.l: lunghezza della pala
-% - BoomInfo.Pianta.freccia: Angolo di freccia
-% - BoomInfo.Pianta.diedro: Angolo di Diedro
-% - BoomInfo.Pianta.pitch: Angolo di Pitch
-% - BoomInfo.Geom3D.num: Numero di profili su ciascuna pala;
-% - BoomInfo.Geom3D.PARA; %Parametro che permette di modificare la
-%   curvatura centrale (Para=1 non ce la curvatura dietro)
-% - BoomInfo.Profile.Xp_dx; %Profilo pala dx (Asse X)
-% - BoomInfo.Profile.Zp_dx; %Profilo pala dx (Asse Z)
-% - BoomInfo.Profile.Xp_sx; %Profilo pala sx (Asse X)
-% - BoomInfo.Profile.Zp_sx; %Profilo pala sx (Asse Z)
+% - BoomInfo.Geom3D.p_c: number of profile in the central part
+% - BoomInfo.Pianta.l: lenght of half boomerang
+% - BoomInfo.Pianta.freccia: Swept angle
+% - BoomInfo.Pianta.diedro: Coning angle
+% - BoomInfo.Pianta.pitch: Pitch Angle
+% - BoomInfo.Geom3D.num: Number of profile on each blade
+% - BoomInfo.Geom3D.PARA; Parameter that control the curve of the central
+%   part. If Para=1, there is no curvature (V)
+% - BoomInfo.Profile.Xp_dx; %Profile blade dx (Asse X)
+% - BoomInfo.Profile.Zp_dx; %Profile blade dx (Asse Z)
+% - BoomInfo.Profile.Xp_sx; %Profile blade sx (Asse X)
+% - BoomInfo.Profile.Zp_sx; %Profile blade sx (Asse Z)
 % OUTPUT
-% Vengono aggiunti alla struct nuove variabili:
+% New variable will bee addeded to the struct:
 % - BoomInfo.Aero.P_origin_Dx: Punto di "origine" della pala dx (HP: no curvatura centrale)
 % - BoomInfo.Aero.P_Start_Dx: Punto di inizio della pala dx (HP: no curvatura centrale)
 % - BoomInfo.Aero.P_Finish_Dx:  Punto di fine della pala dx (HP: no curvatura centrale)
@@ -42,6 +42,9 @@ function [BoomInfo] = Boom3DShape(BoomInfo,varargin)
 %   Dens_i=[1000.*ones(1,n-p_c-1) 1500*ones(1,2*p_c-1) 1000.*ones(1,n-p_c-1)];
 % - 'Info': Viene dichirato cosa sta facendo il codice
 % - 'FileName': Nome del FIle STL, altrimenti viene creato di default
+
+
+
 %% Import Data from BoomInfo
 Chord=BoomInfo.Profile.Chord;
 p_c=BoomInfo.Geom3D.p_c;
@@ -90,17 +93,17 @@ while i<=nVarargs
     i=i+1;
 end
 %
-C_VarDens=1; %densità costante
+C_VarDens=1; %Constant Density
 R=BoomInfo.Mecc.Dens;
 Dens_i=[R.*ones(1,num-p_c-1) R*ones(1,2*p_c-1) R.*ones(1,num-p_c-1)];
 
 %% Dati per il calettamento lungo la pala e la rotazione
-% Divisione del boomernag come segue:
-% Paladx(y negative) 1:num-p_c
-% Parte centrale num-pc:num+p_c
-% Palasx(ypositive) num+p_c:end
-%Creo i profili di transizione per la parte centrale
-[X_trans,Z_trans] = Profile2d_Trans(Xp_dx,Zp_sx,Zp_dx,p_c*2-1);
+% The boomerang is divided as it follows:
+% Blade dx(y negative) 1:num-p_c
+% Central part num-pc:num+p_c
+% Blade sx(ypositive) num+p_c:end
+% Creation of the "Transition" profile of the central section
+[X_trans,Z_trans] = Profile2d_Trans(Xp_dx,Xp_sx,Zp_sx,Zp_dx,p_c*2-1);
 %Considero una matrice di dimensione 2*num-1*132 che rappresenta il profilo
 %di ciascuna delle sezione del boomerang
 X_2d_i=[ones(num-p_c,1)*Xp_dx';X_trans;ones(num-p_c,1)*Xp_sx'];
@@ -246,7 +249,7 @@ for i=2:2*num-2
     if norm(P_prec-P_succ)~=0
         P_i=[P_prec';P_succ'];
         shp = alphaShape(P_i*100,1);
-        %         tr_i = boundary(P_i*100,0.9);
+        %         tr_i = boundary(P_i*100);
         %         xyz_i=P_i;
         [tr_i, xyz_i] = boundaryFacets(shp);
         xyz_i=xyz_i./100;
@@ -283,7 +286,8 @@ for i=2:2*num-2
             try
                 RBP=RigidBodyParams(triangulation(tr_i,xyz_i));
             catch
-                error('Provo ad aumentare NUM.....');
+                fprintf('Problem  at section number: %d \n',i);
+                fprintf('Try to Modify p_c,num, o PARA .....');
             end
             
             CG_i=RBP.centroid;
@@ -372,6 +376,8 @@ if C_stl==1
         fprintf('Creazione del file STL: ');
         fprintf(filename);
         fprintf('\n');
+        disp('-------------------------------------------------------------------')
+        
     end
     
 end
@@ -402,21 +408,7 @@ Start_Dx=norm(I_Start_Dx-I_origin_Dx);
 l_check_Dx=norm(-I_Start_Dx+I_Finish_Dx);
 Start_Sx=norm(I_Start_Sx-I_origin_Sx);
 l_check_Sx=norm(-I_Start_Sx+I_Finish_Sx);
-if C_fig==1
-    
-    figure()
-    plot3(C_fin_rot(1,:),C_fin_rot(2,:),C_fin_rot(3,:),'*r');
-    quiver3(C_fin_rot(1,num+p_c),C_fin_rot(2,num+p_c),C_fin_rot(3,num+p_c),Norm(1),Norm(2),Norm(3));
-    quiver3(C_fin_rot(1,num-p_c),C_fin_rot(2,num-p_c),C_fin_rot(3,num-p_c),Norm(1),Norm(2),Norm(3));
-    
-    hold on
-    plot3(C_fin_rot(1,num+p_c),C_fin_rot(2,num+p_c),C_fin_rot(3,num+p_c),'*b');
-    plot3(I_sx(1),I_sx(2),I_sx(3),'ob');
-    plot3(I_dx(1),I_dx(2),I_dx(3),'or');
-    plot3(C_fin_rot(1,num-p_c),C_fin_rot(2,num-p_c),C_fin_rot(3,num-p_c),'*r');
-    axis equal
-    grid on
-end
+
 BoomInfo.Aero.P_origin_Dx=I_origin_Dx;
 BoomInfo.Aero.P_Start_Dx=I_Start_Dx;
 BoomInfo.Aero.P_Finish_Dx=I_Finish_Dx;
@@ -426,7 +418,25 @@ BoomInfo.Aero.P_Start_Sx=I_Start_Sx;
 BoomInfo.Aero.P_Finish_Sx=I_Finish_Sx;
 BoomInfo.Aero.Start_Sx=Start_Sx;
 BoomInfo.Mecc.V=V;
-
+if C_fig==1
+    
+    figure()
+    h1=plot3(I_origin_Dx(1),I_origin_Dx(2),I_origin_Dx(3),'*r');
+    hold on
+    h2=plot3(I_Start_Dx(1),I_Start_Dx(2),I_Start_Dx(3),'ob');
+    plot3(I_Finish_Dx(1),I_Finish_Dx(2),I_Finish_Dx(3),'ob');
+    plot3([I_Finish_Dx(1) I_Start_Dx(1)],[I_Finish_Dx(2) I_Start_Dx(2)],[I_Finish_Dx(3) I_Start_Dx(3)],'k','linewidth',1.5);
+    
+    h3=plot3(I_origin_Sx(1),I_origin_Sx(2),I_origin_Sx(3),'*r');
+    hold on
+    h4=plot3(I_Start_Sx(1),I_Start_Sx(2),I_Start_Sx(3),'oc');
+    plot3(I_Finish_Sx(1),I_Finish_Sx(2),I_Finish_Sx(3),'oc');
+    plot3([I_Finish_Sx(1) I_Start_Sx(1)],[I_Finish_Sx(2) I_Start_Sx(2)],[I_Finish_Sx(3) I_Start_Sx(3)],'k','linewidth',1.5);
+    set(gca,'TickLabelInterpreter','latex')
+    
+    legend([h1,h2,h3,h4],'Origine Pala Dx','Inizio e fine Pala Dx','Origine Pala Sx','Inizio e fine Pala Sx','fontsize',9,'interpreter','latex');
+    grid on
+end
 if Ixy<0
     BoomInfo.Mecc.I_rho=[Ixx Ixy Ixz; Ixy Iyy Iyz; Ixz Iyz Izz];
     BoomInfo.Mecc.I=I.*R;
@@ -442,13 +452,6 @@ BoomInfo.Geom3D.Di_i=B_i;
 BoomInfo.Geom3D.Pi_i=P_i;
 BoomInfo.Geom3D.Profile=P_tot;
 BoomInfo.Geom3D.C_aer=C_fin_rot-CG';
-% if C_info==0
-%     fprintf('Inerzia: \n');
-%     fprintf('%.4f \t \n%.4f \t \n%.4f \t \n',Inerzia(1,:),Inerzia(2,:),Inerzia(3,:))
-%     fprintf('Massa: \n');
-%     fprintf(m_tot)
-% end
-disp('-------------------------------------------------------------------')
 
 end
 

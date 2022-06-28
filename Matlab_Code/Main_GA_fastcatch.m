@@ -3,14 +3,14 @@ clear all
 close all
 addpath(genpath('BLACKBOX'));
 %% Input Data
-Chord=0.05;
+Chord=0.06;
 p_c=20; % numero di profili di "Transizione" nella parte centrale
 l=0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
 delta=30*pi/180; %Angolo di freccia
 beta=0*pi/180; %Angolo di Diedro
 pitch=0*pi/180; %Pitch angle
 num=20; %Numero di profili totale su ciascuna metà;
-PARA=2.; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
+PARA=1.6; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
 % Profile 2D Shape
 %% Profilo 2D e caratteristiche aerodinamiche
 Profile2D=importdata('fastcatch.dat');
@@ -48,23 +48,23 @@ BoomInfo.Aero.Cm=CM_t;
 BoomInfo.Mecc.Dens=650;
 BoomInfo.Aero.V_ind=0;
 %%
-[BoomInfo] = Boom3DShape(BoomInfo,'Info','Create_Stl');
+[BoomInfo] = Boom3DShape(BoomInfo,'Info','Create_Stl','FileName','FastCatch_boom');
 BoomInfo.Mecc.I_rho
 BoomInfo.Mecc.m
 CheckBoomInfo(BoomInfo,'Plot')
 %% Initial condition
 fprintf('Starting Genetic Alghoritm...\n');
 % x=[r0 theta D phi Vs];
-lb=[8 0 0 0 8]*10; %[Hz gradi m/s]
-ub=[10 10  90  90 15]*10;
+lb=[3 0 0 0 8]*10; %[Hz gradi m/s]
+ub=[8 10  90  90 15]*10;
 fitnessfcn=@(x) GA_para1(x,BoomInfo);
 options = optimoptions('ga', 'MaxStallGenerations', 10, 'MaxGenerations', 10, 'NonlinearConstraintAlgorithm', 'penalty',...
-    'PopulationSize', 50, 'PlotFcn', {'gaplotbestindiv', 'gaplotbestf'},...
+    'PopulationSize', 20, 'PlotFcn', {'gaplotbestindiv', 'gaplotbestf'},...
     'Display', 'iter', 'UseParallel', true, 'UseVectorized', false,'FitnessLimit',4 );
 X_ini = ga(fitnessfcn,5,[],[],[],[],lb,ub,[],1:5,options);
 
 %% Initial condition
-[PAR] = GA_para1(X_ini,BoomInfo,'Ciao');
+[PAR,t_min,r_max] = GA_para1(X_ini,BoomInfo,'Ciao')
 X_ini_right=[X_ini(1)/10 X_ini(2)/10 X_ini(3)/10 X_ini(4)/10 X_ini(5)/10]
 
 %%
@@ -99,7 +99,7 @@ tic
 [TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion_IND(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
 toc
 [YOUT] = Eul_Quat(YOUT_quat,TOUT);
-Energy(TOUT,YOUT,BoomInfo)
+Energy(TOUT,YOUT,BoomInfo);
 PlotTipDxSx(TOUT,YOUT,BoomInfo,Tl_0)
 %PlotAeroForce(YOUT,TOUT,BoomInfo)
 ChiAvan(BoomInfo,YOUT,TOUT)

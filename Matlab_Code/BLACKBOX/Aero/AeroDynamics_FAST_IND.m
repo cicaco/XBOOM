@@ -1,20 +1,21 @@
 function [F,M,v_ind_old,AoA1,AoA2,Re,Mn]=AeroDynamics_FAST_IND(u,omega,BoomInfo,v_ind_old)
-% AeroDynamics computes the force and momentum for the whole boomerang
+%% AeroDynamics computes the force and momentum for the whole boomerang
 % and the angle of attack and Reynolds for each section spanwise
 %
-% [F,M,AoA1,AoA2,Re,Mn]=AeroDynamics(u,omega,BoomInfo) computes the quantity described as
+% [F,M,AoA1,AoA2,Re,Mn]=AeroDynamics(u,omega,BoomInfo,v_ind_old) computes the quantity described as
 % function of u and omega
 %
 % INPUT:
-% u velocity in the body frame
-% omega angular speed in the body frame
+% - u velocity in the body frame
+% - omega angular speed in the body frame
+% - v_ind_old: induced velocity
 %
 % OUTPUT:
-% F: vector of aerodynamic forces in body frame
-% M: vector of aerodynamic moments in body frame
-% AoAsx: Angles of Attack of each section of left blade
-% AoAdx: Angles of Attack of each section of right blade
-% Re: Reynolds number of a charateristic blade section at 3/4 Length of blade
+% - F: vector of aerodynamic forces in body frame
+% - M: vector of aerodynamic moments in body frame
+% - AoAsx: Angles of Attack of each section of left blade
+% - AoAdx: Angles of Attack of each section of right blade
+% - Re: Reynolds number of a charateristic blade section at 3/4 Length of blade
 
 %% import geometria
 c=BoomInfo.Profile.Chord; %m

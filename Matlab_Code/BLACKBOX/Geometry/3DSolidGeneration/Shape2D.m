@@ -30,25 +30,8 @@ for i =1:num_span
         LE=Plant3D(1,index);
     end
     Xp_2d=Xp_2d_trans(i,:);
-    Zp_2d=Zp_2d_trans(i,:);
-    
-    
-    
+    Zp_2d=Zp_2d_trans(i,:);  
     [n,m]=size(Zp_2d);
-%     figure(4)
-%     plot((Chord.*Xp_2d+LE),(Chord.*Zp_2d),'b');
-%     hold on
-%     axis equal
-%     figure(5)
-%     plot((Chord.*Xp_2d+LE),Plant3D(2,index2).*ones(n,m),'b');
-%     hold on
-%     axis equal
-%     plot(Plant3D(1,:),Plant3D(2,:),'*r');
-%     figure(6)
-%     plot3(Plant3D(1,:),Plant3D(2,:),zeros(1,400),'*r');
-%     hold on
-%     plot3((Chord.*Xp_2d+LE),Plant3D(2,index2).*ones(n,m),(Chord.*Zp_2d),'b');
-%     axis equal
     New=[(Chord.*Xp_2d+LE)' (Plant3D(2,index2).*ones(n,m))' (Chord.*Zp_2d)'];
     Shape=[Shape; New];
     Shape_d=[Shape_d;New(1:m/2,:);];

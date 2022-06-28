@@ -1,20 +1,14 @@
-function [PAR,varargout] = GA_para1(x,BoomInfo,varargin)
-% GA_para1 è la fitness function utilizzata dall GA.
-% INPUT:
-% - x: vettore dei parametri
-% - BoomInfo: Struct dei dati del boomerang
-% OUTPUT
-% - PARA: vettore contente Tempo e Distanza finale della traiettoria del
-%   boomerang, se il boomerang viene lanciato "male" PARA(2) = 1000
-% Se varargin è presente:
-% - T_min: Tempo del lancio finale
-% - R_max: Distanza massima del lancio finale
-r0=x(1)*2*pi/10;
-theta=x(2)*pi/180/10;
-D=x(3)*pi/180/10;
-phi=x(4)*pi/180/10;
-Vs=x(5)/10;
+function [PAR,varargout] = GA_para_paper(x,BoomInfo,varargin)
 
+BoomInfo.Mecc.Dens=100;
+BoomInfo.Geom3D.PARA=x/1000; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
+
+[BoomInfo] = Boom3DShape(BoomInfo);
+D=0.130/BoomInfo.Mecc.V;
+%BoomInfo.Mecc.CG=[CG(1) 0 0];
+BoomInfo.Mecc.Dens=D;
+
+[BoomInfo] = Boom3DShape(BoomInfo);
 
 theta0=0*pi/180;
 phi0=0*pi/180;
@@ -23,15 +17,15 @@ Tl_0=[cos(theta0)*cos(psi0), cos(theta0)*sin(psi0), -sin(theta0)
     -cos(phi0)*sin(psi0)+sin(phi0)*sin(theta0)*cos(psi0), cos(phi0)*cos(psi0)+sin(phi0)*sin(theta0)*sin(psi0), sin(phi0)*cos(theta0)
     sin(phi0)*sin(psi0)+cos(phi0)*sin(theta0)*cos(psi0), -sin(phi0)*cos(psi0)+cos(phi0)*sin(theta0)*sin(psi0), cos(phi0)*cos(theta0)];
 z0= 1.8; % initial altitude
-
-
-[quat,ustart] = HandInitial(r0,theta,D,phi,Vs,Tl_0,BoomInfo);
 tfin=40;
-
-
-%[V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,T0,ustart,[0;0;r0],BoomInfo);
-
-
+r0=10*2*pi;
+psi=70*pi/180;
+theta=0*pi/180;
+phi=-45*pi/180;
+eul=[psi theta phi];
+quat = eul2quat( eul );
+quat=[quat(2) quat(3) quat(4) quat(1)];
+ustart=[25;0;0];
 options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 %%

@@ -1,12 +1,14 @@
 function CheckBoomInfo(BoomInfo,varargin)
-%CHECKBOOMINFO è una funzione che permette di verificare che tutti i dati
-%inseriti siano corretti:
-%INPUT:
-%-  BoomInfo: struct
-%OPZIONI:
-%-  'Plot': viene plottato il profilo dx e sx ed i centri aerodinamici, il profilo dx è corretto se il
+%% CHECKBOOMINFO è una funzione che permette di verificare che tutti i dati
+% inseriti siano corretti:
+% INPUT:
+% - BoomInfo: struct
+% OPZIONI:
+% - 'Plot': viene plottato il profilo dx e sx ed i centri aerodinamici, il profilo dx è corretto se il
 %   bordo di attacco punto verso sinistra nella figura. Se si vuole spostare 
 %   il centro aerodinamico, traslare verso il basso o l alto le coordinate Z. 
+
+%%
 I=zeros(1,36);
 C_fig=0;
 

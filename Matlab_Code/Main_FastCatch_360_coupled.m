@@ -7,7 +7,7 @@ Chord=0.05;
 p_c=20; % numero di profili di "Transizione" nella parte centrale
 l=0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
 delta=40*pi/180; %Angolo di freccia
-beta=0*pi/180; %Angolo di Diedro
+beta=1*pi/180; %Angolo di Diedro
 pitch=0*pi/180; %Pitch angle
 num=20; %Numero di profili totale su ciascuna metà;
 PARA=2.; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
@@ -74,12 +74,12 @@ options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 
 tic
-[TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion_IND(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
+[TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
 toc
 %% Grafici Finali
 [YOUT] = Eul_Quat(YOUT_quat,TOUT);
 Energy(TOUT,YOUT,BoomInfo)
 PlotTipDxSx(TOUT,YOUT,BoomInfo,Tl_0)
-%PlotAeroForce(YOUT,TOUT,BoomInfo)
+PlotAeroForce(YOUT,TOUT,BoomInfo)
 ChiAvan(BoomInfo,YOUT,TOUT)
 FinalReport(YOUT,TOUT)

@@ -49,7 +49,7 @@ P_sx=((T0*Tl_0)'*P_sx')';
 V_dx=((T0*Tl_0)'*[V_dx(:,1) V_dx(:,2) V_dx(:,3)]')';
 V_sx=((T0*Tl_0)'*[V_sx(:,1) V_sx(:,2) V_sx(:,3)]')';
 V_dx_b=V_dx;
-V_sx_b=V_sx;
+V_sx_v=V_sx;
 % Creo la figura
 quiver3([P_dx(:,1); P_sx(:,1)],[P_dx(:,2) ;P_sx(:,2)],[P_dx(:,3) ;P_sx(:,3)],[V_dx(:,1) ;V_sx(:,1)],[V_dx(:,2); V_sx(:,2)],[V_sx(:,3); V_sx(:,3)],'r','linewidth',1);
 h1=quiver3(0.0,0,0,1,0 ,0,'b','linewidth',1);

@@ -1,4 +1,4 @@
-function coeff360 = f_polar_360(lon, airfoil_name, Re, CD_90) 
+function coeff360 = f_polar_360(lon, airfoil_name, Re, CD_90,varargin) 
 % coeff360 = F_POLAR_360(lon, airfoil_name, Re)
 % WARNING -> PUT XFOIL IN THE SAME FOLDER OF THIS SCRIPT AND XFOIL.M
 % INPUT
@@ -23,6 +23,20 @@ function coeff360 = f_polar_360(lon, airfoil_name, Re, CD_90)
 % CAREFULL CD90 (CD AT 90 DEGREE MUST BE SPECIFIED) -> TOTALLY ARBITRARY
 % EXTENSION IN MAINLY BASED ON EXPERIMENTAL RESULTS AND FLT PLATE ANALOGOUS
 
+% Option
+nVarargs = length(varargin);
+C_save=0;
+i=1;
+warning ('off');
+while i<=nVarargs
+    switch varargin{i}
+        case 'Save_Coeff'
+            Filename=varargin{i+1};
+            i=i+1;
+            C_save=1;
+    end
+    i=i+1;
+end
 a       = linspace(-20,20, 41);
 Mach    = 0;
 
@@ -35,12 +49,12 @@ else
     %airfoil_name = 'fastcatch'
     %airfoil = 'fastcatch.dat'
 end
-[pol,foil] = xfoil(airfoil,a,Re,Mach,'panels n 330', 'oper iter 1000')
+[pol,~] = xfoil(airfoil,a,Re,Mach,'panels n 330', 'oper iter 1000');
 
 % find AoA stall
-alpha_ck = 4 % I really hope stall occur after 4 degree
+alpha_ck = 4; % I really hope stall occur after 4 degree
 delta = 10;
-while delta > 0;
+while delta > 0
     cl_check = interp1(pol.alpha, pol.CL, [alpha_ck, alpha_ck+1]);
     %when cl changes sign -> alpha_stall
     delta = cl_check(2) - cl_check(1);
@@ -49,9 +63,9 @@ end
 alpha_stall = alpha_ck -1 ;
 
 % compute negative stall
-alpha_ck = -4 % I really hope stall occur after -4 degree
+alpha_ck = -4; % I really hope stall occur after -4 degree
 delta = -10;
-while delta < 0;
+while delta < 0
     cl_check = interp1(pol.alpha, pol.CL, [alpha_ck, alpha_ck-1]);
     %when cl changes sign -> alpha_stall
     delta = cl_check(2) - cl_check(1);
@@ -61,7 +75,7 @@ alpha_mstall = alpha_ck +1 ;
 
 % ok let's take 5 angles more after stall
 a       = linspace(alpha_mstall-5, alpha_stall+5, (alpha_stall-alpha_mstall)+11);
-[pol,foil] = xfoil(airfoil,a,Re,Mach,'panels n 330', 'oper iter 1000')
+[pol,~] = xfoil(airfoil,a,Re,Mach,'panels n 330', 'oper iter 1000');
 %% alghorithm positive side
 %retrieve clalpha
 a_vec = (min(pol.alpha)+7):(max(pol.alpha)-7);
@@ -103,11 +117,11 @@ slope  = @(a) 0.001653 + 0.00016 * a;
 armLine = offset(alpha0) + slope(alpha0) * (alpha_long-90);
 % define armNeg
 xA = abs(alpha0);
-yA = offset(xA) + slope(xA)*(xA-90)
+yA = offset(xA) + slope(xA)*(xA-90);
 xB = -180 - xA;
 yB =  offset(xA) + slope(xA)*(90);
 k  = (yB-yA)/(xB-xA);
-armNeg = yA + k.*(alpha_long - xA)
+armNeg = yA + k.*(alpha_long - xA);
 
 % pagina 27 --> ci sono un po' di errori in quel paper
 % il braccio qui dovrebbe essere plottato fino ad alpha0,
@@ -123,3 +137,6 @@ coeff360.alpha = alpha_fin;
 coeff360.CL    = CL_fin;
 coeff360.CD    = CD_fin;
 coeff360.CM    = CM_fin;
+if C_save==1
+    save(Filename,'alpha_fin','CL_fin','CD_fin','CM_fin');
+end

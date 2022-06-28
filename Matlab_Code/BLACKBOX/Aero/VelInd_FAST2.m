@@ -1,5 +1,12 @@
 function [vel_ind,F_tot]=VelInd_FAST2(u,omega,v_ind_old,BoomInfo)
-
+%% VelInd_FAST2 è la funzione per il calcolo della velocità indotta.
+% INPUT:
+% - u velocity in the body frame
+% - omega angular speed in the body frame
+% - v_ind_old: induced velocity
+% OUPUT:
+% - vel_ind: induced velocity new
+% - F_tot: Total force during rotation
 alpha_cl=BoomInfo.Aero.alpha_cl;
 alpha_cd=BoomInfo.Aero.alpha_cd;
 CL_t=BoomInfo.Aero.Cl;
@@ -53,6 +60,9 @@ Tj2=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos
 % nps=5;
 % reshape(cos(psi_vect),[1 1 nps])
 % M_ciclopsi=[];
+% Vengono sfruttate le matrici tridimensionali per il calcolo della
+% velocità indotta, in questo modo la velocità del codice è minimizzata
+% poichè vengono eliminati cicli for
 T_ciclopsi_vect=[reshape(cos(psi_vect),[1 1 length(psi_vect)]) reshape(sin(psi_vect),[1 1 length(psi_vect)]) zeros(1,1,length(psi_vect));...
     -reshape(sin(psi_vect),[1 1 length(psi_vect)]) reshape(cos(psi_vect),[1 1 length(psi_vect)]) zeros(1,1,length(psi_vect));...
     zeros(1,1,length(psi_vect)) zeros(1,1,length(psi_vect)) ones(1,1,length(psi_vect))];

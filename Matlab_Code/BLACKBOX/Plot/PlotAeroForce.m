@@ -1,19 +1,36 @@
 function PlotAeroForce(YOUT,TOUT,BoomInfo,varargin)
+%% PlotAeroForce è una funzione che permette di ricavare le forze
+% aerodinamiche durante il lancio.
+% INPUT
+% - YOUT: Vettore d'uscita della ode con angoli di eulero
+% - TOUT: Tempo  rispetto a YOUT
+% - BoomInfo: Struct con le informazioni geometriche del boomerang
+% OUTPUT:
+% - Grafico
+% OPZIONI:
+% - 'Global_Frame' forze nel sistema di riferimento globale
+% - 'Velocità_indotta' forze aerodinamiche con la velocità indotta
+%%
 nVarargs = length(varargin);
+% Analisi Opzioni
+
 i=1;
 C_body=0;
+C_ind=0;
 TIT='Sistema di riferimento Body';
 while i<=nVarargs
     switch varargin{i}
-        case 'Global_fFrame'
+        case 'Global_Frame'
             C_body=1;
             TIT='Sistema di riferimento globale';
-            
+        case 'Velocità_indotta'
+            C_ind=1;
         otherwise
             fprintf('Opzioni sbagliate');
     end
     i=i+1;
 end
+% Ricavo le variabile necessarie
 ux=YOUT(:,7);
 uy=YOUT(:,8);
 uz=YOUT(:,9);
@@ -26,24 +43,27 @@ psi=YOUT(:,3);
 num=numel(p);
 F=zeros(3,num);
 M=zeros(3,num);
-R=@(theta0,psi0,phi0) [cos(theta0)*cos(psi0), cos(theta0)*sin(psi0), -sin(theta0)
-    -cos(phi0)*sin(psi0)+sin(phi0)*sin(theta0)*cos(psi0), cos(phi0)*cos(psi0)+sin(phi0)*sin(theta0)*sin(psi0), sin(phi0)*cos(theta0)
-    sin(phi0)*sin(psi0)+cos(phi0)*sin(theta0)*cos(psi0), -sin(phi0)*cos(psi0)+cos(phi0)*sin(theta0)*sin(psi0), cos(phi0)*cos(theta0)];
-% BoomInfo.Mecc.I_rho = 3*BoomInfo.Mecc.I_rho;
 
+%Calcolo delle forze aerodinamiche
 for i=1:num
-    [F(:,i),M(:,i)]=AeroDynamics([ux(i);uy(i);uz(i)],[p(i);q(i);r(i)],BoomInfo);
+    if C_ind==0
+        [F(:,i),M(:,i)]=AeroDynamics_FAST([ux(i);uy(i);uz(i)],[p(i);q(i);r(i)],BoomInfo);
+    else
+        [F(:,i),M(:,i)]=AeroDynamics_FAST_IND([ux(i);uy(i);uz(i)],[p(i);q(i);r(i)],BoomInfo);
+        
+    end
     if C_body==1
         
-T0=[cos(theta(i))*cos(psi(i)), cos(theta(i))*sin(psi(i)), -sin(theta(i))
-    -cos(phi(i))*sin(psi(i))+sin(phi(i))*sin(theta(i))*cos(psi(i)), cos(phi(i))*cos(psi(i))+sin(phi(i))*sin(theta(i))*sin(psi(i)), sin(phi(i))*cos(theta(i))
-    sin(phi(i))*sin(psi(i))+cos(phi(i))*sin(theta(i))*cos(psi(i)), -sin(phi(i))*cos(psi(i))+cos(phi(i))*sin(theta(i))*sin(psi(i)), cos(phi(i))*cos(theta(i))];
-
+        T0=[cos(theta(i))*cos(psi(i)), cos(theta(i))*sin(psi(i)), -sin(theta(i))
+            -cos(phi(i))*sin(psi(i))+sin(phi(i))*sin(theta(i))*cos(psi(i)), cos(phi(i))*cos(psi(i))+sin(phi(i))*sin(theta(i))*sin(psi(i)), sin(phi(i))*cos(theta(i))
+            sin(phi(i))*sin(psi(i))+cos(phi(i))*sin(theta(i))*cos(psi(i)), -sin(phi(i))*cos(psi(i))+cos(phi(i))*sin(theta(i))*sin(psi(i)), cos(phi(i))*cos(theta(i))];
+        
         F(:,i)=T0'*F(:,i);
         M(:,i)=T0'*M(:,i);
     end
 end
 
+% Figura
 figure()
 subplot(3,2,1)
 plot(TOUT(:),F(1,:)','r','linewidth',1);

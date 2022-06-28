@@ -1,9 +1,19 @@
 function [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,Tl_0,BoomInfo)
-%r0=10*2*pi;
-% theta=10*pi/180;
-% D=60*pi/180;
-% phi=85*pi/180;
-% Vs=15;
+%% Handinital funzione che permette di ricavare le condizioni iniziali
+% rispetto a 5 parametri che sono spiegati con maggiore dettaglio sulla
+% relazione
+% INPUT
+% - r0: velocità angolare in direzione z
+% - theta: angolo di attitude
+% - D:
+% - phi
+% - Vs
+% - Tl_0: matrice di attitude iniziale
+% - BoomInfo: struct con i dati del boomerang
+% OUTPUT:
+% - quat: Quaternioni iniziali
+% - ustart: Velocità iniziale del baricentro nel sistema di riferimento Body
+
 psi=pi-D;
 T0=[cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta)
     -cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi), sin(phi)*cos(theta)
