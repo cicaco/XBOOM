@@ -1,4 +1,4 @@
-function coeff360 = f_polar_360(lon, airfoil_name, a, Re, CD_90,varargin) 
+function coeff360 = f_polar_360(lon, airfoil_name, a, Re,ap,am,k, CD_90,varargin) 
 % coeff360 = F_POLAR_360(lon, airfoil_name, Re)
 % WARNING -> PUT XFOIL IN THE SAME FOLDER OF THIS SCRIPT AND XFOIL.M
 % INPUT
@@ -6,6 +6,9 @@ function coeff360 = f_polar_360(lon, airfoil_name, a, Re, CD_90,varargin)
 % airfoil_name   : is the airfoil filename, if lon == NACA, just enter a
 %                  string with the serie, ex. '0012'
 % a              : vector of AoA specified for xFoil computation
+% ap             : tuning parameter 1 for interpolation
+% am             : tuning parameter 2 for interpolation
+% k              : tuning parameter 3 for interpolation
 % Re             : Reynolds number for which you want to perform the 
 %                  computation
 % CD_90          : value of drag expected at 90 deg 
@@ -106,7 +109,9 @@ ii_lin = find(pol.alpha>=-5 & pol.alpha<=5);
 % linear regression
 p      = polyfit(pol.alpha(ii_lin), pol.CL(ii_lin), 1);
 cl0    = p(2);% cl0
-alpha0 = p(2)/p(1);
+alpha0 = p(2)/p(1)
+cl_a   = p(1)
+cl_lin = @(a) cl0 + cl_a*a;
 %% CL flat plate analogue
 alpha_long = linspace(-180, 180, 361);
 CL_90  = 0.08; %tipical value
@@ -116,12 +121,20 @@ beta   = alpha_long - delta1 - delta2;
 A      = 1 + cl0/sin(pi/4)*sin(alpha_long*pi/180);
 % CL curved plate basic
 CL_cPB = A * CD_90 .* sin(beta*pi/180).*cos(beta*pi/180);
-
 %% changing the value with the one computed by Xfoil
 ii_max = max(find(alpha_long<=min(pol.alpha)));
 ii_min = min(find(alpha_long>=max(pol.alpha)));
 
-alpha_fin = [ alpha_long(1:ii_max-1), pol.alpha', alpha_long(ii_min + 1:end)]
+%from where starts smoothing
+aM1    = alpha_long(ii_min)-ap;
+aM2    = alpha_long(ii_max)+am;
+%smooth function introduction
+f  = @(a)1./(1+k*(a-aM1).^4)+1./(1+k*(a-aM2).^4);
+
+% smoothing CL_cPB
+CL_cPB = CL_cPB.*(1-f(alpha_long)) + cl_lin(alpha_long).*f(alpha_long);
+
+alpha_fin = [ alpha_long(1:ii_max-1), pol.alpha', alpha_long(ii_min + 1:end)];
 CL_fin    = [ CL_cPB(1:ii_max-1), pol.CL', CL_cPB(ii_min+1:end)];
 
 %% CD 
