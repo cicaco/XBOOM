@@ -1,12 +1,13 @@
-function coeff360 = f_polar_360(lon, airfoil_name, Re, CD_90,varargin) 
+function coeff360 = f_polar_360(lon, airfoil_name, a, Re, CD_90,varargin) 
 % coeff360 = F_POLAR_360(lon, airfoil_name, Re)
 % WARNING -> PUT XFOIL IN THE SAME FOLDER OF THIS SCRIPT AND XFOIL.M
 % INPUT
 % lon            : string can be set to 'load' or 'NACA'
 % airfoil_name   : is the airfoil filename, if lon == NACA, just enter a
 %                  string with the serie, ex. '0012'
-% Re             :  Reynolds number for which you want to perform the 
-%                   computation
+% a              : vector of AoA specified for xFoil computation
+% Re             : Reynolds number for which you want to perform the 
+%                  computation
 % CD_90          : value of drag expected at 90 deg 
 % OUTPUT
 % coeff360       : struct filled with 360 degree polar info
@@ -37,8 +38,7 @@ while i<=nVarargs
     end
     i=i+1;
 end
-n = 41;
-a       = linspace(-20,20, 41);
+n       = length(a);
 Mach    = 0;
 
 if lon == "NACA"
@@ -63,50 +63,48 @@ pol.CL     = [flip(polNEG.CL); polPOS.CL];
 pol.CD     = [flip(polNEG.CD); polPOS.CD];
 pol.Cm     = [flip(polNEG.Cm); polPOS.Cm];
 pol.alpha  = [flip(polNEG.alpha); polPOS.alpha];
-% find AoA stall
-alpha_ck = 4; % I really hope stall occur after 4 degree
-delta = 10;
-while delta > 0
-    cl_check = interp1(pol.alpha, pol.CL, [alpha_ck, alpha_ck+1]);
-    %when cl changes sign -> alpha_stall
-    delta = cl_check(2) - cl_check(1);
-    alpha_ck = alpha_ck +1;
-end
-alpha_stall = alpha_ck -1 ;
-
-% compute negative stall
-alpha_ck = -4; % I really hope stall occur after -4 degree
-delta = -10;
-while delta < 0
-    cl_check = interp1(pol.alpha, pol.CL, [alpha_ck, alpha_ck-1]);
-    %when cl changes sign -> alpha_stall
-    delta = cl_check(2) - cl_check(1);
-    alpha_ck = alpha_ck -1;
-end
-alpha_mstall = alpha_ck +1 ;
-
-% ok let's take 5 angles more after stall
-a       = linspace(alpha_mstall-5, alpha_stall+5, (alpha_stall-alpha_mstall)+11);
-%split coefficients computation  to help convergence
-%positive angles
-aPOS      = a((n-1)/2+1:end);
-%negative angles, split to starts from 0 incidence
-aNEG      = flip(a(1:(n-1)/2));
-[polPOS,~] = xfoil(airfoil,aPOS,Re,Mach,'panels n 330', 'oper iter 1000');
-[polNEG,~] = xfoil(airfoil,aNEG,Re,Mach,'panels n 330', 'oper iter 1000');
-%reordering and restoring properly cl, cd and alpha
-pol.CL     = [flip(polNEG.CL); polPOS.CL];
-pol.CD     = [flip(polNEG.CD); polPOS.CD];
-pol.Cm     = [flip(polNEG.Cm); polPOS.Cm];
-pol.alpha  = [flip(polNEG.alpha); polPOS.alpha];
-%% alghorithm positive side
-%retrieve clalpha
-a_vec = (min(pol.alpha)+7):(max(pol.alpha)-7);
-% prendo un paio di punti prima dello stallo
-cl_f = interp1(pol.alpha, pol.CL, a_vec);
+% % find AoA stall
+% alpha_ck = 4; % I really hope stall occur after 4 degree
+% delta = 10;
+% while delta > 0
+%     cl_check = interp1(pol.alpha, pol.CL, [alpha_ck, alpha_ck+1]);
+%     %when cl changes sign -> alpha_stall
+%     delta = cl_check(2) - cl_check(1);
+%     alpha_ck = alpha_ck +1;
+% end
+% alpha_stall = alpha_ck -1 ;
+% 
+% % compute negative stall
+% alpha_ck = -4; % I really hope stall occur after -4 degree
+% delta = -10;
+% while delta < 0
+%     cl_check = interp1(pol.alpha, pol.CL, [alpha_ck, alpha_ck-1]);
+%     %when cl changes sign -> alpha_stall
+%     delta = cl_check(2) - cl_check(1);
+%     alpha_ck = alpha_ck -1;
+% end
+% alpha_mstall = alpha_ck +1 ;
+% 
+% % ok let's take 5 angles more after stall
+% a       = linspace(alpha_mstall-5, alpha_stall+5, (alpha_stall-alpha_mstall)+11);
+% %split coefficients computation  to help convergence
+% %positive angles
+% aPOS      = a((n-1)/2+1:end);
+% %negative angles, split to starts from 0 incidence
+% aNEG      = flip(a(1:(n-1)/2));
+% [polPOS,~] = xfoil(airfoil,aPOS,Re,Mach,'panels n 330', 'oper iter 1000');
+% [polNEG,~] = xfoil(airfoil,aNEG,Re,Mach,'panels n 330', 'oper iter 1000');
+% %reordering and restoring properly cl, cd and alpha
+% pol.CL     = [flip(polNEG.CL); polPOS.CL];
+% pol.CD     = [flip(polNEG.CD); polPOS.CD];
+% pol.Cm     = [flip(polNEG.Cm); polPOS.Cm];
+% pol.alpha  = [flip(polNEG.alpha); polPOS.alpha];
+%% alghorithm positive si
+%index for which we can consider linear polar -> -4 4 gradi
+ii_lin = find(pol.alpha>=-5 & pol.alpha<=5);
 
 % linear regression
-p      = polyfit(a_vec, cl_f, 1);
+p      = polyfit(pol.alpha(ii_lin), pol.CL(ii_lin), 1);
 cl0    = p(2);% cl0
 alpha0 = p(2)/p(1);
 %% CL flat plate analogue
@@ -120,10 +118,10 @@ A      = 1 + cl0/sin(pi/4)*sin(alpha_long*pi/180);
 CL_cPB = A * CD_90 .* sin(beta*pi/180).*cos(beta*pi/180);
 
 %% changing the value with the one computed by Xfoil
-ii_max = find(alpha_long==min(pol.alpha));
-ii_min = find(alpha_long==max(pol.alpha));
+ii_max = max(find(alpha_long<=min(pol.alpha)));
+ii_min = min(find(alpha_long>=max(pol.alpha)));
 
-alpha_fin = [ alpha_long(1:ii_max-1), pol.alpha', alpha_long(ii_min + 1:end)];
+alpha_fin = [ alpha_long(1:ii_max-1), pol.alpha', alpha_long(ii_min + 1:end)]
 CL_fin    = [ CL_cPB(1:ii_max-1), pol.CL', CL_cPB(ii_min+1:end)];
 
 %% CD 

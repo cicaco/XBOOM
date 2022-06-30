@@ -13,14 +13,14 @@ num=20; %Numero di profili totale su ciascuna metà;
 PARA=2.; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
 % Profile 2D Shape
 %% Profilo 2D e caratteristiche aerodinamiche
-Profile2D=importdata('NACA4406.dat');
+Profile2D=importdata('fastcatch.dat');
 Xp = Profile2D.data(:,1).*Chord-Chord;
 Zp = Profile2D.data(:,2).*Chord-max(Profile2D.data(:,2).*Chord)/2;
 Xp_flip = -(Chord/2.*ones(size(Xp))+Xp)+Chord/2.*ones(size(Xp))-Chord;
 Xp_flip = [Xp_flip(numel(Xp_flip)/2+1:end); Xp_flip(1:numel(Xp_flip)/2)];
 Zp_flip = [Zp(numel(Xp_flip)/2+1:end); Zp(1:numel(Xp_flip)/2)];
 %load fastcatch_360.mat
-coeff360  = f_polar_360('load', 'NACA4406.dat', 50000, 1.6);
+coeff360  = f_polar_360('load', 'fastcatch.dat',linspace(-10,10, 15), 50000, 1.7);
 CL_t      = coeff360.CL;
 CD_t      = coeff360.CD;
 CM_t      = coeff360.CM;
