@@ -8,29 +8,20 @@ p_c=20; % numero di profili di "Transizione" nella parte centrale
 l=0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
 delta=40*pi/180; %Angolo di freccia
 beta=1*pi/180; %Angolo di Diedro
-pitch=0*pi/180; %Pitch angle
+pitch=3*pi/180; %Pitch angle
 num=20; %Numero di profili totale su ciascuna metà;
 PARA=2.; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
 % Profile 2D Shape
 %% Profilo 2D e caratteristiche aerodinamiche
-Profile2D=importdata('fastcatch.dat');
+Profile2D.data=importdata('Eppler_61.dat');
+Profile2D.data=[Profile2D.data(1:21,:); Profile2D.data(23:end,:)];
 Xp = Profile2D.data(:,1).*Chord-Chord;
 Zp = Profile2D.data(:,2).*Chord-max(Profile2D.data(:,2).*Chord)/2;
 Xp_flip = -(Chord/2.*ones(size(Xp))+Xp)+Chord/2.*ones(size(Xp))-Chord;
 Xp_flip = [Xp_flip(numel(Xp_flip)/2+1:end); Xp_flip(1:numel(Xp_flip)/2)];
 Zp_flip = [Zp(numel(Xp_flip)/2+1:end); Zp(1:numel(Xp_flip)/2)];
 %load fastcatch_360.mat
-<<<<<<< HEAD
-coeff360  = f_polar_360('load', 'fastcatch.dat',linspace(-10,10, 15), 50000, 1.7);
-CL_t      = coeff360.CL;
-CD_t      = coeff360.CD;
-CM_t      = coeff360.CM;
-alpha_cl  = coeff360.alpha;
-alpha_cd  = coeff360.alpha;
-alpha_cm  = coeff360.alpha;
-=======
-CheckBoomInfo(BoomInfo)
->>>>>>> 00290a53304fac995302a278d86190adbff11c40
+coeff360  = f_polar_360('load', 'Eppler_61.dat',linspace(-10,16, 27), 50000, 1.4);
 %% Creazione dell Info Box
 BoomInfo.Pianta.l=l;
 BoomInfo.Pianta.freccia=delta;
@@ -39,15 +30,13 @@ BoomInfo.Pianta.pitch=pitch;
 BoomInfo.Geom3D.p_c=p_c;
 BoomInfo.Geom3D.num=num;
 BoomInfo.Geom3D.PARA=PARA;
+BoomInfo.Mecc.Dens=650;
 BoomInfo.Profile.Chord=Chord;
 BoomInfo.Profile.Xp_sx=Xp;
 BoomInfo.Profile.Xp_dx=Xp_flip;
 BoomInfo.Profile.Zp_sx=Zp;
 BoomInfo.Profile.Zp_dx=Zp_flip;
-BoomInfo.Mecc.Dens=650;
 [BoomInfo] = Boom3DShape(BoomInfo,'Info','Create_Stl');
-%% 
-coeff360  = f_polar_360('load', 'NACA4406.dat', 50000, 1.6);
 CL_t      = coeff360.CL;
 CD_t      = coeff360.CD;
 CM_t      = coeff360.CM;
@@ -60,11 +49,12 @@ BoomInfo.Aero.alpha_cm=alpha_cm;
 BoomInfo.Aero.Cl=CL_t;
 BoomInfo.Aero.Cd=CD_t;
 BoomInfo.Aero.Cm=CM_t;
-CheckBoomInfo(BoomInfo)
 
+%%
+CheckBoomInfo(BoomInfo,'Plot')
 %% Initial Condition
 X_ini=[8.7 6.8 7.3 56.6 10.8]*10;
-X_ini=[10.0000    9.9000    1.6000   65.5000    8.3000]*10;
+X_ini=[6.0    0    1.6000   65.5000    8.3000]*10;
 r0=X_ini(1)*2*pi/10;
 theta=X_ini(2)*pi/180/10;
 D=X_ini(3)*pi/180/10;
