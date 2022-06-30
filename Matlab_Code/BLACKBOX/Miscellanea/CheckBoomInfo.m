@@ -5,8 +5,8 @@ function CheckBoomInfo(BoomInfo,varargin)
 % - BoomInfo: struct
 % OPZIONI:
 % - 'Plot': viene plottato il profilo dx e sx ed i centri aerodinamici, il profilo dx è corretto se il
-%   bordo di attacco punto verso sinistra nella figura. Se si vuole spostare 
-%   il centro aerodinamico, traslare verso il basso o l alto le coordinate Z. 
+%   bordo di attacco punto verso sinistra nella figura. Se si vuole spostare
+%   il centro aerodinamico, traslare verso il basso o l alto le coordinate Z.
 
 %%
 I=zeros(1,36);
@@ -24,20 +24,49 @@ while i<=nVarargs
     i=i+1;
 end
 %% Aero
-I(1)=isnan(sum(BoomInfo.Aero.alpha_cd));
-I(2)=isnan(sum(BoomInfo.Aero.alpha_cd));
-I(3)=isnan(sum(BoomInfo.Aero.alpha_cm));
-I(4)=isnan(sum(BoomInfo.Aero.Cd));
-I(5)=isnan(sum(BoomInfo.Aero.Cl));
-I(6)=isnan(sum(BoomInfo.Aero.Cm));
-I(7)=isnan(sum(BoomInfo.Aero.P_Finish_Dx));
-I(8)=isnan(sum(BoomInfo.Aero.P_Finish_Sx));
-I(9)=isnan(sum(BoomInfo.Aero.P_origin_Dx));
-I(10)=isnan(sum(BoomInfo.Aero.P_origin_Sx));
-I(11)=isnan(sum(BoomInfo.Aero.P_Start_Dx));
-I(12)=isnan(sum(BoomInfo.Aero.P_Start_Sx));
-I(13)=isnan(sum(BoomInfo.Aero.Start_Dx));
-I(14)=isnan(sum(BoomInfo.Aero.Start_Sx)); 
+try
+    I(1)=isnan(sum(BoomInfo.Aero.alpha_cd));
+end
+try
+    I(2)=isnan(sum(BoomInfo.Aero.alpha_cd));
+end
+try
+    I(3)=isnan(sum(BoomInfo.Aero.alpha_cm));
+end
+try
+    I(4)=isnan(sum(BoomInfo.Aero.Cd));
+end
+try
+    I(5)=isnan(sum(BoomInfo.Aero.Cl));
+end
+try
+    I(6)=isnan(sum(BoomInfo.Aero.Cm));
+end
+try
+    I(7)=isnan(sum(BoomInfo.Aero.P_Finish_Dx));
+end
+try
+    I(8)=isnan(sum(BoomInfo.Aero.P_Finish_Sx));
+end
+try
+    I(9)=isnan(sum(BoomInfo.Aero.P_origin_Dx));
+end
+try
+    I(10)=isnan(sum(BoomInfo.Aero.P_origin_Sx));
+end
+try
+    I(11)=isnan(sum(BoomInfo.Aero.P_Start_Dx));
+end
+try
+    I(12)=isnan(sum(BoomInfo.Aero.P_Start_Sx));
+end
+try
+    I(13)=isnan(sum(BoomInfo.Aero.Start_Dx));
+end
+try
+    I(14)=isnan(sum(BoomInfo.Aero.Start_Sx));
+end
+
 %% Pianta
 I(15)=isnan(BoomInfo.Pianta.l);
 I(16)=isnan(BoomInfo.Pianta.freccia);
@@ -47,23 +76,58 @@ I(18)=isnan(BoomInfo.Pianta.pitch);
 I(19)=isnan(BoomInfo.Geom3D.p_c);
 I(20)=isnan(BoomInfo.Geom3D.num);
 I(21)=isnan(BoomInfo.Geom3D.PARA);
-I(22)=isnan(sum(BoomInfo.Geom3D.Fr_i));
-I(23)=isnan(sum(BoomInfo.Geom3D.Di_i));
-I(24)=isnan(sum(sum(BoomInfo.Geom3D.Pi_i)));
-I(25)=isnan(sum(sum(BoomInfo.Geom3D.Profile)));
-I(26)=isnan(sum(sum(BoomInfo.Geom3D.C_aer)));
+
+try
+    I(22)=isnan(sum(BoomInfo.Geom3D.Fr_i));
+end
+try
+    I(23)=isnan(sum(BoomInfo.Geom3D.Di_i));
+end
+try
+    I(24)=isnan(sum(sum(BoomInfo.Geom3D.Pi_i)));
+end
+try
+    I(25)=isnan(sum(sum(BoomInfo.Geom3D.Profile)));
+end
+try
+    I(26)=isnan(sum(sum(BoomInfo.Geom3D.C_aer)));
+end
+
 %% Profile
 I(27)=isnan(BoomInfo.Profile.Chord);
 I(28)=isnan(sum(BoomInfo.Profile.Xp_dx));
 I(29)=isnan(sum(BoomInfo.Profile.Xp_sx));
 I(30)=isnan(sum(BoomInfo.Profile.Zp_dx));
 I(31)=isnan(sum(BoomInfo.Profile.Zp_sx));
+if (size(BoomInfo.Profile.Zp_dx,1)==size(BoomInfo.Profile.Zp_sx,1) && size(BoomInfo.Profile.Zp_dx,2)==size(BoomInfo.Profile.Zp_sx,2))==0
+    error('Controllare Zp_dx e Zp_sx: hanno dimensioni diverse');
+end
+if (size(BoomInfo.Profile.Zp_sx,1)==size(BoomInfo.Profile.Xp_sx,1) && size(BoomInfo.Profile.Zp_sx,2)==size(BoomInfo.Profile.Xp_sx,2))==0
+    error('Controllare Zp_sx e Xp_sx: hanno dimensioni diverse');
+end
+if (size(BoomInfo.Profile.Zp_dx,1)==size(BoomInfo.Profile.Xp_dx,1) && size(BoomInfo.Profile.Zp_dx,2)==size(BoomInfo.Profile.Xp_dx,2))==0
+    error('Controllare Zp_dx e Xp_dx: hanno dimensioni diverse');
+end
+
+
 %% Mecc
-I(32)=isnan(BoomInfo.Mecc.V);
-I(33)=isnan(BoomInfo.Mecc.m);
-I(34)=isnan(sum(sum(BoomInfo.Mecc.I)));
-I(35)=isnan(sum(sum(BoomInfo.Mecc.I_rho)));
-I(36)=isnan(sum(BoomInfo.Mecc.CG));
+
+try
+    I(32)=isnan(BoomInfo.Mecc.V);
+end
+try
+    I(33)=isnan(BoomInfo.Mecc.m);
+end
+try
+    I(34)=isnan(sum(sum(BoomInfo.Mecc.I)));
+end
+try
+    I(35)=isnan(sum(sum(BoomInfo.Mecc.I_rho)));
+end
+try
+    I(36)=isnan(sum(BoomInfo.Mecc.CG));
+end
+
 if sum(I)==1
     error('Dato in BoomInfo con NaN \n');
 end

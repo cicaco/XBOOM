@@ -20,6 +20,7 @@ Xp_flip = -(Chord/2.*ones(size(Xp))+Xp)+Chord/2.*ones(size(Xp))-Chord;
 Xp_flip = [Xp_flip(numel(Xp_flip)/2+1:end); Xp_flip(1:numel(Xp_flip)/2)];
 Zp_flip = [Zp(numel(Xp_flip)/2+1:end); Zp(1:numel(Xp_flip)/2)];
 %load fastcatch_360.mat
+<<<<<<< HEAD
 coeff360  = f_polar_360('load', 'fastcatch.dat',linspace(-10,10, 15), 50000, 1.7);
 CL_t      = coeff360.CL;
 CD_t      = coeff360.CD;
@@ -27,6 +28,9 @@ CM_t      = coeff360.CM;
 alpha_cl  = coeff360.alpha;
 alpha_cd  = coeff360.alpha;
 alpha_cm  = coeff360.alpha;
+=======
+CheckBoomInfo(BoomInfo)
+>>>>>>> 00290a53304fac995302a278d86190adbff11c40
 %% Creazione dell Info Box
 BoomInfo.Pianta.l=l;
 BoomInfo.Pianta.freccia=delta;
@@ -40,16 +44,24 @@ BoomInfo.Profile.Xp_sx=Xp;
 BoomInfo.Profile.Xp_dx=Xp_flip;
 BoomInfo.Profile.Zp_sx=Zp;
 BoomInfo.Profile.Zp_dx=Zp_flip;
+BoomInfo.Mecc.Dens=650;
+[BoomInfo] = Boom3DShape(BoomInfo,'Info','Create_Stl');
+%% 
+coeff360  = f_polar_360('load', 'NACA4406.dat', 50000, 1.6);
+CL_t      = coeff360.CL;
+CD_t      = coeff360.CD;
+CM_t      = coeff360.CM;
+alpha_cl  = coeff360.alpha;
+alpha_cd  = coeff360.alpha;
+alpha_cm  = coeff360.alpha;
 BoomInfo.Aero.alpha_cl=alpha_cl;
 BoomInfo.Aero.alpha_cd=alpha_cd;
 BoomInfo.Aero.alpha_cm=alpha_cm;
 BoomInfo.Aero.Cl=CL_t;
 BoomInfo.Aero.Cd=CD_t;
 BoomInfo.Aero.Cm=CM_t;
-BoomInfo.Mecc.Dens=650;
-%%
-[BoomInfo] = Boom3DShape(BoomInfo,'Info','Create_Stl');
-CheckBoomInfo(BoomInfo,'Plot')
+CheckBoomInfo(BoomInfo)
+
 %% Initial Condition
 X_ini=[8.7 6.8 7.3 56.6 10.8]*10;
 X_ini=[10.0000    9.9000    1.6000   65.5000    8.3000]*10;
