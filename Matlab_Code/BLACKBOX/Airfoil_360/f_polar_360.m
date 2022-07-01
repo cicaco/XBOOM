@@ -109,8 +109,8 @@ ii_lin = find(pol.alpha>=-5 & pol.alpha<=5);
 % linear regression
 p      = polyfit(pol.alpha(ii_lin), pol.CL(ii_lin), 1);
 cl0    = p(2);% cl0
-alpha0 = p(2)/p(1)
-cl_a   = p(1)
+alpha0 = p(2)/p(1);
+cl_a   = p(1);
 cl_lin = @(a) cl0 + cl_a*a;
 %% CL flat plate analogue
 alpha_long = linspace(-180, 180, 361);
@@ -130,9 +130,8 @@ aM1    = alpha_long(ii_min)-ap;
 aM2    = alpha_long(ii_max)+am;
 %smooth function introduction
 f  = @(a)1./(1+k*(a-aM1).^4)+1./(1+k*(a-aM2).^4);
-
 % smoothing CL_cPB
-CL_cPB = CL_cPB.*(1-f(alpha_long)) + cl_lin(alpha_long).*f(alpha_long);
+CL_cPB = CL_cPB.*(1-f(alpha_long)) + t(pol.CL,alpha_long).*f(alpha_long);
 
 alpha_fin = [ alpha_long(1:ii_max-1), pol.alpha', alpha_long(ii_min + 1:end)];
 CL_fin    = [ CL_cPB(1:ii_max-1), pol.CL', CL_cPB(ii_min+1:end)];
