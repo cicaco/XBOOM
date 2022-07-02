@@ -1,0 +1,100 @@
+fastcatch -> condizioni iniziali -> fornite da Lore
+Tl_0 -> identity 3x3
+chi  -> 0.85
+D    -> pi/4
+theta-> 5 *pi/180
+r0   -> 10*2*pi
+phi  -> 75*pi/180
+
+########################################################################
+fastcatch -> traiettoria di ritorno pulitissima (fig. fastcatch.png)
+tempo     -> 1.82803
+distanza  -> 10.61
+Questo signore gira a sinistra e sviluppa una probabilità di angoli di 
+attacco molto piu' alta per angoli di attacco positivi fig. AoA_fastprob
+#########################################################################
+eppler 61 -> inizia praticamente dritto, poi inizia a curvare di brutto,
+	     a cosa sarà dovuto l'inizio della curvatura (fig. eppler 61)
+NON TORNA INDIETRO con le stesse condizioni del fastcatch
+fig. AoA_eppprob1 -> angoli di attacco nel primo range
+fig. AoA_eppprob2 -> angoli di attacco nel secondo range
+questo signore, quando inizia a girare gira verso destra, proababilità di
+angoli di attacco negativi piu' alta -> nel momento in cui inizia a girare
+##########################################################################
+eppler_61 -> confronto fastcatch basato sulla polare
+cl di stallo piu' alto, stesso per alpha stallo. Ha meno
+camber per cui per angoli piccoli sviluppa meno portanza rispetto al fast-
+catch
+con 1 grado di pitch inizia a tornare indietro, la cosa interessante è che
+inizia a curvare pochissimo e poi curva sempre di piu' -> credo che questa 
+cosa possa essere legata al fatto che la curva cl sale di botto in 
+prossimità dello stallo
+Quindi SE il profilo sviluppa abbastanza portanza durante la fase iniziale
+gli angoli di attacco crescono -> il cl cresce -> curva di piu'
+Il caso ideale è un perfetto bilancio tra cl max, AoA sviluppati e Cl nelle
+fasi iniziali del lancio, che porta il boomerang a sviluppare un "rateop di
+virata costante"
+Nel plot degli AoA con 1 angolo di pitch dato è possibile vedere:
+fig. AoA_eppprob1_pitch_1 -> gli angoli calcolati non rappresentano grande
+sbilanciamento tra positivi e negativi, come atteso il rateo di curvatura
+è basso
+fig. AoA_eppprob1_pitch_1 -> ci sono piu' angoli positivi
+Quindi camber alto -> tendenza a crescere con gli angoli con il tempo,
+bene perchè in questo modo il boomerang gira e non dritto
+cl in prossimità dello stallo 
+-> crescita dolce come fastcatch rateo di curvatura atteso costante
+-> crescita repentina come eppler 61 rateo di curvatura aumenta parecchio
+buono se ho abbastanza camber da consentirmi di curvare inizialmente torna
+indietro straveloce
+no buono se non ce l'ho me lo prendo in culo e inizia a curvare di brutto
+quando è già troppo distante -> cade lontano
+###########################################################################
+L'ideale sarebbe avere abbastanza cl ad angoli piccoli -> camber
++controllare la variazione di cl in base al comporamento voluto
+###########################################################################
+Confronto SD7080
+DALLA POLARE poco camber quindi basso cl a bassi angoli, la crescita del 
+cl è tutto sommato dolce
+OSSERVAZIONI senza pitch, non ha camber, va praticamente dritto, non riesce
+a sviluppare abbastanza cl per curvare
+con 1 angolo di pitch, questa volta inizia a curvare, poichè la crescita del
+cl non è cosi repentina come l'eppler 61, il rateo di curvatura è modesto,
+il che gli consente di tornare indietro
+############################################################################
+COnfronto FX_84_W127
+Quello che viene osservato è coerente con quanto visto prima. All'inizio 
+curva pochissimo, verso la fine aumenta ma non tantissimo. Introducendo il 
+pitch la traiettoria non si chiude lo stesso perchè il rateo di curvatura 
+aumenta parecchio(restando cumunque contenuto, in particolare paragonandolo
+all'eppler 61). Il motivo è che questo profilo ha un cl allo stallo inferio
+re rispetto al'eppler 61, ma mostra comunque un aumento del cl repentino
+il che spiega la grande differenza nel rateo di curvatura tra inizio e fine
+traiettoria. 
+############################################################################
+Il contributo osservato del drag è in molto modesto, anche e soprattutto 
+considerando che nella regione di deep stall il drag è di almeno un ordine
+di grandezza maggiore rispetto a quanto avviene nel caso di angoli piccoli.
+Al di fuori della zona di piccoli angoli il corpo non è piu' da considerarsi
+un corpo AerodinAmico. -> il contributo del cd_90 invece risulta essere 
+purtroppo importante e difficile da valutare, viene per tale ragione fissato
+a 1.6 per due ragioni:
+- il profilo non ha apertura infinita. Per la lamina piana quadrata è 1.2,
+per la lamina di apertura infinita è 2 -> giusta via di mezzo
+- consultando alcune curve sperimentali di profili provati tra 0 e 360 gradi
+il valore del cd_90 sembra assestarsi a 1.6
+############################################################################
+CONCLUSIONE:
+- camber(piu' che camber alpha0 alto) -> il boomerang inizia prima a curvare
+per il maggior cl ad angoli piccoli
+- pendenza cl_alpha sale con andamento dolce -> rateo di curvatura non cambia
+troppo repentinamente il che consente di chiudere la traiettoria
+- cl_max non troppo alto -> se altissimo e il boomerang arriva a quegli angoli
+quando è troppo distante dal punto di partenza la traiettoria si chiude su se
+stessa e il boomerang cade.
+
+é anche vero che per avere un boomerang che torni indietro il piu' velocemente
+possibile è opportuno avere un rateo di curvatura altissimo subito dopo il 
+lancio -> proviamo un ottimizzazione con questi parametri sperando che esca
+qualcosa (:,-() aggiungengendo a questi un constraint su spessore massimo
+non troppo alto per avere un profilo che con accordo con quanto ci sta in 
+letteratura abbia un buon comportamento a bassi Reynolds
