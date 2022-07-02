@@ -66,6 +66,7 @@ Tj2=[sin(lambda)*cos(pitch)+cos(lambda)*sin(coning)*sin(pitch), -cos(lambda)*cos
 T_ciclopsi_vect=[reshape(cos(psi_vect),[1 1 length(psi_vect)]) reshape(sin(psi_vect),[1 1 length(psi_vect)]) zeros(1,1,length(psi_vect));...
     -reshape(sin(psi_vect),[1 1 length(psi_vect)]) reshape(cos(psi_vect),[1 1 length(psi_vect)]) zeros(1,1,length(psi_vect));...
     zeros(1,1,length(psi_vect)) zeros(1,1,length(psi_vect)) ones(1,1,length(psi_vect))];
+
 xac1_ciclopsi_vect=reshape(pagemtimes(T_ciclopsi_vect,[xac1*ones(1,1,length(psi_vect)); zeros(1,1,length(psi_vect)); zeros(1,1,length(psi_vect))]),[1,3,length(psi_vect)]);
 xac2_ciclopsi_vect=reshape(pagemtimes(T_ciclopsi_vect,[xac2*ones(1,1,length(psi_vect)); zeros(1,1,length(psi_vect)); zeros(1,1,length(psi_vect))]),[1,3,length(psi_vect)]);
 

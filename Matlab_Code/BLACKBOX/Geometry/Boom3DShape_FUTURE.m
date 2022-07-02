@@ -1,4 +1,4 @@
-function [BoomInfo] = Boom3DShape(BoomInfo,varargin)
+function [BoomInfo] = Boom3DShape_FUTURE(BoomInfo,varargin)
 %% Boom3DShapes creates the 3D shapes of the boomerang by traingulation
 % method
 % INPUT
@@ -60,6 +60,7 @@ Xp_sx=BoomInfo.Profile.Xp_sx;
 Zp_sx=BoomInfo.Profile.Zp_sx;
 ni=num;
 num=num+p_c;
+p_t=0;
 %% Set option of the function
 C_fig=0;
 C_stl=0;
@@ -95,7 +96,7 @@ end
 %
 C_VarDens=1; %Constant Density
 R=BoomInfo.Mecc.Dens;
-Dens_i=[R.*ones(1,num-p_c-1) R*ones(1,2*p_c-1) R.*ones(1,num-p_c-1)];
+Dens_i=[R.*ones(1,p_t) R.*ones(1,num-p_c-1) R*ones(1,2*p_c-1) R.*ones(1,num-p_c-1) R.*ones(1,p_t)];
 
 %% Dati per il calettamento lungo la pala e la rotazione
 % The boomerang is divided as it follows:
@@ -106,30 +107,34 @@ Dens_i=[R.*ones(1,num-p_c-1) R*ones(1,2*p_c-1) R.*ones(1,num-p_c-1)];
 [X_trans,Z_trans] = Profile2d_Trans(Xp_dx,Xp_sx,Zp_sx,Zp_dx,p_c*2-1);
 %Considero una matrice di dimensione 2*num-1*132 che rappresenta il profilo
 %di ciascuna delle sezione del boomerang
-X_2d_i=[ones(num-p_c,1)*Xp_dx';X_trans;ones(num-p_c,1)*Xp_sx'];
-Z_2d_i=[ones(num-p_c,1)*Zp_dx';Z_trans;ones(num-p_c,1)*Zp_sx'];
+X_2d_i=[ones(num-p_c+p_t,1)*Xp_dx';X_trans;ones(num-p_c+p_t,1)*Xp_sx'];
+Z_2d_i=[ones(num-p_c+p_t,1)*Zp_dx';Z_trans;ones(num-p_c+p_t,1)*Zp_sx'];
 
 %Posizione del centro aerodinamico delle 2*num-1 sezioni (Pala dx: 1/4 Pala
 %Sx 3/4
-Fract=[1/4*ones(1,num-p_c) linspace(1/4,3/4,2*p_c-1) 3/4*ones(1,num-p_c)];
+Fract=[1/4*ones(1,num-p_c+p_t) linspace(1/4,3/4,2*p_c-1) 3/4*ones(1,num-p_c+p_t)];
 
 %Angoli di Freccia,Diedro, Pitch di ogni sezione
-D_i=[-delta.*ones(1,num-p_c-1) linspace(-delta,delta,2*p_c+1) delta.*ones(1,num-p_c-1)];
-B_i=[-beta.*ones(1,num-p_c-1) linspace(-beta,beta,2*p_c+1) beta.*ones(1,num-p_c-1)];
-P_i=[-pitch.*ones(1,num-p_c-1) linspace(-pitch,pitch,2*p_c+1) pitch.*ones(1,num-p_c-1)];
+D_i=[-delta.*ones(1,num-p_c-1+p_t) linspace(-delta,delta,2*p_c+1) delta.*ones(1,num-p_c-1+p_t)];
+B_i=[-beta.*ones(1,num-p_c-1+p_t) linspace(-beta,beta,2*p_c+1) beta.*ones(1,num-p_c-1+p_t)];
+P_i=[-pitch.*ones(1,num-p_c-1+p_t) linspace(-pitch,pitch,2*p_c+1) pitch.*ones(1,num-p_c-1+p_t)];
 
 %Angoli di Freccia e Diedro per trovare correttamente la posizione finale
 %del centro aerodinamico
-D_i_aer=[-delta.*ones(1,num-1) 0 delta.*ones(1,num-1)];
-B_i_aer=[-beta.*ones(1,num) beta.*ones(1,num-1)];
+D_i_aer=[-delta.*ones(1,num-1+p_t) 0 delta.*ones(1,num-1+p_t)];
+B_i_aer=[-beta.*ones(1,num+p_t) beta.*ones(1,num-1+p_t)];
+
+
 
 %% Trovo la posizione finale del centro aerodinamico di ogni sezione
 if C_info==1
     disp('-------------------------------------------------------------------')
     fprintf('Calcolo dei centri aerodinamici \n');
 end
-C=linspace(0,-Chord,num);
-P=[C;zeros(1,num);zeros(1,num)];
+
+% Tento la modifica raffazzonata
+C=Chord.*ones(1,2*num-1+p_t);
+
 U_Delta=[0 0 1];
 li=linspace(l,0,num-p_c);
 % Va aggiunta anche una translazione del primo profilo pari a q
@@ -140,12 +145,13 @@ P_r=[];
 P_center_r=[];
 
 
-for i=1:2*num-1
-    
-    [P_1] = Rot_Point([0 0 1],D_i(i),P,[C(end)*PARA;0;0]); %Rotazione rispetto all'asse z, rispetto però al "bordo di uscita" del profilo
+for i=1:2*num-1+p_t
+    P=[linspace(0,-C(i),num);zeros(1,num);zeros(1,num)];
+
+    [P_1] = Rot_Point([0 0 1],D_i(i),P,[-C(i)*PARA;0;0]); %Rotazione rispetto all'asse z, rispetto però al "bordo di uscita" del profilo
     P_1(1,:)=P_1(1,:)+Tx(i);
     P_1(2,:)=P_1(2,:)+Ty(i);
-    [C_aer] = AerCenter(P_1,Chord,Fract(i));
+    [C_aer] = AerCenter(P_1,C(i),Fract(i));
     
     U_beta= Rot_Point(U_Delta,D_i_aer(i),[1; 0 ;0],[0 0 0]'); %devo ottenere il versore ruotato da x a x2 (body)
     [C_aer_rot] = Rot_Point(U_beta,B_i_aer(i),C_aer,[0;0;0]);
@@ -164,15 +170,15 @@ if C_info==1
 end
 for i=1:num*2-1
     P_2d=[X_2d_i(i,:);zeros(size(Z_2d_i(i,:)));Z_2d_i(i,:)];
-    [P_fin] = Rot_Point([0 0 1],D_i(i),P_2d,[Fract(i)*C(end);0;0]); %Rotazione rispetto all'asse z, rispetto però al "bordo di uscita" del profilo
-    U_beta= Rot_Point(U_Delta,D_i(i),[1; 0 ;0],[Fract(i)*C(end);0;0]); %devo ottenere il versore ruotato da x a x2 (body)
-    [P_fin] = Rot_Point(U_beta,B_i(i),P_fin,[Fract(i)*C(end);0;0]);
-    U_pitch_d= Rot_Point(U_Delta,D_i(i),[0; 1; 0 ],[Fract(i)*C(end);0;0]); % devo ottenre il versore ruotato da [0 1 0], ruotato di delta e poi di beta
-    U_pitch= Rot_Point(U_beta,B_i(i),U_pitch_d,[Fract(i)*C(end);0;0]);
-    [P_fin] = Rot_Point(U_pitch ,P_i(i),P_fin,[Fract(i)*C(end);0;0]);
+    [P_fin] = Rot_Point([0 0 1],D_i(i),P_2d,[-Fract(i)*C(i);0;0]); %Rotazione rispetto all'asse z, rispetto però al "bordo di uscita" del profilo
+    U_beta= Rot_Point(U_Delta,D_i(i),[1; 0 ;0],[-Fract(i)*C(i);0;0]); %devo ottenere il versore ruotato da x a x2 (body)
+    [P_fin] = Rot_Point(U_beta,B_i(i),P_fin,[-Fract(i)*C(i);0;0]);
+    U_pitch_d= Rot_Point(U_Delta,D_i(i),[0; 1; 0 ],[-Fract(i)*C(i);0;0]); % devo ottenre il versore ruotato da [0 1 0], ruotato di delta e poi di beta
+    U_pitch= Rot_Point(U_beta,B_i(i),U_pitch_d,[-Fract(i)*C(i);0;0]);
+    [P_fin] = Rot_Point(U_pitch ,P_i(i),P_fin,[-Fract(i)*C(i);0;0]);
     
     
-    P_fin(1,:)=P_fin(1,:)-Fract(i)*C(end)+C_fin_rot(1,i);
+    P_fin(1,:)=P_fin(1,:)+Fract(i)*C(i)+C_fin_rot(1,i);
     P_fin(2,:)=P_fin(2,:)+C_fin_rot(2,i);
     P_fin(3,:)=P_fin(3,:)+C_fin_rot(3,i);
     C_fin_rot(1,i)=C_fin_rot(1,i);
@@ -248,22 +254,19 @@ for i=2:2*num-2
     end
     if norm(P_prec-P_succ)~=0
         P_i=[P_prec';P_succ'];
-        Mult=100;
-        Err=0;
-        % Il parametro Mult serve per evitare alcun Bug della funzione
-        % matlab alphaShape e boundary facets
-        while Err==0
-            shp = alphaShape(P_i*Mult,1);
-            [tr_i, xyz_i] = boundaryFacets(shp);
-            xyz_i=xyz_i./Mult;
-            try
-                
-                RBP=RigidBodyParams(triangulation(tr_i,xyz_i));
-                Err=1;
-            catch
-                Mult=Mult-10;
-            end
-        end
+        shp = alphaShape(P_i*100,1);
+        %         tr_i = boundary(P_i*100);
+        %         xyz_i=P_i;
+        [tr_i, xyz_i] = boundaryFacets(shp);
+        xyz_i=xyz_i./100;
+        %
+        %         try
+        %
+        %             RBP=RigidBodyParams(triangulation(tr_i,xyz_i));
+        %         catch
+        %             Err_1=1;
+        %             [tr_i, xyz_i] = boundaryFacets(shp);
+        %         end
         n_succ=length(xyz_i)+n_prec;
         tr=[tr;tr_i+n_prec];
         xyz=[xyz;xyz_i];
@@ -288,10 +291,7 @@ for i=2:2*num-2
             %Calcolo baricentro
             try
                 RBP=RigidBodyParams(triangulation(tr_i,xyz_i));
-                
             catch
-                
-                plot(shp)
                 fprintf('Problem  at section number: %d \n',i);
                 fprintf('Try to Modify p_c,num, o PARA .....');
             end

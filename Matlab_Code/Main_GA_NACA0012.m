@@ -6,10 +6,10 @@ addpath(genpath('BLACKBOX'));
 Chord=0.0488;
 p_c=10; % numero di profili di "Transizione" nella parte centrale
 l=0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
-delta=30*pi/180; %Angolo di freccia
+delta=40*pi/180; %Angolo di freccia
 beta=0*pi/180; %Angolo di Diedro
 pitch=3*pi/180; %Pitch angle
-num=5; %Numero di profili totale su ciascuna metà;
+num=20; %Numero di profili totale su ciascuna metà;
 % Profile 2D Shape
 Profile2D=importdata('Naca0015.dat');
 Xp=-[0; fliplr(Profile2D(1:65,1)')' ; fliplr(Profile2D(66:end,1)')'].*Chord;

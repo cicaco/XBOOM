@@ -1,4 +1,4 @@
-function [S,Time,Dist,Xm,index] = StabilityCheck(BoomInfo,lb,ub,N)
+function [S,Time,Dist,Xm,index] = StabilitySpot(BoomInfo,lb,ub,N,theta,D,Chi)
 %% STABILITYCHECK è una funzione che permette di stimare su N lanci con
 % condizioni iniziali randomiche in un certo range quante volte effettivamente il
 % boomerang torna indietro
@@ -19,26 +19,18 @@ tfin=40;
 z0= 1.8; % initial altitude
 Dist=zeros(N,1);
 Time=zeros(N,1);
-Xm=[lb(1)+(ub(1)-lb(1))*rand(N,1) lb(2)+(ub(2)-lb(2))*rand(N,1) ...
-    lb(3)+(ub(3)-lb(3))*rand(N,1) lb(4)+(ub(4)-lb(4))*rand(N,1) ...
-    lb(5)+(ub(5)-lb(5))*rand(N,1)];
+Xm=[lb(1)+(ub(1)-lb(1))*rand(N,1) lb(2)+(ub(2)-lb(2))*rand(N,1)];
 S=0;
 R=norm(BoomInfo.Aero.P_Finish_Dx);
-Chi=0.7;
 index=[];
 parfor i=1:N
     r0=Xm(i,1)*2*pi;
-    theta=Xm(i,2)*pi/180;
-    theta=5*pi/180;
-    
-    D=Xm(i,3)*pi/180;
-    D=pi/4;
-    phi=Xm(i,4)*pi/180;
+    phi=Xm(i,2)*pi/180;
     Vs=r0*R*(1/Chi-1);
     
     [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,eye(3),BoomInfo);
     
-    options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
+    options = odeset('Events', @EventsQUAT,'RelTol',1e-3,'AbsTol',1e-5);
     Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
     [TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,eye(3)),[0 tfin],Y0,options); %
     Time_i=TOUT(end);
