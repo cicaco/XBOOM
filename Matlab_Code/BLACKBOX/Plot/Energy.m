@@ -32,7 +32,7 @@ end
 % Se la derivata è positiva vuol dire che l'energia totale sta aumentando
 % ed è impossibile poichè sul boomerang niente crea energia
 if max(diff(Ecin+E_pot))>10^-3
-    fprintf('Il boomerang sta creando energia IMPOSSIBILE \n');
+    fprintf('Il tuo boomerang per qualche istante ha creato energia! Grande! \n');
     fprintf('%.4f \n',max(diff(Ecin+E_pot)));
 end
 % Grafico

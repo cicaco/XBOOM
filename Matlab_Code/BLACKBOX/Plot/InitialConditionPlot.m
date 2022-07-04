@@ -51,7 +51,7 @@ V_sx=((T0*Tl_0)'*[V_sx(:,1) V_sx(:,2) V_sx(:,3)]')';
 V_dx_b=V_dx;
 V_sx_b=V_sx;
 % Creo la figura
-quiver3([P_dx(:,1); P_sx(:,1)],[P_dx(:,2) ;P_sx(:,2)],[P_dx(:,3) ;P_sx(:,3)],[V_dx(:,1) ;V_sx(:,1)],[V_dx(:,2); V_sx(:,2)],[V_sx(:,3); V_sx(:,3)],'r','linewidth',1);
+h2=quiver3([P_dx(:,1); P_sx(:,1)],[P_dx(:,2) ;P_sx(:,2)],[P_dx(:,3) ;P_sx(:,3)],[V_dx_b(:,1) ;V_sx_b(:,1)],[V_dx_b(:,2); V_sx_b(:,2)],[V_dx_b(:,3); V_sx_b(:,3)],'r','linewidth',1);
 h1=quiver3(0.0,0,0,1,0 ,0,'b','linewidth',1);
 quiver3(0.0,0,0,0,1 ,0,'b','linewidth',1);
 quiver3(0.0,0,0,0,0 ,1,'b','linewidth',1);
@@ -71,5 +71,5 @@ Oms=Tl_0'*T0'*Om;
 Oms=Oms/norm(Oms);
 h4=quiver3(0,0,0,Us(1),Us(2),Us(3),'g','linewidth',1);
 h5=quiver3(0,0,0,Oms(1),Oms(2),Oms(3),'c');
-legend([h1 h4 h5],{'Asse-Terreno','$V_{CG}$','Om'},'fontsize',8,'interpreter','latex');
+legend([h1 h2 h4 h5],{'Asse-Terreno','$V_{Profili}$','$V_{CG}$','$V_{Ang}$'},'fontsize',8,'interpreter','latex');
 set(gca,'TickLabelInterpreter','latex')

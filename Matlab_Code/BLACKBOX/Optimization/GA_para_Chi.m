@@ -1,5 +1,6 @@
-function [PAR,varargout] = GA_para1(x,BoomInfo,varargin)
-% GA_para1 è la fitness function utilizzata dall GA.
+function [PAR,varargout] = GA_para_Chi(x,BoomInfo,Chi,D,theta,varargin)
+% GA_para_Chi è la fitness function utilizzata dall GA per calcolare le
+% condizioni iniziali variando solo r0 e phi
 % INPUT:
 % - x: vettore dei parametri
 % - BoomInfo: Struct dei dati del boomerang
@@ -9,12 +10,10 @@ function [PAR,varargout] = GA_para1(x,BoomInfo,varargin)
 % Se varargin è presente:
 % - T_min: Tempo del lancio finale
 % - R_max: Distanza massima del lancio finale
-r0=x(1)*2*pi/10;
-theta=x(2)*pi/180/10;
-D=x(3)*pi/180/10;
-phi=x(4)*pi/180/10;
-Vs=x(5)/10;
-
+r0=x(1)*2*pi/100;
+phi=x(2)*pi/180/100;
+R=norm(BoomInfo.Aero.P_Finish_Dx);
+Vs=r0*R*(1/Chi-1);
 
 theta0=0*pi/180;
 phi0=0*pi/180;
