@@ -38,11 +38,11 @@ for i=1:n
         plot(r0/2/pi,phi*180/pi,'r*');
         Vs=r0*norm(BoomInfo.Aero.P_Finish_Dx)*(1/Chi-1);
         
-        [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,eye(3),BoomInfo);
+        [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,BoomInfo);
     
     options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
     Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
-    [TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,eye(3)),[0 tfin],Y0,options); %
+    [TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo),[0 tfin],Y0,options); %
     Dist_i=norm(YOUT_quat(end,11:13));
   
      if max(vecnorm(YOUT_quat(:,11:13)'))/1.1<=Dist_i 
@@ -130,11 +130,11 @@ for i=1:N
     plot(r0/2/pi,phi*180/pi,'k*')
     
     Vs=r0*norm(BoomInfo.Aero.P_Finish_Dx)*(1/Chi-1);
-    [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,eye(3),BoomInfo);
+    [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,BoomInfo);
     
     options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
     Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
-    [TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,eye(3)),[0 tfin],Y0,options); %
+    [TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo),[0 tfin],Y0,options); %
     Time_i=TOUT(end);
     Dist_i=norm(YOUT_quat(end,11:13));
     

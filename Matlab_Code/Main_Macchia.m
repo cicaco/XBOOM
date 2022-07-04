@@ -65,7 +65,9 @@ Vs=X_ini(5);
 theta=20*pi/180;
 D=0*pi/180;
 Chi=0.85;
+tic
 [S,Time,Dist,Xm] = StabilityCheck(BoomInfo,theta,D,Chi);
+toc
 %%
 tfin=40;
 z0= 1.8; % initial altitude

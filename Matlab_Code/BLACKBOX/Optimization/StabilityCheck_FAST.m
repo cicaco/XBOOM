@@ -1,11 +1,12 @@
-function [S,Time,Dist,Xm] = StabilityCheck_FAST(BoomInfo)
-
-%% WORKING PROGRESS Simo feature Lore COLLAB
+function [S,Time,Dist,Xm] = StabilityCheck_FAST(BoomInfo,theta,D,Chi)
 %% STABILITYCHECK è una funzione che permette di stimare su N lanci con
 % condizioni iniziali randomiche in un certo range quante volte effettivamente il
 % boomerang torna indietro
 % INPUT
 % - BoomInfo: Struct dati del Boomerang
+% - lb. Limite inferiore delle condizoni iniziali
+% - ub: Limite superiore delle condizoni iniziali
+% - N: numero di lanci N
 % OUTPUT:
 % - S: Percentuale di lanci riusciti
 % - Time: Tempo dei lanci  (DIM:Nx1)
@@ -23,34 +24,35 @@ error=0;
 n=5;
 m=5;
 A=zeros(n,m);
-theta=10*pi/180;
-D=0*pi/180;
-Chi=0.85;
+
 jmax=0;
 imax=0;
 imin=100;
 jmin=100;
-cont=25;
-for i=1:n
-    if mod(i,n)==0
-    for j=1:m
-        phi=(87.5-5*(i-1))*pi/180;
-        r0=(6+2*(j-1))*2*pi;
-        figure(10)
-        hold on
-        plot(r0/2/pi,phi*180/pi,'r*');
-        Vs=r0*norm(BoomInfo.Aero.P_Finish_Dx)*(1/Chi-1);
-        
-        [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,eye(3),BoomInfo);
+i=1;
+j=1;
+for cont=1:n*m
+    if mod(cont,n)==0
+        i=i+1;
+        j=1;
+    end
+    phi=(87.5-5*(i-1))*pi/180;
+    r0=(6+2*(j-1))*2*pi;
+    figure(10)
+    hold on
+    plot(r0/2/pi,phi*180/pi,'r*');
+    Vs=r0*norm(BoomInfo.Aero.P_Finish_Dx)*(1/Chi-1);
+    
+    [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,BoomInfo);
     
     options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
     Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
-    [TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,eye(3)),[0 tfin],Y0,options); %
+    [~,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo),[0 tfin],Y0,options); %
     Dist_i=norm(YOUT_quat(end,11:13));
-  
-     if max(vecnorm(YOUT_quat(:,11:13)'))/1.1<=Dist_i 
+    
+    if max(vecnorm(YOUT_quat(:,11:13)'))/1.1<=Dist_i
         Dist_i=1000;
-     end
+    end
     if Dist_i<5
         A(i,j)=1;
         AREA=[AREA; r0 phi];
@@ -68,9 +70,9 @@ for i=1:n
         end
         if i<imin
             imin=i;
-        end 
+        end
     end
-    end
+    j=j+1;
 end
 
 figure(10)
@@ -133,11 +135,11 @@ for i=1:N
     plot(r0/2/pi,phi*180/pi,'k*')
     
     Vs=r0*norm(BoomInfo.Aero.P_Finish_Dx)*(1/Chi-1);
-    [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,eye(3),BoomInfo);
+    [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,BoomInfo);
     
     options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
     Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
-    [TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,eye(3)),[0 tfin],Y0,options); %
+    [TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo),[0 tfin],Y0,options); %
     Time_i=TOUT(end);
     Dist_i=norm(YOUT_quat(end,11:13));
     
