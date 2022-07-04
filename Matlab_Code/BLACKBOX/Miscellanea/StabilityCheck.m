@@ -13,7 +13,6 @@ function [S,Time,Dist,Xm] = StabilityCheck(BoomInfo)
 % - Dist: Distanza finale dal lanciatore (DIM:Nx1)
 % - Xm: Condizioni iniziali degli N lanci (DIM:Nx5)
 %%
-fprintf('%d simulazioni per il calcolo di stabilità ... \n',N);
 
 tfin=40;
 z0= 1.8; % initial altitude
