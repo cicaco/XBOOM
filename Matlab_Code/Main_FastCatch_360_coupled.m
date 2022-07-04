@@ -39,7 +39,7 @@ CheckBoomInfo(BoomInfo)
 %% Creazione della geometria tridemensionale
 [BoomInfo] = Boom3DShape(BoomInfo,'Info','Create_Stl');
 %% Calcolo coefficienti aerodinamici per il profilo scelto
-coeff360  = f_polar_360('load', 'Eppler_61.dat',linspace(-10,16, 27), 50000, 5,5,4,1.4);
+coeff360  = f_polar_360('load', 'fastcatch.dat',linspace(-10,16, 27), 50000,2,5, 0.007, 1.6);
 CL_t      = coeff360.CL;
 CD_t      = coeff360.CD;
 CM_t      = coeff360.CM;
@@ -64,7 +64,7 @@ Vs=X_ini(5)/10;
 z0= 1.8; % initial altitude
 [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,BoomInfo);
 tfin=40;
-[V_dx_b,V_sx_b]=InitialConditionPlot(quatToAtt(quat),ustart',[0;0;r0],BoomInfo);
+%[V_dx_b,V_sx_b]=InitialConditionPlot(quatToAtt(quat),ustart',[0;0;r0],BoomInfo);
 %%
 options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
