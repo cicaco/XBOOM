@@ -9,7 +9,7 @@ Chi=0.80;
 D=pi/4;
 theta=8*pi/180;
 try
-A = BoomSpotArea(BoomInfo,Num,D,theta,Chi);
+A = BoomSpotArea(BoomInfo,Num,D,theta,Chi,'plot');
 PARA=1/A;
 if A==0
     PARA=1000;

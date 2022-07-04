@@ -1,4 +1,4 @@
-function [dy]=EquationOfMotionsQuaternion(t,y, BoomInfo,Tl_0)
+function [dy]=EquationOfMotionsQuaternion(t,y, BoomInfo)
 % La funzione calcola le equazioni di moto  tendendo conto anche della
 % velocità indotta
 % INPUT:
@@ -9,7 +9,7 @@ function [dy]=EquationOfMotionsQuaternion(t,y, BoomInfo,Tl_0)
 % - Tl_0: matrice di attitude iniziale
 % OUTPUT:
 % - dy: derivata degli stati
-
+Tl_0=eye(3);
 I=BoomInfo.Mecc.I_rho;
 m=BoomInfo.Mecc.m;
 g=9.81;

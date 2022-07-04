@@ -1,4 +1,4 @@
-function [dy]=EquationOfMotionsQuaternion_IND(t,y, BoomInfo,Tl_0)
+function [dy]=EquationOfMotionsQuaternion_IND(t,y, BoomInfo)
 % La funzione calcola le equazioni di moto  tendendo conto anche della
 % velocità indotta
 % INPUT:
@@ -18,7 +18,7 @@ persistent V_ind
 if isempty(V_ind)
     V_ind = 0;
 end
-
+Tl_0=eye(3);
 I=BoomInfo.Mecc.I_rho;
 m=BoomInfo.Mecc.m;
 g=9.81;

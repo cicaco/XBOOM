@@ -157,8 +157,10 @@ if C_fig==1
     xlabel('$\alpha$ [Gradi]','fontsize',11,'interpreter','latex');
 end
 %% Check sull'angolo di attacco
+try
 if max(BoomInfo.Aero.alpha_cd)<10 && max(BoomInfo.Aero.alpha_cm)<10 && max(BoomInfo.Aero.alpha_cl)<10
     error('Gli angoli di attacco in BoomInfo.Aero.alpha_** vanno inseriti in Gradi');
+end
 end
 %% Check sui profili
 if norm(BoomInfo.Profile.Xp_dx-BoomInfo.Profile.Xp_sx)>=BoomInfo.Profile.Chord

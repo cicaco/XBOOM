@@ -1,4 +1,4 @@
-function [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,Tl_0,BoomInfo)
+function [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,BoomInfo)
 %% Handinital funzione che permette di ricavare le condizioni iniziali
 % rispetto a 5 parametri che sono spiegati con maggiore dettaglio sulla
 % relazione
@@ -13,7 +13,7 @@ function [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,Tl_0,BoomInfo)
 % OUTPUT:
 % - quat: Quaternioni iniziali
 % - ustart: Velocità iniziale del baricentro nel sistema di riferimento Body
-
+Tl_0=eye(3);
 psi=pi-D;
 T0=[cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta)
     -cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi), sin(phi)*cos(theta)
