@@ -42,7 +42,7 @@ for i=1:n
     
     options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
     Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
-    [TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo),[0 tfin],Y0,options); %
+    [~,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo),[0 tfin],Y0,options); %
     Dist_i=norm(YOUT_quat(end,11:13));
   
      if max(vecnorm(YOUT_quat(:,11:13)'))/1.1<=Dist_i 
@@ -69,7 +69,7 @@ for i=1:n
     end
     end
 end
-
+A=reshape(A,[n m]);
 figure(10)
 axis([5 15 65 90])
 
