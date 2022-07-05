@@ -19,11 +19,6 @@ function [value, isterminal, direction] = EventsQUAT(T, Y)
 % - direction  ??
 value      = (Y(13) <= 0.01); % tocco con il terreno
 
-% if T>2 && value==0
-%     value = (sqrt(Y(11)^2+Y(12)^2+(Y(13)-1.8)^2)<=3); % distanza dal punto di lancio 
-%     %a cui interrompo l'integrazione: 3 metri
-% end
-
 if T>2 && value==0
     if sqrt(Y(11)^2+Y(12)^2)<=3 && Y(13)<=4
     value = 1; % distanza dal punto di lancio
@@ -55,6 +50,7 @@ if T>2 && value==0 && vel_inerziale(1)>0
 end
 
 
+
 % 
 % if T<1 && value==0
 %     value=( Y(2)>= 90); % controllo sull'inclinazione del boomerang 
@@ -62,5 +58,4 @@ end
 
 isterminal = 1;   % Stop the integration
 direction  = 0;
-
 end

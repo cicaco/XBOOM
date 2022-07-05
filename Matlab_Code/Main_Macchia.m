@@ -5,6 +5,7 @@ clear all
 close all
 addpath(genpath('BLACKBOX'));
 %% Input Data
+%% Input Data
 p_c=10; % numero di profili di "Transizione" nella parte centrale
 l= 14/50; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
 Chord=l/4.1;
@@ -13,7 +14,7 @@ beta=0*pi/180; %Angolo di Diedro
 pitch=0*pi/180; %Pitch angle
 num=20; %Numero di profili totale su ciascuna metà;
 PARA=1.2; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
-% Profile 2D Shape
+
 %% Profilo 2D e caratteristiche aerodinamiche
 Profile2D=importdata('fastcatch.dat');
 Xp = Profile2D.data(:,1).*Chord-Chord;
@@ -66,14 +67,21 @@ Vs=X_ini(5);
 theta=20*pi/180;
 D=0*pi/180;
 Chi=0.85;
+%%
 tic
-[S,Time,Dist,Xm] = StabilityCheck(BoomInfo,theta,D,Chi);
+%[S,Time,Dist,Xm] = StabilityCheck(BoomInfo,theta,D,Chi);
 toc
 %%
 tfin=40;
 z0= 1.8; % initial altitude
-
-options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
+theta=20*pi/180;
+D=0*pi/180;
+Chi=0.85;
+r0=10*2*pi;
+phi=87.5*pi/180;
+R=norm(BoomInfo.Aero.P_Finish_Dx);
+Vs=r0*R*(1/Chi-1);
+options = odeset('Events', @EventsSheronQUAT,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 
 tic
@@ -81,6 +89,7 @@ tic
 toc
 
 %% Grafici Finali
+
 [YOUT] = Eul_Quat(YOUT_quat,TOUT);
 Energy(TOUT,YOUT,BoomInfo);
 PlotTipDxSx(TOUT,YOUT,BoomInfo)
