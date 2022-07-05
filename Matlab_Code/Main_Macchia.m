@@ -81,7 +81,7 @@ r0=10*2*pi;
 phi=87.5*pi/180;
 R=norm(BoomInfo.Aero.P_Finish_Dx);
 Vs=r0*R*(1/Chi-1);
-options = odeset('Events', @EventsSheronQUAT,'RelTol',1e-4,'AbsTol',1e-6);
+options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 
 tic
