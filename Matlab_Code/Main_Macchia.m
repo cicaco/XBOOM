@@ -6,9 +6,9 @@ close all
 addpath(genpath('BLACKBOX'));
 %% Input Data
 p_c=10; % numero di profili di "Transizione" nella parte centrale
-l=14/50; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
+l= 14/50; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
 Chord=l/4.1;
-delta=1732/50*pi/180; %Angolo di freccia
+delta= 1732/50*pi/180; %Angolo di freccia
 beta=0*pi/180; %Angolo di Diedro
 pitch=0*pi/180; %Pitch angle
 num=20; %Numero di profili totale su ciascuna metà;
@@ -55,6 +55,7 @@ BoomInfo.Aero.Cm=CM_t;
 CheckBoomInfo(BoomInfo,'Plot')
 %% Initial Condition
 X_ini=[9.2000    10   0   75   5];
+ X_ini=[10    10   0   77.5   5];
 r0=X_ini(1)*2*pi;
 theta=X_ini(2)*pi/180;
 D=X_ini(3)*pi/180;
@@ -76,8 +77,9 @@ options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 
 tic
-[TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion_IND(t,y,BoomInfo),[0 tfin],Y0,options); %
+[TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo),[0 tfin],Y0,options); %
 toc
+
 %% Grafici Finali
 [YOUT] = Eul_Quat(YOUT_quat,TOUT);
 Energy(TOUT,YOUT,BoomInfo);
