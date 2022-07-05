@@ -16,6 +16,7 @@ function [S,Time,Dist,Xm] = StabilityCheck(BoomInfo,theta,D,Chi)
 
 tfin=40;
 z0= 1.8; % initial altitude
+    options = odeset('Events', @EventsAntiSheronQUAT,'RelTol',1e-4,'AbsTol',1e-6);
 
 S=0;
 AREA=[];
@@ -40,7 +41,6 @@ for i=1:n
         
         [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,BoomInfo);
     
-    options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
     Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
     [~,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo),[0 tfin],Y0,options); %
     Dist_i=norm(YOUT_quat(end,11:13));
@@ -48,7 +48,7 @@ for i=1:n
      if max(vecnorm(YOUT_quat(:,11:13)'))/1.1<=Dist_i 
         Dist_i=1000;
      end
-    if Dist_i<5
+    if  sqrt(YOUT_quat(end,11)^2+YOUT_quat(end,12)^2)<=4 && YOUT_quat(end,13)<=3
         A(i,j)=1;
         AREA=[AREA; r0 phi];
         figure(10)
@@ -132,7 +132,6 @@ for i=1:N
     Vs=r0*norm(BoomInfo.Aero.P_Finish_Dx)*(1/Chi-1);
     [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,BoomInfo);
     
-    options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
     Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
     [TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo),[0 tfin],Y0,options); %
     Time_i=TOUT(end);
@@ -140,7 +139,7 @@ for i=1:N
     
     if max(vecnorm(YOUT_quat(:,11:13)'))/1.1<=Dist_i %(che è sta roba)
         Dist_i=1000;
-    elseif Dist_i<5
+    elseif sqrt(YOUT_quat(end,11)^2+YOUT_quat(end,12)^2)<=4 && YOUT_quat(end,13)<=3
         S=S+1;
         AREA=[AREA; r0 phi];
         figure(10)

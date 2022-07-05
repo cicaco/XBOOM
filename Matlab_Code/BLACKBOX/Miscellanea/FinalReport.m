@@ -22,7 +22,7 @@ while i<=nVarargs
 end
 disp('-------------------------------------------------------------------')
 % esclusione tocco terra
-if YOUT_QUAT(end,12) <= 0.01 && norm(YOUT_QUAT(end,10:12))>5
+if YOUT_QUAT(end,12) <= 0.01 || sqrt(YOUT_QUAT(end,10)^2+YOUT_QUAT(end,11)^2)>=4 || YOUT_QUAT(end,12)>=3
     fprintf('Il boomerang non torna indietro \n');
     % il boomerang ritorna e sono in grado di riprenderlo
 end
