@@ -4,12 +4,12 @@
 clear all 
 close all
 addpath(genpath('BLACKBOX'));
-%% Input Data
+
 %% Input Data
 p_c=10; % numero di profili di "Transizione" nella parte centrale
-l= 14/50; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
-Chord=l/4.1;
-delta= 1732/50*pi/180; %Angolo di freccia
+l= 0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
+Chord=l/6;
+delta= 35*pi/180; %Angolo di freccia
 beta=0*pi/180; %Angolo di Diedro
 pitch=0*pi/180; %Pitch angle
 num=20; %Numero di profili totale su ciascuna metà;
@@ -56,12 +56,16 @@ BoomInfo.Aero.Cm=CM_t;
 CheckBoomInfo(BoomInfo,'Plot')
 %% Initial Condition
 X_ini=[9.2000    10   0   75   5];
- X_ini=[10    10   0   77.5   5];
+ X_ini=[9.62577    10   0   72.884   5];
+%   X_ini=[9.85769    10   0   75.0566   5];
+
 r0=X_ini(1)*2*pi;
-theta=X_ini(2)*pi/180;
-D=X_ini(3)*pi/180;
 phi=X_ini(4)*pi/180;
-Vs=X_ini(5);
+theta=0*pi/180;
+D=0*pi/180;
+Chi=0.85;
+R=norm(BoomInfo.Aero.P_Finish_Dx);
+Vs=r0*R*(1/Chi-1);
 [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,BoomInfo);
 [V_dx_b,V_sx_b]=InitialConditionPlot(eye(3),quatToAtt(quat),ustart',[0;0;r0],BoomInfo);
 theta=20*pi/180;
@@ -74,14 +78,14 @@ toc
 %%
 tfin=40;
 z0= 1.8; % initial altitude
-theta=20*pi/180;
-D=0*pi/180;
-Chi=0.85;
-r0=10*2*pi;
-phi=87.5*pi/180;
-R=norm(BoomInfo.Aero.P_Finish_Dx);
-Vs=r0*R*(1/Chi-1);
-options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
+% theta=20*pi/180;
+% D=0*pi/180;
+% Chi=0.85;
+% r0=10*2*pi;
+% phi=87.5*pi/180;
+% R=norm(BoomInfo.Aero.P_Finish_Dx);
+% Vs=r0*R*(1/Chi-1);
+options = odeset('Events', @EventsAntiSheronQUAT,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 
 tic

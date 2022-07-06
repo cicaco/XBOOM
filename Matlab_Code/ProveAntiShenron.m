@@ -7,8 +7,8 @@ addpath(genpath('BLACKBOX'));
 %% Input Data
 %% Input Data
 p_c=10; % numero di profili di "Transizione" nella parte centrale
-l= 14/50; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
-Chord=l/4.1;
+l= 0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
+Chord=l/6.1;
 delta= 1732/50*pi/180; %Angolo di freccia
 beta=0*pi/180; %Angolo di Diedro
 pitch=0*pi/180; %Pitch angle
@@ -31,7 +31,7 @@ BoomInfo.Pianta.pitch=pitch;
 BoomInfo.Geom3D.p_c=p_c;
 BoomInfo.Geom3D.num=num;
 BoomInfo.Geom3D.PARA=PARA;
-BoomInfo.Mecc.Dens=650;
+BoomInfo.Mecc.Dens=1000;
 BoomInfo.Profile.Chord=Chord;
 BoomInfo.Profile.Xp_sx=Xp;
 BoomInfo.Profile.Xp_dx=Xp_flip;
@@ -56,18 +56,18 @@ BoomInfo.Aero.Cm=CM_t;
 CheckBoomInfo(BoomInfo,'Plot')
 %% Initial Condition
 
-theta=20*pi/180;
+theta=0*pi/180;
 D=0*pi/180;
 Chi=0.85;
 %%
 tic
-[S,Time,Dist,Xm] = StabilityCheck(BoomInfo,theta,D,Chi);
+[S] = StabilityCheck(BoomInfo);
 toc
 %%
-tfin=40;
+tfin=5;
 z0= 1.8; % initial altitude
-r0=10*2*pi;
-phi=87.5*pi/180;
+r0=13.7914*2*pi;
+phi=88.3779*pi/180;
 R=norm(BoomInfo.Aero.P_Finish_Dx);
 
 Vs=r0*R*(1/Chi-1);
