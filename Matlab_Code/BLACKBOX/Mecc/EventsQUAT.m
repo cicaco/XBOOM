@@ -1,4 +1,4 @@
-function [value, isterminal, direction] = EventsSheronQUAT(T, Y)
+function [value, isterminal, direction] = EventsQUAT(T, Y)
 % EVENTS returns check and stop criteria for boomerang flight dynamics
 % simulation (equation of motions)
 

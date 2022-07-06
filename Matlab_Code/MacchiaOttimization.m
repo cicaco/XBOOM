@@ -8,7 +8,7 @@ addpath(genpath('BLACKBOX'));
 %% Input Data
 p_c=5; % numero di profili di "Transizione" nella parte centrale
 l= 0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
-Chord=l/4.1;
+Chord=l/6.1;
 delta= 1732/50*pi/180; %Angolo di freccia
 beta=0*pi/180; %Angolo di Diedro
 pitch=0*pi/180; %Pitch angle
@@ -60,12 +60,25 @@ theta=0*pi/180;
 D=0*pi/180;
 Chi=0.85;
 %%
-tic
-[S] = StabilityCheck(BoomInfo,D,theta,Chi);
-toc
-tic
-[A]= SpotArea(BoomInfo,D,theta,Chi);
-toc
+x0=[34.6400 0.3 4.1];
+
+Fun_A= @(x) GA_Spot(x,BoomInfo,D,theta,Chi);
+%%
+lb = [30,0.15,4];
+ub = [60,0.3,6];
+A = [];
+b = [];
+Aeq = [];
+beq = [];
+options = optimoptions('patternsearch','Display','iter','PlotFcn','psplotbestf');
+X_fin = patternsearch(Fun_A,x0,A,b,Aeq,beq,lb,ub,options);
+%%
+BoomInfo.Pianta.freccia=X_fin(1)*pi/180;
+BoomInfo.Pianta.l=X_fin(2);
+BoomInfo.Profile.Chord=BoomInfo.Pianta.l/(X_fin(3));
+[BoomInfo] = Boom3DShape(BoomInfo);
+X_fin
+[A] = StabilityCheck(BoomInfo,D,theta,Chi);
 %%
 tfin=5;
 z0= 1.8; % initial altitude
