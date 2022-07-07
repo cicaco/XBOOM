@@ -121,8 +121,7 @@ Xm=[lb(1)+(ub(1)-lb(1))*rand(N,1) lb(2)+(ub(2)-lb(2))*rand(N,1)];
 
 for i=1:N 
     r0=Xm(i,2);
-    theta=20*pi/180;
-    D=0*pi/180;
+
     phi=Xm(i,1);
     figure(10)
     hold on

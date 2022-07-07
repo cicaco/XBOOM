@@ -6,16 +6,16 @@ close all
 addpath(genpath('BLACKBOX'));
 %% Input Data
 %% Input Data
-p_c=5; % numero di profili di "Transizione" nella parte centrale
-l= 0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
-Chord=l/6.1;
-delta= 1732/50*pi/180; %Angolo di freccia
+p_c=15; % numero di profili di "Transizione" nella parte centrale
+l= 0.2930; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
+Chord=l/4.62;
+delta= 44.3*pi/180; %Angolo di freccia
 beta=0*pi/180; %Angolo di Diedro
 pitch=0*pi/180; %Pitch angle
 num=5; %Numero di profili totale su ciascuna metà;
 PARA=1.2; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
 
-%% Profilo 2D e caratteristiche aerodinamiche
+% Profilo 2D e caratteristiche aerodinamiche
 Profile2D=importdata('fastcatch.dat');
 Xp = Profile2D.data(:,1).*Chord-Chord;
 Zp = Profile2D.data(:,2).*Chord-max(Profile2D.data(:,2).*Chord)/2;
@@ -23,7 +23,7 @@ Xp_flip = -(Chord/2.*ones(size(Xp))+Xp)+Chord/2.*ones(size(Xp))-Chord;
 Xp_flip = [Xp_flip(numel(Xp_flip)/2+1:end); Xp_flip(1:numel(Xp_flip)/2)];
 Zp_flip = [Zp(numel(Xp_flip)/2+1:end); Zp(1:numel(Xp_flip)/2)];
 
-%% Creazione dell Info Box
+% Creazione dell Info Box
 BoomInfo.Pianta.l=l;
 BoomInfo.Pianta.freccia=delta;
 BoomInfo.Pianta.diedro=beta;
@@ -63,21 +63,33 @@ Chi=0.85;
 x0=[34.6400 0.3 4.1];
 
 Fun_A= @(x) GA_Spot(x,BoomInfo,D,theta,Chi);
-%%
-lb = [30,0.15,4];
-ub = [60,0.3,6];
+%% Pattern Search
+lb = [30*10,0.15*1000,4*100];
+ub = [60*10,0.3*1000,6*100];
 A = [];
 b = [];
 Aeq = [];
 beq = [];
-options = optimoptions('patternsearch','Display','iter','PlotFcn','psplotbestf');
-X_fin = patternsearch(Fun_A,x0,A,b,Aeq,beq,lb,ub,options);
+x0=[40.4 0.3 5.1];
+%options = optimoptions('patternsearch', 'UseParallel', true,'Display','iter','PlotFcn','psplotbestf');
+%X_fin = patternsearch(Fun_A,x0,A,b,Aeq,beq,lb,ub,options);
+%%
+%% Somplex Method
+% Fun_A_constrained= @(x) GA_Spot_constrained(x,lb,ub,BoomInfo,D,theta,Chi);
+% options = optimset('Display','iter','PlotFcns',@optimplotfval);
+% X_fin = fminsearch(Fun_A_constrained,x0,options)
+%%
+options = optimoptions('ga', 'MaxStallGenerations', 10, 'MaxGenerations', 10, 'NonlinearConstraintAlgorithm', 'penalty',...
+    'PopulationSize', 30, 'PlotFcn', {'gaplotbestindiv', 'gaplotbestf'},...
+    'Display', 'iter', 'UseParallel', true, 'UseVectorized', false);
+X_fin = ga(Fun_A,3,[],[],[],[],lb,ub,[],1:3,options);
+X_fin=[X_fin(1)/10 X_fin(2)/1000 X_fin(3)/100];
 %%
 BoomInfo.Pianta.freccia=X_fin(1)*pi/180;
 BoomInfo.Pianta.l=X_fin(2);
 BoomInfo.Profile.Chord=BoomInfo.Pianta.l/(X_fin(3));
 [BoomInfo] = Boom3DShape(BoomInfo);
-X_fin
+
 [A] = StabilityCheck(BoomInfo,D,theta,Chi);
 %%
 tfin=5;
