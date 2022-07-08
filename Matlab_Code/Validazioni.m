@@ -5,8 +5,8 @@ close all
 addpath(genpath('BLACKBOX'));
 %% Input Data goemtrici 3D
 p_c=15; % numero di profili di "Transizione" nella parte centrale
-l= 0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
-Chord=0.06;
+l= 0.25; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
+Chord=0.055;
 delta= 45*pi/180; %Angolo di freccia
 beta=0*pi/180; %Angolo di Diedro
 pitch=0*pi/180; %Pitch angle
@@ -68,8 +68,9 @@ X_ini = ga(fitnessfcn,5,[],[],[],[],lb,ub,[],1:5,options);
 %% Initial condition
 [PAR,t_min,r_max] = GA_FiveParameter(X_ini,BoomInfo,'Ciao')
 X_ini_right=[X_ini(1)/10 X_ini(2)/10 X_ini(3)/10 X_ini(4)/10 X_ini(5)/10]
-
 %%
+%X_ini =[10.4000    5.5000   0   90   10]*10;
+%z
 r0=X_ini(1)*2*pi/10;
 theta=X_ini(2)*pi/180/10;
 D=X_ini(3)*pi/180/10;
@@ -84,8 +85,8 @@ tfin=40;
 
 options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
-%%
-%%
+%
+%
 tic
 [TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo),[0 tfin],Y0,options); %
 toc
