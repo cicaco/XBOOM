@@ -15,6 +15,7 @@ function [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,BoomInfo)
 % - ustart: Velocità iniziale del baricentro nel sistema di riferimento Body
 Tl_0=eye(3);
 psi=pi-D;
+
 T0=[cos(theta)*cos(psi), cos(theta)*sin(psi), -sin(theta)
     -cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi), cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi), sin(phi)*cos(theta)
     sin(phi)*sin(psi)+cos(phi)*sin(theta)*cos(psi), -sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi), cos(phi)*cos(theta)];

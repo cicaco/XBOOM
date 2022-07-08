@@ -1,4 +1,4 @@
-load fastcatch.dat
+load NACA4412.dat
 panels
 n
 330
