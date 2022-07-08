@@ -7,17 +7,19 @@ function CheckBoomInfo(BoomInfo,varargin)
 % - 'Plot': viene plottato il profilo dx e sx ed i centri aerodinamici, il profilo dx è corretto se il
 %   bordo di attacco punto verso sinistra nella figura. Se si vuole spostare
 %   il centro aerodinamico, traslare verso il basso o l alto le coordinate Z.
-
+% - 'Text' 
 %%
 I=zeros(1,36);
 C_fig=0;
-
+C_cont=0;
 nVarargs = length(varargin);
 i=1;
 while i<=nVarargs
     switch varargin{i}
         case 'Plot'
             C_fig=1;
+        case 'Text'
+            C_cont=1;
         otherwise
             error('Verificare di aver inserito le opzioni corrette ')
     end
@@ -132,10 +134,18 @@ if sum(I)==1
     error('Dato in BoomInfo con NaN \n');
 end
 if C_fig==1
+    num=max(size(BoomInfo.Profile.Xp_sx));
     figure()
     plot(BoomInfo.Profile.Xp_dx,BoomInfo.Profile.Zp_dx,'r','linewidth',1.2);
+    if C_cont==1
+        text(BoomInfo.Profile.Xp_dx,BoomInfo.Profile.Zp_dx,string(linspace(1,num,num)));
+    end
     hold on
     plot(BoomInfo.Profile.Xp_sx,BoomInfo.Profile.Zp_sx,'b','linewidth',1.2);
+    if C_cont==1
+        
+        text(BoomInfo.Profile.Xp_sx,BoomInfo.Profile.Zp_sx,string(linspace(1,num,num)));
+    end
     plot(-BoomInfo.Profile.Chord/4,0,'*r','linewidth',1.2);
     plot(-3*BoomInfo.Profile.Chord/4,0,'*b','linewidth',1.2);
     axis equal
@@ -145,6 +155,7 @@ if C_fig==1
     xlabel('X','fontsize',11,'interpreter','latex');
     set(gca,'TickLabelInterpreter','latex')
     ylabel('Y','fontsize',11,'interpreter','latex');
+    try
     figure()
     plot(BoomInfo.Aero.alpha_cl,BoomInfo.Aero.Cl,'--r','linewidth',1.2);
     hold on
@@ -155,6 +166,7 @@ if C_fig==1
     ylabel('Coefficienti []','fontsize',11,'interpreter','latex');
     set(gca,'TickLabelInterpreter','latex')
     xlabel('$\alpha$ [Gradi]','fontsize',11,'interpreter','latex');
+    end
 end
 %% Check sull'angolo di attacco
 try
