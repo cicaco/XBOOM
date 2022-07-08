@@ -1,4 +1,4 @@
-function [V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,T0,ustart,Om,BoomInfo)
+function [V_dx_b,V_sx_b]=InitialConditionPlot(T0,ustart,Om,BoomInfo)
 %% InitialConditionPlot permette di visualizzare il boomerang nel sistema di
 % riferimento inerziale, rispetto alle condizioni iniziali, inoltre viene
 % fornita la distribuzioni di velocità a t=0.
@@ -14,7 +14,7 @@ function [V_dx_b,V_sx_b]=InitialConditionPlot(Tl_0,T0,ustart,Om,BoomInfo)
 % - V_sx_b: Velcità dei profili della pala sinistra
 %%
 
-
+Tl_0=eye(3);
 % Ricavo da BoomInfo i dati necessari
 num=BoomInfo.Geom3D.num;
 p_c=BoomInfo.Geom3D.p_c;

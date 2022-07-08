@@ -1,3 +1,4 @@
+
 function [value, isterminal, direction] = EventsQUAT(T, Y)
 % EVENTS returns check and stop criteria for boomerang flight dynamics
 % simulation (equation of motions)
@@ -25,7 +26,36 @@ if T>2 && value==0
     %a cui interrompo l'integrazione: 3 metri
 end
 
+
+quat= [Y(1) Y(2) Y(3) Y(4)];
+euler = quatToEuler( quat );
+
+phi = euler(1);
+theta = euler(2);
+psi= euler(3);
+Rotazione= [cos(theta)*cos(psi) cos(theta)*sin(psi) -sin(theta);
+        cos(phi)*sin(psi)+sin(phi)*sin(theta)*cos(psi) cos(phi)*cos(psi)+sin(phi)*sin(theta)*sin(psi) sin(phi)*cos(theta);
+        sin(phi)*sin(psi)+cos(phi)*sin(theta)*cos(psi) -sin(phi)*cos(psi)+cos(phi)*sin(theta)*sin(psi)  cos(phi)*cos(theta)];
+    
+vel_inerziale=Rotazione*[Y(8) Y(9) Y(10)]';
+
+if T>2 && value==0 && vel_inerziale(1)>0
+    if atan2(vel_inerziale(2),vel_inerziale(1))<pi/2
+    value= (atan2(vel_inerziale(2),vel_inerziale(1))>pi/3);
+%     if value
+%         vel_inerziale
+%         Rotazione*eye(3)
+%     end
+    end
+end
+
+
+
+% 
+% if T<1 && value==0
+%     value=( Y(2)>= 90); % controllo sull'inclinazione del boomerang 
+% end
+
 isterminal = 1;   % Stop the integration
 direction  = 0;
-
 end
