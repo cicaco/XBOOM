@@ -65,7 +65,8 @@ if abs(Chord-abs(max(Xp_dx)-min(Xp_dx)))>0.01*Chord
    warning ('on');
 
         warning('Attenzione Corda del profilo diversa dalla Corda in BoomInfo');
-
+        Chord
+        abs(max(Xp_dx)-min(Xp_dx))
 end
 %% Set option of the function
 C_fig=0;
