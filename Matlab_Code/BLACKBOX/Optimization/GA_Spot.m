@@ -11,6 +11,7 @@ BoomInfo.Profile.Xp_sx=BoomInfo.Profile.Xp_sx./BoomInfo.Profile.Chord;
 BoomInfo.Profile.Xp_dx=BoomInfo.Profile.Xp_dx./BoomInfo.Profile.Chord;
 BoomInfo.Profile.Zp_sx=BoomInfo.Profile.Zp_sx./BoomInfo.Profile.Chord;
 BoomInfo.Profile.Zp_dx=BoomInfo.Profile.Zp_dx./BoomInfo.Profile.Chord;
+[BoomInfo] = Boom3DShape(BoomInfo);
 
 try
 PARA = - SpotArea(BoomInfo,D,theta,Chi);
