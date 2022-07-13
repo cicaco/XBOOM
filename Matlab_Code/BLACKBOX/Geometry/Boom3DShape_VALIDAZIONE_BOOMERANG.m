@@ -1,4 +1,4 @@
-function [BoomInfo] = Boom3DShape(BoomInfo,varargin)
+function [BoomInfo] = Boom3DShape_VALIDAZIONE_BOOMERANG(BoomInfo,varargin)
 %% Boom3DShapes creates the 3D shapes of the boomerang by traingulation
 % method
 % INPUT
@@ -60,14 +60,6 @@ Xp_sx=BoomInfo.Profile.Xp_sx;
 Zp_sx=BoomInfo.Profile.Zp_sx;
 ni=num;
 num=num+p_c;
-%%
-if abs(Chord-abs(max(Xp_dx)-min(Xp_dx)))>0.01*Chord
-   warning ('on');
-
-        warning('Attenzione Corda del profilo diversa dalla Corda in BoomInfo');
-        Chord
-        abs(max(Xp_dx)-min(Xp_dx))
-end
 %% Set option of the function
 C_fig=0;
 C_stl=0;
@@ -124,7 +116,7 @@ Fract=[1/4*ones(1,num-p_c) linspace(1/4,3/4,2*p_c-1) 3/4*ones(1,num-p_c)];
 %Angoli di Freccia,Diedro, Pitch di ogni sezione
 D_i=[-delta.*ones(1,num-p_c-1) linspace(-delta,delta,2*p_c+1) delta.*ones(1,num-p_c-1)];
 B_i=[-beta.*ones(1,num-p_c-1) linspace(-beta,beta,2*p_c+1) beta.*ones(1,num-p_c-1)];
-P_i=[-pitch.*ones(1,num-p_c-1) linspace(-pitch,pitch,2*p_c+1) pitch.*ones(1,num-p_c-1)];
+P_i=[-linspace(17*pi/180,0,num-p_c-1) linspace(-pitch,pitch,2*p_c+1) linspace(0,17*pi/180,num-p_c-1)];
 
 %Angoli di Freccia e Diedro per trovare correttamente la posizione finale
 %del centro aerodinamico

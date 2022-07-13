@@ -1,5 +1,5 @@
 function ChiAvan(BoomInfo,YOUT,TOUT)
-chi= YOUT(:,6).*BoomInfo.Pianta.l*cos(BoomInfo.Pianta.freccia)/(vecnorm(YOUT(:,7:9)'))';
+chi= YOUT(:,6).*norm(BoomInfo.Aero.P_Finish_Dx)./(vecnorm(YOUT(:,7:9)'))';
 V=(vecnorm(YOUT(:,7:9)'))';
 figure(20)
 plot(TOUT(:),chi);
