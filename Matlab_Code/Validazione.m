@@ -1,5 +1,3 @@
-%% Script per creare la Geometria 3D
-%Main accoppiato con XFOIL (NON FUNZIONANTE) senza GA
 clear all 
 close all
 addpath(genpath('BLACKBOX'));
@@ -37,7 +35,7 @@ BoomInfo.Profile.Zp_sx=Zp;
 BoomInfo.Profile.Zp_dx=fliplr(Zp_flip')';
 CheckBoomInfo(BoomInfo)
 %% Creazione della geometria tridemensionale
-[BoomInfo] = Boom3DShape_VALIDAZIONE_BOOMERANG(BoomInfo,'Info','Create_Stl');
+[BoomInfo] = Boom3DShape_VALIDAZIONE_BOOMERANG(BoomInfo,'Info');
 %% Calcolo coefficienti aerodinamici per il profilo scelto
 coeff360  = f_polar_360('load', 'paff_III.dat',linspace(-10,16, 27), 50000,2,5, 0.007, 1.6);
 CL_t      = coeff360.CL;
@@ -58,34 +56,62 @@ CheckBoomInfo(BoomInfo,'Plot')
 Chi=0.85;
 D=0;
 theta=0;
-[A]=StabilityCheck(BoomInfo,D,theta,Chi);
-%% Initial Condition
-Chi=0.85;
-D=0;
-theta=0;
-r0=12*2*pi;
-theta=0*pi/180;
-D=0*pi/180;
-phi=67.5*pi/180;
-R=norm(BoomInfo.Aero.P_Finish_Dx);
-Vs=r0*R*(1/Chi-1);
+%[A]=StabilityCheck(BoomInfo,D,theta,Chi);
 
+%% Prova 1 (video 10_48)
+
+% Initial Condition
+Vs=0;
+D=0;
+r0=11.1*2*pi;
+phi=60*pi/180;
+R=norm(BoomInfo.Aero.P_Finish_Dx);
 z0= 1.8; % initial altitude
 [quat,ustart] = HandInitial(r0,theta,D,phi,Vs,BoomInfo);
- TO=quatToAtt(quat);
-% ustart=TO*[16.5*cos(5*pi/180);0;16.5*sin(5*pi/180)];
+TO=quatToAtt(quat);
+ustart=TO*[20*cos(5*pi/180);0;20*sin(5*pi/180)];
 tfin=8;
-[V_dx_b,V_sx_b]=InitialConditionPlot(TO,ustart',[0;0;r0],BoomInfo);
-%%
+%[V_dx_b,V_sx_b]=InitialConditionPlot(TO,ustart',[0;0;r0],BoomInfo);
+
 options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
 tic
 [TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo),[0 tfin],Y0,options); %
 toc
-%% Grafici Finali
+% Grafici Finali
 [YOUT] = Eul_Quat(YOUT_quat,TOUT);
 Energy(TOUT,YOUT,BoomInfo)
 PlotTipDxSx(TOUT,YOUT,BoomInfo)
 PlotAeroForce(YOUT,TOUT,BoomInfo)
 ChiAvan(BoomInfo,YOUT,TOUT)
 FinalReport(YOUT,TOUT)
+
+
+%% Prova 2 (video 10_29)
+
+% Initial Condition
+Vs=0;
+D=0;
+r0=11.1*2*pi;
+phi=30*pi/180;
+R=norm(BoomInfo.Aero.P_Finish_Dx);
+z0= 1.8; % initial altitude
+[quat,ustart] = HandInitial(r0,theta,D,phi,Vs,BoomInfo);
+TO=quatToAtt(quat);
+ustart=TO*[15*cos(10*pi/180);0;15*sin(10*pi/180)];
+tfin=8;
+%[V_dx_b,V_sx_b]=InitialConditionPlot(TO,ustart',[0;0;r0],BoomInfo);
+
+options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
+Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
+tic
+[TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo),[0 tfin],Y0,options); %
+toc
+% Grafici Finali
+close all
+[YOUT] = Eul_Quat(YOUT_quat,TOUT);
+Energy(TOUT,YOUT,BoomInfo);
+PlotTipDxSx(TOUT,YOUT,BoomInfo);
+PlotAeroForce(YOUT,TOUT,BoomInfo);
+ChiAvan(BoomInfo,YOUT,TOUT);
+FinalReport(YOUT,TOUT);
