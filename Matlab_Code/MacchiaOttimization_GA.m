@@ -1,7 +1,7 @@
 %% Script per creare la Geometria 3D
 % Questo main presenta un caso standard, con il calcolo di stabilità a
 % "Macchia" tramite la funzione StabilityCheck
-clear all 
+clear all
 close all
 addpath(genpath('BLACKBOX'));
 % Input Data
@@ -66,6 +66,8 @@ Fun_A= @(x) GA_Spot(x,BoomInfo,D,theta,Chi);
 %% Pattern Search
 lb = [30*10,0.15*1000,4*100];
 ub = [60*10,0.3*1000,8*100];
+lb = [30,0.15,4];
+ub = [60,0.30,8];
 A = [];
 b = [];
 Aeq = [];
@@ -75,23 +77,36 @@ x0=[40.4 0.3 5.1];
 %X_fin = patternsearch(Fun_A,x0,A,b,Aeq,beq,lb,ub,options);
 %%
 %% Somplex Method
-% Fun_A_constrained= @(x) GA_Spot_constrained(x,lb,ub,BoomInfo,D,theta,Chi);
-% options = optimset('Display','iter','PlotFcns',@optimplotfval);
-% X_fin = fminsearch(Fun_A_constrained,x0,options)
+x0 = [43.7000000000000	0.286000000000000	4.7300000000000];
+
+Fun_A_constrained= @(x) GA_Spot_constrained(x,lb,ub,BoomInfo,D,theta,Chi);
+options = optimset('Display','iter','PlotFcns',@optimplotfval);
+X_fin = fminsearch(Fun_A_constrained,x0,options)
 %%
-options = optimoptions('ga', 'MaxStallGenerations', 10, 'MaxGenerations', 10, 'NonlinearConstraintAlgorithm', 'penalty',...
-    'PopulationSize', 30, 'PlotFcn', {'gaplotbestindiv', 'gaplotbestf'},...
-    'Display', 'iter', 'UseParallel', true, 'UseVectorized', false);
-X_fin = ga(Fun_A,3,[],[],[],[],lb,ub,[],1:3,options);
-X_fin=[X_fin(1)/10 X_fin(2)/1000 X_fin(3)/100];
+% options = optimoptions('ga', 'MaxStallGenerations', 10, 'MaxGenerations', 10, 'NonlinearConstraintAlgorithm', 'penalty',...
+%     'PopulationSize', 30, 'PlotFcn', {'gaplotbestindiv', 'gaplotbestf'},...
+%     'Display', 'iter', 'UseParallel', true, 'UseVectorized', false);
+% X_fin = ga(Fun_A,3,[],[],[],[],lb,ub,[],1:3,options);
+% X_fin=[X_fin(1)/10 X_fin(2)/1000 X_fin(3)/100];
 %X_fin=[45.5 0.288 4.14];
+% X_fin = [43.7000000000000	0.286000000000000	4.7300000000000];
+
 %%
+BoomInfo.Profile.Xp_sx=BoomInfo.Profile.Xp_sx./BoomInfo.Profile.Chord;
+BoomInfo.Profile.Xp_dx=BoomInfo.Profile.Xp_dx./BoomInfo.Profile.Chord;
+BoomInfo.Profile.Zp_sx=BoomInfo.Profile.Zp_sx./BoomInfo.Profile.Chord;
+BoomInfo.Profile.Zp_dx=BoomInfo.Profile.Zp_dx./BoomInfo.Profile.Chord;
 BoomInfo.Pianta.freccia=X_fin(1)*pi/180;
 BoomInfo.Pianta.l=X_fin(2);
 BoomInfo.Profile.Chord=BoomInfo.Pianta.l/(X_fin(3));
+%divido per la nuova corda
+BoomInfo.Profile.Xp_sx=BoomInfo.Profile.Xp_sx.*BoomInfo.Profile.Chord;
+BoomInfo.Profile.Xp_dx=BoomInfo.Profile.Xp_dx.*BoomInfo.Profile.Chord;
+BoomInfo.Profile.Zp_sx=BoomInfo.Profile.Zp_sx.*BoomInfo.Profile.Chord;
+BoomInfo.Profile.Zp_dx=BoomInfo.Profile.Zp_dx.*BoomInfo.Profile.Chord;
 [BoomInfo] = Boom3DShape(BoomInfo,'Info','Create_Stl');
 
-% [A] = StabilityCheck(BoomInfo,D,theta,Chi);
+[A] = StabilityCheck(BoomInfo,D,theta,Chi);
 %%
 tfin=5;
 z0= 1.8; % initial altitude

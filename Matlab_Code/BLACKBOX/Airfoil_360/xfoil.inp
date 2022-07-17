@@ -1,4 +1,4 @@
-load NACA4412.dat
+load bellen.dat
 panels
 n
 330

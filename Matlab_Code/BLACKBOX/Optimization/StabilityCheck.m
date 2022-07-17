@@ -108,7 +108,7 @@ else
     ub_r0=(6+2*(jmax))*2*pi;
 end
 N=nnz(A);
-N=30*N;
+N=100*N;
 
 lb=[lb_phi lb_r0];
 ub=[ub_phi ub_r0];
@@ -159,6 +159,14 @@ phi_ok=AREA(:,2)*180/pi;
 figure(10)
 hold on
 plot(r_ok,phi_ok,'.',r_ok(K),phi_ok(K),'g','Linewidth',1.5);
+    grid on
+    try
+    title('bold{Condizioni di lancio: Forma Ottimizzata Finale}','fontsize',12,'interpreter','latex');
+    set(gca,'TickLabelInterpreter','latex')
+    xlabel('$\r_{0}$ [Hz]','fontsize',11,'interpreter','latex');
+        ylabel('$\phi$','fontsize',11,'interpreter','latex');
+
+    end
 % shp=alphaShape(AREA(:,1)/2/pi,AREA(:,2)*180/pi,1.0);
 % figure(11)
 % plot(shp)
