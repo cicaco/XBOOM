@@ -61,6 +61,7 @@ Xboom è un programma sviluppato su matlab capace di simulare la traiettoria di 
 	- `AerCenter.m` calcola la posizione del centro aerodinamico di un profilo
 	- _3DSOlidGeneration  @AuthorExternal funzioni chiave per il calcolo delle proprietà di massa del 	 boomerang
 7. _Aero cartella contente le funzioni riguardanti il modello geometrico
+	METTERE I PROFILI IN QUESTA CARTELLA PER IL CALCOLO DEI COEFFICIENTI AERODINAMICI
 	- `XfoilCl.m` @AuthorExternal avvia @XFOIL e ricava i risultati
 	- `xfoil.exe` @Xfoil
 	- `t.m` funzione raccordo tra estrapolante e cl alpha
@@ -69,6 +70,7 @@ Xboom è un programma sviluppato su matlab capace di simulare la traiettoria di 
 	- `VelInd_FAST2.m` calcolo della velocità indotta 
 	- `AeroDynamic_FAST_IND.m` calcolo delle forze aerodinamiche sfruttando le matrici 3D con la    velocità indotta
 	- `AeroDynamic_FAST.m` calcolo delle forze aerodinamiche sfruttando le matrici 3D
+	- `Profile_comparison_plot.m` plot cl_alpha e polari per il confronto
 8. _Profile cartella contente vari profili da testare, per utilizzarli vanno NECESSARIAMENTE messi nella  cartella _Aero 
 ### Main:
 
