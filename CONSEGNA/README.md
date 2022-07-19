@@ -76,7 +76,7 @@ Xboom è un programma sviluppato su matlab capace di simulare la traiettoria di 
 1. _ValidationSolidworks.m confronto tra solidworks e Xboom con convergenza della soluzione
 2. _Main_GA_Five_Parameter.m ottimizzazione delle condizioni iniziali per trovare un boomerang che torni indietro 
 3. _Main_Example.m Simulazione della traiettoria di un boomerang avente come profilo alare un naca4412, serve per prendere atto del funzionamento del codice
-4. _ConvergenzaForzeAerodinamiche.m 
+4. _Validazione.m Simulazione usate come confronto con i test sperimentali
 5. _Cap9_Ottimizzazione.m procedura di ottimizzazione descritta al capitolo 9
 
 ## Blender
@@ -87,9 +87,9 @@ Aprire Traiectory.blend
 1. _T.mat salvare questo file utilizzando la funzione matlab `Blender.m`
 2. Importare la geometria del boomerang su Blender tramite file->import->stl
 3. andare su ->scripting e modificare la riga 8:
-	- mat = scipy.io.loadmat('C:\\Users\\ciuti\\Documents\\GitHub\\XBoom\\Matlab_Code\\T.mat')
+	- mat = scipy.io.loadmat('C:\\Users\\...\\T.mat')
 	inserire la posizione del file T.mat
-	modificare la rifa 28:
+	modificare la riga 28:
 	- Boom=bpy.context.scene.objects["Boom_D60_B0.5_P0"] inserire il nome della geometria
 4. Opzionali modificando la riga 32 (togliendo il commento) e mettendo 'range(np.size(Time)):' alla riga 	30 è possibile avere una simulazione in cui il tempo coincide con quello reale 
 ## SolidWorks
