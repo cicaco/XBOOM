@@ -61,7 +61,7 @@ Xboom è un programma sviluppato su matlab capace di simulare la traiettoria di 
 	- `AerCenter.m` calcola la posizione del centro aerodinamico di un profilo
 	- _3DSOlidGeneration  @AuthorExternal funzioni chiave per il calcolo delle proprietà di massa del 	 boomerang
 7. _Aero cartella contente le funzioni riguardanti il modello geometrico
-	- `XfoilCl.m` avvia @XFOIL e ricava i risultati
+	- `XfoilCl.m` @AuthorExternal avvia @XFOIL e ricava i risultati
 	- `xfoil.exe` @Xfoil
 	- `t.m` funzione raccordo tra estrapolante e cl alpha
 	- `midspan.m` calcola il punto medio tra due punti
@@ -96,6 +96,12 @@ Aprire Traiectory.blend
 SolidWorks è stato utilizzato per la stampa tridimensionale e per la verifica del calcolo delle proprietà di massa di XBOOM-Project
 1. _Boom_D30_B0_P0.SLDPRT / _Stampa3D_ottimizzazione.SLDPRT : esempi di boomerang su solidworks
 2. _Export_toSW.m: Vengono creati N file txt nella cartella ProfileSW, che successivamente possono essere importate su SolidWorks tramite la funzione CURVExyz di SolidWorks
+
+## Validazione
+
+Video delle traiettorie testate e post-processing per il confronto con i risultati simulati
+1. Plot_confronto_validazione post-processing e confronto dei dati simulati e sperimentali
+2. VideoValidazione video dei lanci del boomerang effettuati durante i tests
 
 ## Letteratura
 
