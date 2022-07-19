@@ -1,35 +1,30 @@
 function [PAR,varargout] = GA_para_paper(x,BoomInfo,varargin)
 
-BoomInfo.Mecc.Dens=100;
-BoomInfo.Geom3D.PARA=x/1000; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
-
+BoomInfo.Mecc.Dens=300;
+BoomInfo.Geom3D.PARA=x(1)/1000; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
+BoomInfo.Geom3D.l=x(2)/100; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
+BoomInfo.Pianta.freccia=x(3)/100*pi/180; 
 [BoomInfo] = Boom3DShape(BoomInfo);
-D=0.130/BoomInfo.Mecc.V;
+D=0.0620/BoomInfo.Mecc.V;
 %BoomInfo.Mecc.CG=[CG(1) 0 0];
 BoomInfo.Mecc.Dens=D;
 
 [BoomInfo] = Boom3DShape(BoomInfo);
-
-theta0=0*pi/180;
-phi0=0*pi/180;
-psi0=0*pi/180;
-Tl_0=[cos(theta0)*cos(psi0), cos(theta0)*sin(psi0), -sin(theta0)
-    -cos(phi0)*sin(psi0)+sin(phi0)*sin(theta0)*cos(psi0), cos(phi0)*cos(psi0)+sin(phi0)*sin(theta0)*sin(psi0), sin(phi0)*cos(theta0)
-    sin(phi0)*sin(psi0)+cos(phi0)*sin(theta0)*cos(psi0), -sin(phi0)*cos(psi0)+cos(phi0)*sin(theta0)*sin(psi0), cos(phi0)*cos(theta0)];
+X_ini=[9.7    5    0   45.000    8.3000];
+r0=X_ini(1)*2*pi;
+theta=X_ini(2)*pi/180;
+D=X_ini(3)*pi/180;
+phi=X_ini(4)*pi/180;
+Vs=X_ini(5);
 z0= 1.8; % initial altitude
-tfin=40;
-r0=10*2*pi;
-psi=70*pi/180;
-theta=0*pi/180;
-phi=-45*pi/180;
-eul=[psi theta phi];
-quat = eul2quat( eul );
-quat=[quat(2) quat(3) quat(4) quat(1)];
-ustart=[25;0;0];
-options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
+[quat,~] = HandInitial(r0,theta,D,phi,Vs,BoomInfo);
+TO=quatToAtt(quat);
+ustart=TO*[16.5*cos(5*pi/180);0;16.5*sin(5*pi/180)];
+tfin=8;
 Y0=[quat 0 0 r0  ustart(1) ustart(2) ustart(3) 0 0 z0 ]';
-%%
-[TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo,Tl_0),[0 tfin],Y0,options); %
+options = odeset('Events', @EventsQUAT,'RelTol',1e-4,'AbsTol',1e-6);
+
+[TOUT,YOUT_quat] = ode45(@(t,y)EquationOfMotionsQuaternion(t,y,BoomInfo),[0 tfin],Y0,options); %
 
 % La distanza ed il tempo vengono minimizzati
 Dist=norm(YOUT_quat(end,11:13));

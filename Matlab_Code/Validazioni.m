@@ -5,13 +5,13 @@ close all
 addpath(genpath('BLACKBOX'));
 %% Input Data goemtrici 3D
 p_c=15; % numero di profili di "Transizione" nella parte centrale
-l= 0.25; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
-Chord=0.055;
+l= 0.3; % lunghezza della pala avente un profilo 2D definito, NON corrisponde alla lunghezza del boomerang
+Chord=0.06;
 delta= 45*pi/180; %Angolo di freccia
 beta=0*pi/180; %Angolo di Diedro
 pitch=0*pi/180; %Pitch angle
 num=5; %Numero di profili totale su ciascuna metà;
-PARA=1.7; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
+PARA=1; %Parametro che permette di modificare la curvatura centrale (più si avvicna ad 1 pù dietro forma una V
 
 %% Profilo 2D e caratteristiche aerodinamiche
 Profile2D=importdata('bellen.dat');
