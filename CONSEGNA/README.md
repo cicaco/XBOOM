@@ -12,16 +12,17 @@ Contenuto
 - _Letteratura
 - _Blender
 - _SolidWorks
+- _Validazione
 
 ## Simulatore su MATLAB@
 Xboom è un programma sviluppato su matlab capace di simulare la traiettoria di un boomerang seguendo la parametrizzazione. Il simulatore è diviso in:
-- File Main
+- Files Main
 - BlackBox: cartella contente tutte le funzioni implementate
 - .stl: file stl di prova
 
 ### BlackBox:
 1. _Profili, cartella contenente alcuni profili generici
-2. _Plot, cartella conentenet alcuni script utili per la visualizzazione della traiettoria simulata:
+2. _Plot, cartella conentente alcuni script utili per la visualizzazione della traiettoria simulata:
 	- `PlotTopDxSx.m`: visualizza la traiettoria del boomerang sia delle estremità che del baricentro 
 	- `plotNy.m`: permette di avere più assi y sulla stessa figura con unità di misura differenti
 	- `PlotAeroForce.m`: visualizza le forze ed i momenti aerodinamiche subite dal boomerang nel sistema di riferimento Body o non-inerziale durante il volo
@@ -39,7 +40,7 @@ Xboom è un programma sviluppato su matlab capace di simulare la traiettoria di 
 	- `GA_FiveParameter`: funzione fitness che calcola la traiettoria dati in input cinque parametri descritti al capitolo 6 (r0,theta,D,phi,Vs)
 	- `GA_mass`: funzione fitness che calcola la traiettoria dati in input il parametro di progetto Dens e tre parametri fissati Chi, D e Theta descritti al capitolo 6
 4. _Miscellanea cartelle contente funzioni varie utili 
-	- `HandInital.m` Calcolo delle condizioni iniziali dati i 5 parametri descritti al capitolo 5 del report
+	- `HandInital.m` Calcolo delle condizioni iniziali dati i 5 parametri descritti al capitolo 6 del report
 	- `FinalReport.m` Viene data una descrizione della traiettoria eseguita
 	- `CheckBoomInfo.m` Funzione che permette di controllare se la funzione struct BoomInfo è stata creata correttamente
 	- `Blender.m` Viene salvata un file .mat utile per visualizzare la traiettoria su blender
@@ -47,7 +48,7 @@ Xboom è un programma sviluppato su matlab capace di simulare la traiettoria di 
 	- `quatToEuler.m` dai quaternioni agli angoli di Eulero
 	- `quatToAtt.m` dai quaternioni alla matrice di attitude To
 	- `EventsQUAT.m` funzione evento per capire se il boomerang è arrivato a terra o tornato indietro
-	- `EventsAntiSheronQUAT.m` funzione evento per evitare la creazione di traiettorie con più anelli 	 chiusi
+	- `EventsAntiSheronQUAT.m` funzione evento per evitare la creazione di traiettorie con più anelli chiusi
 	- `Eul_Quat.m` dagli angoli di Eulero ai quaternioni
 	- `EquationOfMotionsQuaternion_IND.m` equazioni di moto con velocità indotta
 	- `EquationOfMotionsQuaternion.m` equazioni di moto senza velocità indotta
@@ -59,8 +60,8 @@ Xboom è un programma sviluppato su matlab capace di simulare la traiettoria di 
 	- `Boom3DShapes.m` viene creata la geometria 3D del boomerang
 	- `Boom3DShape_VALIDAZIONE_BOOMERANG` modifica con calettamento del boomerang per la validazione
 	- `AerCenter.m` calcola la posizione del centro aerodinamico di un profilo
-	- _3DSOlidGeneration  @AuthorExternal funzioni chiave per il calcolo delle proprietà di massa del 	 boomerang
-7. _Aero cartella contente le funzioni riguardanti il modello geometrico
+	- _3DSOlidGeneration  @AuthorExternal funzioni chiave per il calcolo delle proprietà di massa del boomerang
+7. _Aero cartella contente le funzioni riguardanti il modello aerodinamico
 	- `Xfoil.m` @AuthorExternal avvia @XFOIL e ricava i risultati
 	- `xfoil.exe` @Xfoil
 	- `t.m` funzione raccordo tra estrapolante e cl alpha
